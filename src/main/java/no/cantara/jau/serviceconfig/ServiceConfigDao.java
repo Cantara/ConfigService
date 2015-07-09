@@ -1,4 +1,4 @@
-package no.cantara.jau;
+package no.cantara.jau.serviceconfig;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.

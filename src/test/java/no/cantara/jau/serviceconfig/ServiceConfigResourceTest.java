@@ -1,4 +1,4 @@
-package no.cantara.jau;
+package no.cantara.jau.serviceconfig;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;

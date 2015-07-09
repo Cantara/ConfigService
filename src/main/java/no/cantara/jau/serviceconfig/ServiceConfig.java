@@ -1,4 +1,4 @@
-package no.cantara.jau;
+package no.cantara.jau.serviceconfig;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +38,9 @@ public class ServiceConfig {
         this.downloadItems = new ArrayList<>();
     }
 
+    public void addDownloadItem(DownloadItem downloadItem) {
+        downloadItems.add(downloadItem);
+    }
 
 
     public void setName(String name) {

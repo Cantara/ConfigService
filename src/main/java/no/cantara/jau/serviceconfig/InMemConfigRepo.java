@@ -1,4 +1,4 @@
-package no.cantara.jau;
+package no.cantara.jau.serviceconfig;
 
 import org.springframework.stereotype.Service;
 
@@ -18,8 +18,12 @@ public class InMemConfigRepo implements ServiceConfigDao {
     }
 
     private void addTestData() {
-        addOrUpdateConfig("clientid1", new ServiceConfig("Service1-1.23"));
+        NexusUrlBuilder urlBuilder = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots");
+        String url = urlBuilder.build("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT", "jar");
 
+        ServiceConfig serviceConfig = new ServiceConfig("Service1-1.23");
+        serviceConfig.addDownloadItem(new DownloadItem(url, "username", "passwordABC"));
+        addOrUpdateConfig("clientid1", serviceConfig);
     }
 
     public void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig) {
