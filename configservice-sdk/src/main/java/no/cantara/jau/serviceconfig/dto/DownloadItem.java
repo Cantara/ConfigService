@@ -7,15 +7,17 @@ public class DownloadItem {
     private String url;
     private String username;
     private String password;
+    private String filename;
 
     //for jackson
     private DownloadItem() {
     }
 
-    public DownloadItem(String url, String username, String password) {
+    public DownloadItem(String url, String username, String password, String filename) {
         this.url = url;
         this.username = username;
         this.password = password;
+        this.filename = filename;
     }
 
     public void setUrl(String url) {
@@ -27,6 +29,9 @@ public class DownloadItem {
     public void setPassword(String password) {
         this.password = password;
     }
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
     public String getUrl() {
         return url;
@@ -37,6 +42,9 @@ public class DownloadItem {
     public String getPassword() {
         return password;
     }
+    public String getFilename() {
+        return filename;
+    }
 
     @Override
     public String toString() {
@@ -44,6 +52,7 @@ public class DownloadItem {
                 "url='" + url + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", filename='" + filename + '\'' +
                 '}';
     }
 }

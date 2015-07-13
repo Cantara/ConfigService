@@ -22,10 +22,15 @@ public class InMemConfigRepo implements ServiceConfigDao {
 
     private void addTestData() {
         NexusUrlBuilder urlBuilder = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots");
-        String url = urlBuilder.build("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT", "jar");
+        String artifactId = "UserAdminService";
+        String version = "2.1-SNAPSHOT";
+        String packaging = "jar";
+        String filename = artifactId + "-" + version + "." + packaging;
+        String url = urlBuilder.build("net.whydah.identity", artifactId, version, packaging);
 
         ServiceConfig serviceConfig = new ServiceConfig("Service1-1.23");
-        serviceConfig.addDownloadItem(new DownloadItem(url, "username", "passwordABC"));
+        serviceConfig.addDownloadItem(new DownloadItem(url, "username", "passwordABC", filename));
+        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + filename);
         addOrUpdateConfig("clientid1", serviceConfig);
     }
 

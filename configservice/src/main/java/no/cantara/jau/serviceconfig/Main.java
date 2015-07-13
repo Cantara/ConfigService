@@ -31,7 +31,7 @@ public class Main {
     public Main(Integer webappPort) {
         this.webappPort = webappPort;
         //log.info("Starting Jetty on port {}", webappPort);
-        this.server = new Server(webappPort);
+        this.server = new Server(this.webappPort);
 
         URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
         this.resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
