@@ -1,5 +1,7 @@
 package no.cantara.jau.serviceconfig;
 
+import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+import no.cantara.jau.serviceconfig.dto.ServiceConfigSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package no.cantara.jau.serviceconfig;
 
+import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */

@@ -20,7 +20,7 @@ import java.util.logging.LogManager;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09
  */
 public class Main {
-    public static final String CONTEXT_PATH = "/uib";
+    public static final String CONTEXT_PATH = "/jau";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private int webappPort;

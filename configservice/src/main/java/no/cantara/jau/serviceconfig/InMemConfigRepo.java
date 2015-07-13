@@ -1,5 +1,8 @@
 package no.cantara.jau.serviceconfig;
 
+import no.cantara.jau.serviceconfig.dto.DownloadItem;
+import no.cantara.jau.serviceconfig.dto.NexusUrlBuilder;
+import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

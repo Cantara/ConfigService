@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.serviceconfig.dto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

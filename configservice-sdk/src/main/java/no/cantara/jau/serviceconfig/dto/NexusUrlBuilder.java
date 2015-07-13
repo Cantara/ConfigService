@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.serviceconfig.dto;
 
 import java.text.MessageFormat;
 

@@ -2,6 +2,8 @@ package no.cantara.jau.serviceconfig;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
+import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+import no.cantara.jau.serviceconfig.dto.ServiceConfigSerializer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

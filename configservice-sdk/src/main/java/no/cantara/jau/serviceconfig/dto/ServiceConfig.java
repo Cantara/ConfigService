@@ -1,4 +1,6 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.serviceconfig.dto;
+
+import no.cantara.jau.serviceconfig.dto.DownloadItem;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;

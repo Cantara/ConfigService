@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.serviceconfig.dto;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
@@ -36,5 +36,14 @@ public class DownloadItem {
     }
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String toString() {
+        return "DownloadItem{" +
+                "url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
