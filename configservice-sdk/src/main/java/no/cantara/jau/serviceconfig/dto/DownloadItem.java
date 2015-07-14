@@ -7,7 +7,7 @@ public class DownloadItem {
     public String url;
     public String username;
     public String password;
-    public String filename;
+    private String filename;
 
     public MavenMetadata metadata;
 
@@ -26,6 +26,16 @@ public class DownloadItem {
         this.username = username;
         this.password = password;
         this.metadata = metadata;
+    }
+
+    public String filename() {
+        if (filename != null) {
+            return filename;
+        }
+        if (metadata != null) {
+            return metadata.filename();
+        }
+        return null;
     }
 
     @Override

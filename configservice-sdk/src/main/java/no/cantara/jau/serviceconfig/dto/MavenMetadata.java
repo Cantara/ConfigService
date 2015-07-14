@@ -16,9 +16,7 @@ public class MavenMetadata {
     }
 
     public MavenMetadata(String groupId, String artifactId, String version) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
+       this(groupId, artifactId, version, "jar");
     }
     public MavenMetadata(String groupId, String artifactId, String version, String packaging) {
         this.groupId = groupId;
