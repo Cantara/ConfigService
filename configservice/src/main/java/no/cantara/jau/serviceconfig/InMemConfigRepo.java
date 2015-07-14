@@ -1,6 +1,7 @@
 package no.cantara.jau.serviceconfig;
 
 import no.cantara.jau.serviceconfig.dto.DownloadItem;
+import no.cantara.jau.serviceconfig.dto.MavenMetadata;
 import no.cantara.jau.serviceconfig.dto.NexusUrlBuilder;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 import org.springframework.stereotype.Service;
@@ -21,16 +22,13 @@ public class InMemConfigRepo implements ServiceConfigDao {
     }
 
     private void addTestData() {
-        NexusUrlBuilder urlBuilder = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots");
-        String artifactId = "UserAdminService";
-        String version = "2.1-SNAPSHOT";
-        String packaging = "jar";
-        String filename = artifactId + "-" + version + "." + packaging;
-        String url = urlBuilder.build("net.whydah.identity", artifactId, version, packaging);
+        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT");
+        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots").build(metadata);
+        DownloadItem downloadItem = new DownloadItem(url, "username", "passwordABC", metadata);
 
         ServiceConfig serviceConfig = new ServiceConfig("Service1-1.23");
-        serviceConfig.addDownloadItem(new DownloadItem(url, "username", "passwordABC", filename));
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + filename);
+        serviceConfig.addDownloadItem(downloadItem);
+        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename);
         addOrUpdateConfig("clientid1", serviceConfig);
     }
 

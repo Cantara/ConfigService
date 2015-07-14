@@ -21,6 +21,12 @@ public class NexusUrlBuilder {
      * Output example: http://mvnrepo.cantara.no/service/local/artifact/maven/redirect?r=snapshots&g=net.whydah.identity&a=UserAdminService&v=2.1-SNAPSHOT&p=jar
      */
     public String build(String groupId, String artifactId, String version, String packaging) {
-        return baseUrl + REST_PATH + ART_REDIR + MessageFormat.format("?r={0}&g={1}&a={2}&v={3}&p={4}", repo, groupId, artifactId, version, packaging);
+        String theRest = MessageFormat.format("?r={0}&g={1}&a={2}&v={3}&p={4}", repo, groupId, artifactId, version, packaging);
+        return baseUrl + REST_PATH + ART_REDIR + theRest;
+    }
+
+    public String build(MavenMetadata metadata) {
+        String theRest = MessageFormat.format("?r={0}&g={1}&a={2}&v={3}&p={4}", repo, metadata.groupId, metadata.artifactId, metadata.version, metadata.packaging);
+        return baseUrl + REST_PATH + ART_REDIR + theRest;
     }
 }

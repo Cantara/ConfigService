@@ -4,10 +4,12 @@ package no.cantara.jau.serviceconfig.dto;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 public class DownloadItem {
-    private String url;
-    private String username;
-    private String password;
-    private String filename;
+    public String url;
+    public String username;
+    public String password;
+    public String filename;
+
+    public MavenMetadata metadata;
 
     //for jackson
     private DownloadItem() {
@@ -19,31 +21,11 @@ public class DownloadItem {
         this.password = password;
         this.filename = filename;
     }
-
-    public void setUrl(String url) {
+    public DownloadItem(String url, String username, String password, MavenMetadata metadata) {
         this.url = url;
-    }
-    public void setUsername(String username) {
         this.username = username;
-    }
-    public void setPassword(String password) {
         this.password = password;
-    }
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public String getFilename() {
-        return filename;
+        this.metadata = metadata;
     }
 
     @Override
