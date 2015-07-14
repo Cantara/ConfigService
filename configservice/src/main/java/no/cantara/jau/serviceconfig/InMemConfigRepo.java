@@ -24,13 +24,14 @@ public class InMemConfigRepo implements ServiceConfigDao {
     private void addTestData() {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, "username", "passwordABC", metadata);
+        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
 
         ServiceConfig serviceConfig = new ServiceConfig("Service1-1.23");
         serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename);
+        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         addOrUpdateConfig("clientid1", serviceConfig);
     }
+
 
     public void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig) {
         repo.put(clientId, serviceConfig);
