@@ -20,9 +20,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.servlet</artifactId>
-            <version>3.0</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
@@ -54,7 +54,6 @@
             <artifactId>spring-beans</artifactId>
             <version>${spring.version}</version>
             <exclusions>
-                <!-- use jcl over slf4j instead -->
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -89,7 +88,7 @@
             <version>2.2.2</version>
         </dependency>
 
-        <!-- Flyway 3.2, httpclient and spring use Commons logging -->
+        <!-- spring use Commons logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -99,12 +98,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <!-- HSQLDB use log4j -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
@@ -154,8 +147,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>
-                <!-- Override 2.0 set in parent -->
                 <configuration>
                     <filters>
                         <filter>
@@ -167,7 +158,6 @@
                             </excludes>
                         </filter>
                     </filters>
-                    <!-- Additional configuration. -->
                 </configuration>
                 <executions>
                     <execution>
@@ -187,13 +177,6 @@
                                     </excludes>
                                 </filter>
                             </filters>
-			    <!--	
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>junit:junit</exclude>
-                                </excludes>
-                            </artifactSet>
-			    -->
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
