@@ -29,6 +29,7 @@ public class ServiceConfigResource {
     }
 
 
+    //http://localhost:7000/jau/serviceconfig/query?clientid=clientid1
     /**
      * @param clientid  unique id of client which query for config
      * @return  a representation of ServiceConfig for this client
