@@ -12,13 +12,26 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-13.
  */
 public class DownloadUtil {
     private static final Logger log = LoggerFactory.getLogger(DownloadUtil.class);
+
+    public static List<Path> downloadAllFiles(List<DownloadItem> downloadItems, String targetDirectory) {
+        Path path;
+        List<Path> paths = new ArrayList<>(downloadItems.size());
+        for (DownloadItem downloadItem : downloadItems) {
+            log.debug("Downloading {}", downloadItem);
+            path = downloadFile(downloadItem, targetDirectory);
+            paths.add(path);
+        }
+        return paths;
+    }
 
     public static Path downloadFile(DownloadItem downloadItem, String targetDirectory) {
         return downloadFile(downloadItem.url, downloadItem.filename(), downloadItem.username, downloadItem.password, targetDirectory);

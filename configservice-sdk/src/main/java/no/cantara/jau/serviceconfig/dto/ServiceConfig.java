@@ -1,7 +1,5 @@
 package no.cantara.jau.serviceconfig.dto;
 
-import no.cantara.jau.serviceconfig.dto.DownloadItem;
-
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,6 +26,8 @@ public class ServiceConfig {
      */
     private String changedTimestamp;
     private List<DownloadItem> downloadItems;
+    private List<NamedPropertiesStore> configurationStores;
+
     private String startServiceScript;
 
     //for jackson
@@ -38,10 +38,16 @@ public class ServiceConfig {
         this.name = name;
         this.changedTimestamp = df.format(Instant.now());
         this.downloadItems = new ArrayList<>();
+        this.configurationStores = new ArrayList<>();
+
     }
 
     public void addDownloadItem(DownloadItem downloadItem) {
         downloadItems.add(downloadItem);
+    }
+
+    public void addPropertiesStore(NamedPropertiesStore propertiesStore) {
+        configurationStores.add(propertiesStore);
     }
 
 
@@ -67,6 +73,9 @@ public class ServiceConfig {
     public List<DownloadItem> getDownloadItems() {
         return downloadItems;
     }
+    public List<NamedPropertiesStore> getConfigurationStores() {
+        return configurationStores;
+    }
     public String getStartServiceScript() {
         return startServiceScript;
     }
@@ -80,4 +89,6 @@ public class ServiceConfig {
                 ", startServiceScript='" + startServiceScript + '\'' +
                 '}';
     }
+
+
 }
