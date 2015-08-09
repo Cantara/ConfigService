@@ -57,8 +57,6 @@ public class Main {
                 .done()
                 .getConfiguration();
 
-        String version = Main.class.getPackage().getImplementationVersion();
-
         log.info("Starting ConfigService");
         try {
             Integer webappPort = configuration.evaluateToInt("service.port");
@@ -73,7 +71,7 @@ public class Main {
 
             main.start();
             main.join();
-            log.info("ConfigService version:{} started on port {}.", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("ConfigService started on port {}.", webappPort + " context-path:" + CONTEXT_PATH);
 
             try {
                 // wait forever...

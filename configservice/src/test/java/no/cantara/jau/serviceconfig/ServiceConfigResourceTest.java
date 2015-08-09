@@ -35,10 +35,25 @@ public class ServiceConfigResourceTest {
 
     //expect there to be a clientConfig with clientId=client1
     @Test
+    public void testFindServiceConfigUnAuthorized() throws Exception {
+        //GET
+        String path = "/serviceconfig/query";
+        Response response = given()
+                .queryParam("clientid", "clientid1")
+                .log().everything()
+                .expect()
+                .statusCode(401)
+                .log().ifError()
+                .when()
+                .get(path);
+    }
+
+    @Test
     public void testFindServiceConfigOK() throws Exception {
         //GET
         String path = "/serviceconfig/query";
         Response response = given()
+                .auth().basic("read", "baretillesing")
                 .queryParam("clientid", "clientid1")
                 .log().everything()
                 .expect()
