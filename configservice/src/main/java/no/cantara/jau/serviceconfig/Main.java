@@ -3,10 +3,15 @@ package no.cantara.jau.serviceconfig;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +96,22 @@ public class Main {
         webAppContext.setResourceBase(resourceBase);
         webAppContext.setContextPath(CONTEXT_PATH);
         webAppContext.setParentLoaderPriority(true);
+
+
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__BASIC_AUTH);
+        constraint.setRoles(new String[]{"user"});
+        constraint.setAuthenticate(true);
+        ConstraintMapping constraintMapping = new ConstraintMapping();
+        constraintMapping.setConstraint(constraint);
+        constraintMapping.setPathSpec("/*");
+        ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
+        securityHandler.addConstraintMapping(constraintMapping);
+        HashLoginService loginService = new HashLoginService("ConfigService");
+        //loginService.setConfig("src/main/resources/authentication.properties");       //not working!
+        loginService.putUser("read", new Password("baretillesing"), new String[]{"user"});
+        securityHandler.setLoginService(loginService);
+        webAppContext.setSecurityHandler(securityHandler);
 
         HandlerList handlers = new HandlerList();
         Handler[] handlerList = {webAppContext, new DefaultHandler()};
