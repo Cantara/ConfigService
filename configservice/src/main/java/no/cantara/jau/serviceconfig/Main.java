@@ -6,18 +6,18 @@ import org.constretto.model.Resource;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.request.RequestContextListener;
 
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -30,7 +30,7 @@ public class Main {
 
     private int webappPort;
     private Server server;
-    private String resourceBase;
+    //private String resourceBase;
 
 
     public Main(Integer webappPort) {
@@ -38,8 +38,8 @@ public class Main {
         //log.info("Starting Jetty on port {}", webappPort);
         this.server = new Server(this.webappPort);
 
-        URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
-        this.resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
+        //URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
+        //this.resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
     }
 
 
@@ -59,7 +59,7 @@ public class Main {
 
         String version = Main.class.getPackage().getImplementationVersion();
 
-        log.info("Starting ServiceConfig");
+        log.info("Starting ConfigService");
         try {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
@@ -73,7 +73,7 @@ public class Main {
 
             main.start();
             main.join();
-            log.info("ServiceConfig version:{} started on port {}.", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("ConfigService version:{} started on port {}.", version, webappPort + " context-path:" + CONTEXT_PATH);
 
             try {
                 // wait forever...
@@ -89,15 +89,51 @@ public class Main {
         }
     }
 
+    // https://github.com/psamsotha/jersey-spring-jetty/blob/master/src/main/java/com/underdog/jersey/spring/jetty/JettyServerMain.java
     public void start()  {
-        WebAppContext webAppContext = new WebAppContext();
-        log.debug("Start Jetty using resourcebase={}", resourceBase);
-        webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");
-        webAppContext.setResourceBase(resourceBase);
-        webAppContext.setContextPath(CONTEXT_PATH);
-        webAppContext.setParentLoaderPriority(true);
+        //WebAppContext context = new WebAppContext();
+        ServletContextHandler context = new ServletContextHandler();
+        //log.debug("Start Jetty using resourcebase={}", resourceBase);
+        //webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");
+        //webAppContext.setResourceBase(resourceBase);
+        context.setContextPath(CONTEXT_PATH);
+        //webAppContext.setParentLoaderPriority(true);
 
 
+        ConstraintSecurityHandler securityHandler = buildSecurityHandler();
+        context.setSecurityHandler(securityHandler);
+
+        JerseyApplication jerseyResourceConfig = new JerseyApplication();
+        ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(jerseyResourceConfig));
+        context.addServlet(jerseyServlet, "/*");
+
+        context.addEventListener(new ContextLoaderListener());
+        context.addEventListener(new RequestContextListener());
+
+        //context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
+        context.setInitParameter("contextConfigLocation", "classpath:context.xml");
+
+
+        server.setHandler(context);
+        /*
+        HandlerList handlers = new HandlerList();
+        Handler[] handlerList = {webAppContext, new DefaultHandler()};
+        handlers.setHandlers(handlerList);
+        server.setHandler(handlers);
+        */
+
+
+        try {
+            server.start();
+        } catch (Exception e) {
+            log.error("Error during Jetty startup. Exiting", e);
+            System.exit(2);
+        }
+        int localPort = getPort();
+        log.info("Jetty server started on http://localhost:{}{}", localPort, CONTEXT_PATH);
+    }
+
+    private ConstraintSecurityHandler buildSecurityHandler() {
         Constraint constraint = new Constraint();
         constraint.setName(Constraint.__BASIC_AUTH);
         constraint.setRoles(new String[]{"user"});
@@ -111,22 +147,7 @@ public class Main {
         //loginService.setConfig("src/main/resources/authentication.properties");       //not working!
         loginService.putUser("read", new Password("baretillesing"), new String[]{"user"});
         securityHandler.setLoginService(loginService);
-        webAppContext.setSecurityHandler(securityHandler);
-
-        HandlerList handlers = new HandlerList();
-        Handler[] handlerList = {webAppContext, new DefaultHandler()};
-        handlers.setHandlers(handlerList);
-        server.setHandler(handlers);
-
-
-        try {
-            server.start();
-        } catch (Exception e) {
-            log.error("Error during Jetty startup. Exiting", e);
-            System.exit(2);
-        }
-        int localPort = getPort();
-        log.info("Jetty server started on http://localhost:{}{}", localPort, CONTEXT_PATH);
+        return securityHandler;
     }
 
 
