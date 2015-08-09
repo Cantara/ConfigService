@@ -11,6 +11,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class Main {
 
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
-                .addResource(Resource.create("classpath:configservice.properties"))
-                .addResource(Resource.create("file:./configservice_override.properties"))
+                .addResource(Resource.create("classpath:config.properties"))
+                .addResource(Resource.create("file:./config_override.properties"))
                 .done()
                 .getConfiguration();
 
@@ -102,7 +103,8 @@ public class Main {
         ConstraintSecurityHandler securityHandler = buildSecurityHandler();
         context.setSecurityHandler(securityHandler);
 
-        JerseyApplication jerseyResourceConfig = new JerseyApplication();
+        ResourceConfig jerseyResourceConfig = new ResourceConfig();
+        jerseyResourceConfig.packages("no.cantara.jau");
         ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(jerseyResourceConfig));
         context.addServlet(jerseyServlet, "/*");
 

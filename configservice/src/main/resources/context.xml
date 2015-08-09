@@ -12,8 +12,8 @@
     <constretto:configuration>
         <constretto:stores>
             <constretto:properties-store>
-                <constretto:resource location="classpath:configservice.properties"/>
-                <constretto:resource location="file:./configservice_override.properties"/>
+                <constretto:resource location="classpath:config.properties"/>
+                <constretto:resource location="file:./config_override.properties"/>
             </constretto:properties-store>
         </constretto:stores>
     </constretto:configuration>
