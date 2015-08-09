@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -108,7 +107,7 @@ public class Main {
         context.addServlet(jerseyServlet, "/*");
 
         context.addEventListener(new ContextLoaderListener());
-        context.addEventListener(new RequestContextListener());
+        //context.addEventListener(new RequestContextListener());
 
         //context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
         context.setInitParameter("contextConfigLocation", "classpath:context.xml");
