@@ -58,8 +58,10 @@ public class Main {
                 .getConfiguration();
 
         log.info("Starting ConfigService");
+        Integer webappPort = configuration.evaluateToInt("service.port");
+
         try {
-            Integer webappPort = configuration.evaluateToInt("service.port");
+
             final Main main = new Main(webappPort);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -70,15 +72,15 @@ public class Main {
             });
 
             main.start();
-            main.join();
-            log.info("ConfigService started on port {}.", webappPort + " context-path:" + CONTEXT_PATH);
 
+            /*
             try {
                 // wait forever...
                 Thread.currentThread().join();
             } catch (InterruptedException ie) {
                 log.warn("Thread was interrupted.", ie);
             }
+            */
             log.debug("Finished waiting for Thread.currentThread().join()");
             main.stop();
         } catch (RuntimeException e) {
@@ -129,7 +131,12 @@ public class Main {
             System.exit(2);
         }
         int localPort = getPort();
-        log.info("Jetty server started on http://localhost:{}{}", localPort, CONTEXT_PATH);
+        log.info("ConfigService started on http://localhost:{}{}", localPort, CONTEXT_PATH);
+        try {
+            server.join();
+        } catch (InterruptedException e) {
+            log.error("Jetty server thread when join. Pretend everything is OK.", e);
+        }
     }
 
     private ConstraintSecurityHandler buildSecurityHandler() {
@@ -155,14 +162,6 @@ public class Main {
             server.stop();
         } catch (Exception e) {
             log.warn("Error when stopping Jetty server", e);
-        }
-    }
-
-    public void join() {
-        try {
-            server.join();
-        } catch (InterruptedException e) {
-            log.error("Jetty server thread when join. Pretend everything is OK.", e);
         }
     }
 
