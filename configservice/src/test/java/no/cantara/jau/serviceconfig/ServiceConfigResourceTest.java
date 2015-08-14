@@ -17,11 +17,17 @@ import static org.testng.Assert.assertNotNull;
  */
 public class ServiceConfigResourceTest {
     private Main main;
+    private final String username = "read";
+    private final String password= "baretillesing";
+
 
     @BeforeClass
-    public void startServer() {
-        main = new Main(6644);
-        main.start();
+    public void startServer() throws InterruptedException {
+        new Thread(() -> {
+            main = new Main(6644);
+            main.start();
+        }).start();
+        Thread.sleep(1000);
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }
@@ -53,7 +59,7 @@ public class ServiceConfigResourceTest {
         //GET
         String path = "/serviceconfig/query";
         Response response = given()
-                .auth().basic("read", "baretillesing")
+                .auth().basic(username, password)
                 .queryParam("clientid", "clientid1")
                 .log().everything()
                 .expect()
