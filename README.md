@@ -53,3 +53,18 @@ sudo docker stop $(sudo docker ps -a -q) && sudo docker rm $(sudo docker ps -a -
 sudo docker exec -it configservice3107 bash
 ```
 
+## How to use ConfigService.
+
+### Add a new software version
+
+### Add a new software configuration
+
+### Update a specific client
+
+### Rollback a specific client
+
+### Update all clients of an application
+
+
+### Browse active client status
+
