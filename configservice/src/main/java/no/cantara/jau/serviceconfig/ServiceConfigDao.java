@@ -8,4 +8,6 @@ import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 public interface ServiceConfigDao {
     void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig);
     ServiceConfig findConfig(String clientId);
+
+    ServiceConfig create(ServiceConfig newServiceConfig);
 }

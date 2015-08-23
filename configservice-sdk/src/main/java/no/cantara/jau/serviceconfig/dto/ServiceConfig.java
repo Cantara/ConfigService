@@ -11,6 +11,8 @@ import java.util.List;
 public class ServiceConfig {
     private static final DateTimeFormatter df = DateTimeFormatter.ISO_INSTANT;
 
+    private String id;
+
     /**
      * Human readable name of this service config.
      * For example "artifactId-version" of executable jar file.
@@ -51,6 +53,9 @@ public class ServiceConfig {
     }
 
 
+    public void setId(String id) {
+        this.id = id;
+    }
     public void setName(String name) {
         this.name = name;
     }
@@ -64,6 +69,9 @@ public class ServiceConfig {
         this.startServiceScript = startServiceScript;
     }
 
+    public String getId() {
+        return id;
+    }
     public String getName() {
         return name;
     }

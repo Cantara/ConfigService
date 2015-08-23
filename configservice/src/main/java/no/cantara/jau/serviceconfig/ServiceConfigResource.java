@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -28,6 +25,32 @@ public class ServiceConfigResource {
         this.serviceConfigDao = serviceConfigDao;
     }
 
+    @POST
+    @Path("/")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createServiceConfig(String json) {
+        log.trace("createServiceConfig");
+
+        ServiceConfig newServiceConfig;
+        try {
+            newServiceConfig = ServiceConfigSerializer.fromJson(json);
+        } catch (RuntimeException e) {
+            Response.Status status = Response.Status.BAD_REQUEST;
+            log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
+            return Response.status(status).build();
+        }
+
+        try {
+            ServiceConfig persistedServiceConfig = serviceConfigDao.create(newServiceConfig);
+            String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
+            return Response.ok(jsonResult).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
     /**
@@ -37,6 +60,7 @@ public class ServiceConfigResource {
     @GET
     @Path("/query")
     @Produces(MediaType.APPLICATION_JSON)
+    @Deprecated //use /clientconfig/{clientId} instead 
     public Response findServiceConfig(@QueryParam("clientid") String clientid) {
         log.trace("findServiceConfig with clientid={}", clientid);
         try {

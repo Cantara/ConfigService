@@ -1,9 +1,9 @@
 package no.cantara.jau.serviceconfig;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import no.cantara.jau.serviceconfig.dto.ServiceConfig;
-import no.cantara.jau.serviceconfig.dto.ServiceConfigSerializer;
+import no.cantara.jau.serviceconfig.dto.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,6 +38,35 @@ public class ServiceConfigResourceTest {
             main.stop();
         }
     }
+
+    @Test
+    public void testCreateServiceConfig() {
+        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
+        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
+        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
+
+        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
+        serviceConfig.addDownloadItem(downloadItem);
+        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
+
+        String path = "/serviceconfig";
+        String jsonRequest = ServiceConfigSerializer.toJson(serviceConfig);
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(jsonRequest)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .post(path);
+
+        String jsonResponse = response.body().asString();
+        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
+        assertNotNull(serviceConfigResponse.getId());
+    }
+
 
     //expect there to be a clientConfig with clientId=client1
     @Test
