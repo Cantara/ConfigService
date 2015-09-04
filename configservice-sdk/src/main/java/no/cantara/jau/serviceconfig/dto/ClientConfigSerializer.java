@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
+@Deprecated
 public class ClientConfigSerializer {
     private static final Logger log = LoggerFactory.getLogger(ClientConfigSerializer.class);
     private static final ObjectMapper mapper = new ObjectMapper();
