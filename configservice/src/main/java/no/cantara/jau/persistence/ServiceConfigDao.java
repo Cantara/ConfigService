@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.persistence;
 
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 
@@ -10,4 +10,6 @@ public interface ServiceConfigDao {
     ServiceConfig findConfig(String clientId);
 
     ServiceConfig create(ServiceConfig newServiceConfig);
+
+    ServiceConfig findByArtifactId(String artifactId);
 }

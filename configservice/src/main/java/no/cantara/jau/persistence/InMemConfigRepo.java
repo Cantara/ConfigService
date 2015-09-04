@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.persistence;
 
 import no.cantara.jau.serviceconfig.dto.DownloadItem;
 import no.cantara.jau.serviceconfig.dto.MavenMetadata;
@@ -16,11 +16,11 @@ import java.util.UUID;
 @Service
 public class InMemConfigRepo implements ServiceConfigDao {
     private final Map<String, ServiceConfig> configs;
-    private final Map<String, String> clientToConfigMapping;
+    private final Map<String, String> artifactIdToServiceConfigIdMapping;
 
     public InMemConfigRepo() {
         this.configs = new HashMap<>();
-        this.clientToConfigMapping = new HashMap<>();
+        this.artifactIdToServiceConfigIdMapping = new HashMap<>();
         addTestData();
     }
 
@@ -31,11 +31,20 @@ public class InMemConfigRepo implements ServiceConfigDao {
         return newServiceConfig;
     }
 
+    @Override
+    public ServiceConfig findByArtifactId(String artifactId) {
+        String serviceConfigId = artifactIdToServiceConfigIdMapping.get(artifactId);
+        if (serviceConfigId == null) {
+            return null;
+        }
+        return configs.get(serviceConfigId);
+    }
+
     public void update(ServiceConfig newServiceConfig) {
         configs.put(newServiceConfig.getId(), newServiceConfig);
     }
 
-    public void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig) {
+    public void addOrUpdateConfig(String artifactId, ServiceConfig serviceConfig) {
         String serviceConfigId = serviceConfig.getId();
         if (serviceConfigId == null) {
             ServiceConfig persistedServiceConfig = create(serviceConfig);
@@ -44,12 +53,13 @@ public class InMemConfigRepo implements ServiceConfigDao {
             update(serviceConfig);
         }
 
-        clientToConfigMapping.put(clientId, serviceConfigId);
+        artifactIdToServiceConfigIdMapping.put(artifactId, serviceConfigId);
     }
 
     //Should probably be moved to somewhere else.
+    @Deprecated
     public ServiceConfig findConfig(String clientId) {
-        String serviceConfigId = clientToConfigMapping.get(clientId);
+        String serviceConfigId = artifactIdToServiceConfigIdMapping.get(clientId);
         if (serviceConfigId == null) {
             return null;
         }
@@ -65,6 +75,6 @@ public class InMemConfigRepo implements ServiceConfigDao {
         ServiceConfig serviceConfig = new ServiceConfig("Service1-1.23");
         serviceConfig.addDownloadItem(downloadItem);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-        addOrUpdateConfig("clientid1", serviceConfig);
+        addOrUpdateConfig("UserAdminService", serviceConfig);
     }
 }

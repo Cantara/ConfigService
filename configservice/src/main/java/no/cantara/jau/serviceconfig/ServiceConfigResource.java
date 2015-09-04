@@ -1,5 +1,6 @@
 package no.cantara.jau.serviceconfig;
 
+import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 import no.cantara.jau.serviceconfig.dto.ServiceConfigSerializer;
 import org.slf4j.Logger;

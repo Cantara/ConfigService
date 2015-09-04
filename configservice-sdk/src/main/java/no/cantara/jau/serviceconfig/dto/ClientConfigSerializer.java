@@ -9,29 +9,29 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Responsible for serializing ServiceConfig to/from json and xml.
+ * Responsible for serializing ClientConfig to/from json and xml.
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-public class ServiceConfigSerializer {
-    private static final Logger log = LoggerFactory.getLogger(ServiceConfigSerializer.class);
+public class ClientConfigSerializer {
+    private static final Logger log = LoggerFactory.getLogger(ClientConfigSerializer.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static String toJson(ServiceConfig serviceConfig) {
+    public static String toJson(ClientConfig clientConfig) {
         String createdJson = null;
         try {
-            createdJson = mapper.writeValueAsString(serviceConfig);
+            createdJson = mapper.writeValueAsString(clientConfig);
         } catch (IOException e) {
-            log.warn("Could not convert to Json {}", serviceConfig.toString());
+            log.warn("Could not convert to Json {}", clientConfig.toString());
         }
         return createdJson;
     }
 
     //list of serviceConfig data, no wrapping element. Need to decide.
-    public static String toJson(List<ServiceConfig> serviceConfigs) {
+    public static String toJson(List<ClientConfig> clientConfigs) {
         String createdJson = null;
         try {
-            createdJson = mapper.writeValueAsString(serviceConfigs);
+            createdJson = mapper.writeValueAsString(clientConfigs);
         } catch (IOException e) {
             log.warn("Could not convert to Json.");
         }
@@ -40,19 +40,19 @@ public class ServiceConfigSerializer {
 
 
     //Should probably use JsonPath
-    public static ServiceConfig fromJson(String json) {
+    public static ClientConfig fromJson(String json) {
         try {
-            ServiceConfig serviceConfig = mapper.readValue(json, ServiceConfig.class);
-            return serviceConfig;
+            ClientConfig clientConfig = mapper.readValue(json, ClientConfig.class);
+            return clientConfig;
         } catch (IOException e) {
             throw new IllegalArgumentException("Error mapping json for " + json, e);
         }
     }
 
-    public static List<ServiceConfig> fromJsonList(String json) {
+    public static List<ClientConfig> fromJsonList(String json) {
         try {
-            List<ServiceConfig> serviceConfigs = mapper.readValue(json, new TypeReference<List<ServiceConfig>>() { });
-            return serviceConfigs;
+            List<ClientConfig> clientConfigs = mapper.readValue(json, new TypeReference<List<ClientConfig>>() { });
+            return clientConfigs;
         } catch (IOException e) {
             throw new IllegalArgumentException("Error mapping json for " + json, e);
         }
