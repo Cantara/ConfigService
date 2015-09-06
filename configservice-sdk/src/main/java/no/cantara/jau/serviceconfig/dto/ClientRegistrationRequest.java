@@ -6,15 +6,15 @@ import java.util.Map;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-09-04.
  */
-public class ClientRegistration {
+public class ClientRegistrationRequest {
     public String artifactId;
     public Map<String, String> envInfo;
 
-    public ClientRegistration() {
+    public ClientRegistrationRequest() {
         this.envInfo = new HashMap<>();
     }
 
-    public ClientRegistration(String artifactId) {
+    public ClientRegistrationRequest(String artifactId) {
         this.artifactId = artifactId;
         this.envInfo = new HashMap<>();
     }

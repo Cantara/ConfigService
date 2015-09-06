@@ -11,23 +11,28 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
+ * This class is a mess. Should be totally redesigned after the public API is stable.
+ *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 @Service
 public class InMemConfigRepo implements ServiceConfigDao {
-    private final Map<String, ServiceConfig> configs;
+    private final Map<String, ServiceConfig> serviceConfigs;
     private final Map<String, String> artifactIdToServiceConfigIdMapping;
+    private final Map<String, String> clientIdToServiceConfigIdMapping;
+
 
     public InMemConfigRepo() {
-        this.configs = new HashMap<>();
+        this.serviceConfigs = new HashMap<>();
         this.artifactIdToServiceConfigIdMapping = new HashMap<>();
+        this.clientIdToServiceConfigIdMapping = new HashMap<>();
         addTestData();
     }
 
     @Override
     public ServiceConfig create(ServiceConfig newServiceConfig) {
         newServiceConfig.setId(UUID.randomUUID().toString());
-        configs.put(newServiceConfig.getId(), newServiceConfig);
+        serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
         return newServiceConfig;
     }
 
@@ -37,11 +42,26 @@ public class InMemConfigRepo implements ServiceConfigDao {
         if (serviceConfigId == null) {
             return null;
         }
-        return configs.get(serviceConfigId);
+        return serviceConfigs.get(serviceConfigId);
     }
 
+    @Override
+    public void registerClient(String clientId, String serviceConfigId) {
+        clientIdToServiceConfigIdMapping.put(clientId, serviceConfigId);
+    }
+
+    @Override
+    public ServiceConfig findByClientId(String clientId) {
+        String serviceConfigId = clientIdToServiceConfigIdMapping.get(clientId);
+        if (serviceConfigId == null) {
+            return null;
+        }
+        return serviceConfigs.get(serviceConfigId);
+    }
+
+
     public void update(ServiceConfig newServiceConfig) {
-        configs.put(newServiceConfig.getId(), newServiceConfig);
+        serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
     }
 
     public void addOrUpdateConfig(String artifactId, ServiceConfig serviceConfig) {
@@ -63,7 +83,7 @@ public class InMemConfigRepo implements ServiceConfigDao {
         if (serviceConfigId == null) {
             return null;
         }
-        return configs.get(serviceConfigId);
+        return serviceConfigs.get(serviceConfigId);
     }
 
 

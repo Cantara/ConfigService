@@ -1,16 +1,15 @@
 package no.cantara.jau.serviceconfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import no.cantara.jau.clientconfig.ClientConfigResource;
+import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
-import no.cantara.jau.serviceconfig.dto.ClientRegistration;
+import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static com.jayway.restassured.RestAssured.given;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 /**
@@ -18,9 +17,10 @@ import static org.testng.Assert.assertNotNull;
  */
 public class ClientConfigResourceTest {
     private Main main;
+    private String url;
     private final String username = "read";
     private final String password= "baretillesing";
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private String clientId;
 
 
     @BeforeClass
@@ -29,9 +29,10 @@ public class ClientConfigResourceTest {
             main = new Main(6644);
             main.start();
         }).start();
-        Thread.sleep(1500);
+        Thread.sleep(2000);
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
+        url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientConfigResource.CLIENTCONFIG_PATH;
     }
 
     @AfterClass
@@ -43,10 +44,12 @@ public class ClientConfigResourceTest {
 
     @Test
     public void testRegisterClient() throws Exception {
-        ClientRegistration registration = new ClientRegistration("UserAdminService");
+        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
-        String jsonRequest = mapper.writeValueAsString(registration);
 
+        ClientConfig clientConfig = ConfigServiceClient.registerClient(url, username, password, registration);
+        /*
+        String jsonRequest = mapper.writeValueAsString(registration);
         String path = "/clientconfig";
         Response response = given()
                 .auth().basic(username, password)
@@ -58,10 +61,19 @@ public class ClientConfigResourceTest {
                 .log().ifError()
                 .when()
                 .post(path);
-
         String jsonResponse = response.body().asString();
         ClientConfig clientConfig = mapper.readValue(jsonResponse, ClientConfig.class);
+        */
 
-        assertNotNull(clientConfig.clientId);
+        clientId = clientConfig.clientId;
+        assertNotNull(clientId);
+    }
+
+
+    @Test(dependsOnMethods = "testRegisterClient")
+    public void testCheckForUpdate() throws Exception {
+        ClientConfig clientConfig = ConfigServiceClient.checkForUpdate(url, username, password, clientId, "checksumHere", System.getenv());
+        assertNotNull(clientConfig);
+        assertEquals(clientConfig.clientId, clientId);
     }
 }

@@ -2,8 +2,9 @@ package no.cantara.jau.clientconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.jau.persistence.ConfigSearcher;
+import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
-import no.cantara.jau.serviceconfig.dto.ClientRegistration;
+import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,9 @@ import java.io.IOException;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
-@Path("/clientconfig")
+@Path(ClientConfigResource.CLIENTCONFIG_PATH)
 public class ClientConfigResource {
+    public static final String CLIENTCONFIG_PATH = "/clientconfig";
     private static final Logger log = LoggerFactory.getLogger(ClientConfigResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
     private final ConfigSearcher configSearcher;
@@ -40,9 +42,9 @@ public class ClientConfigResource {
 
         //Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
         //String artifactId =  JsonPath.read(document, "$.artifactId");
-        ClientRegistration registration;
+        ClientRegistrationRequest registration;
         try {
-            registration = mapper.readValue(json, ClientRegistration.class);
+            registration = mapper.readValue(json, ClientRegistrationRequest.class);
         } catch (IOException e) {
             log.error("Error parsing json. {}, json={}", e.getMessage(), json);
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
@@ -65,15 +67,34 @@ public class ClientConfigResource {
             log.warn("Could not convert to Json {}", clientConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-        return Response.ok(jsonResult).build();
+        return Response.ok(jsonResult).build(); //Switch to 201 created and set url
     }
 
     //https://github.com/Cantara/Java-Auto-Update/issues/9
     @POST
     @Path("/{clientId}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response syncClientConfig(@PathParam("clientid") String clientid) {
-        log.trace("syncClientConfig with clientid={}", clientid);
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response checkForUpdate(@PathParam("clientId") String clientId, String json) {
+        log.trace("checkForUpdates with clientId={}", clientId);
+        CheckForUpdateRequest body;
+        try {
+            body = mapper.readValue(json, CheckForUpdateRequest.class);
+        } catch (IOException e) {
+            log.error("Error parsing json. {}, json={}", e.getMessage(), json);
+            return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
+        }
+
+        ClientConfig clientConfig = configSearcher.getClientConfig(clientId, body.checksum);
+        //TODO return 204 No content if checksum is the same
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(clientConfig);
+        } catch (IOException e) {
+            log.warn("Could not convert to Json {}", clientConfig.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(jsonResult).build();
     }
 }

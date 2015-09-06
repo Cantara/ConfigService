@@ -12,4 +12,7 @@ public interface ServiceConfigDao {
     ServiceConfig create(ServiceConfig newServiceConfig);
 
     ServiceConfig findByArtifactId(String artifactId);
+
+    void registerClient(String clientId, String serviceConfigId);
+    ServiceConfig findByClientId(String clientId);
 }
