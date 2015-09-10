@@ -59,10 +59,9 @@ public class ServiceConfigResource {
      * @return  a representation of ServiceConfig for this client
      */
     @GET
-    @Path("/query")
+    @Path("/clientconfig/{clientid}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Deprecated //use /clientconfig/{clientId} instead 
-    public Response findServiceConfig(@QueryParam("clientid") String clientid) {
+    public Response findServiceConfig(@PathParam("clientid") String clientid) {
         log.trace("findServiceConfig with clientid={}", clientid);
         try {
             ServiceConfig serviceConfig = serviceConfigDao.findConfig(clientid);
