@@ -71,7 +71,7 @@ public class ServiceConfigResource {
 
         ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.update(updatedServiceConfig);
         if (persistedUpdatedServiceConfig != null) {
-            String jsonResult = ServiceConfigSerializer.toJson(persistedUpdatedServiceConfig);
+            String jsonResult = ServiceConfigSerializer.toJson(updatedServiceConfig);
             return Response.ok(jsonResult).build();
         } else {
             log.warn("Could not update serviceConfig with json={}", json);
@@ -103,7 +103,7 @@ public class ServiceConfigResource {
 
         ServiceConfig serviceConfig = serviceConfigDao.delete(serviceConfigId);
         if (serviceConfig != null) {
-            return Response.status(Response.Status.NO_CONTENT).build();
+            return Response.status(Response.Status.OK).build();
         } else {
             log.warn("Could not find and therefore not delete serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
