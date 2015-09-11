@@ -41,6 +41,11 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testCreateServiceConfig() {
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
+        assertNotNull(serviceConfigResponse.getId());
+    }
+
+    private ServiceConfig createServiceConfigResponse() {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
@@ -63,40 +68,15 @@ public class ServiceConfigResourceTest {
                 .post(path);
 
         String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertNotNull(serviceConfigResponse.getId());
+        return ServiceConfigSerializer.fromJson(jsonResponse);
     }
 
     @Test
     public void testGetServiceConfig() {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
-        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-
-        String path = "/serviceconfig";
-        String jsonRequest = ServiceConfigSerializer.toJson(serviceConfig);
+        String path = "/serviceconfig/" + serviceConfigResponse.getId();
         Response response = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(path);
-
-        String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertNotNull(serviceConfigResponse.getId());
-
-
-        path = "/serviceconfig/" + serviceConfigResponse.getId();
-        response = given()
                 .auth().basic(username, password)
                 .log().everything()
                 .expect()
@@ -112,33 +92,10 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testDeleteServiceConfig() {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
-        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-
-        String path = "/serviceconfig";
-        String jsonRequest = ServiceConfigSerializer.toJson(serviceConfig);
-        Response response = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(path);
-
-        String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertNotNull(serviceConfigResponse.getId());
-
-        path = "/serviceconfig/" + serviceConfigResponse.getId();
-        response = given().
+        String path = "/serviceconfig/" + serviceConfigResponse.getId();
+        Response response = given().
                 auth().basic(username, password)
                 .log().everything()
                 .expect()
@@ -160,36 +117,13 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testPutServiceConfig() {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-
-        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-
-        String path = "/serviceconfig";
-        String jsonRequest = ServiceConfigSerializer.toJson(serviceConfig);
-        Response response = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(path);
-
-        String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertNotNull(serviceConfigResponse.getId());
-
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
         serviceConfigResponse.setName("something new");
         String putJsonRequest = ServiceConfigSerializer.toJson(serviceConfigResponse);
 
-        response = given().
+        String path = "/serviceconfig";
+        Response response = given().
                 auth().basic(username, password)
                 .contentType(ContentType.JSON)
                 .body(putJsonRequest)
@@ -200,7 +134,7 @@ public class ServiceConfigResourceTest {
                 .when()
                 .put(path);
 
-        jsonResponse = response.body().asString();
+        String jsonResponse = response.body().asString();
         ServiceConfig updatedServiceConfig = ServiceConfigSerializer.fromJson(jsonResponse);
         assertEquals(updatedServiceConfig.getName(), serviceConfigResponse.getName());
     }
