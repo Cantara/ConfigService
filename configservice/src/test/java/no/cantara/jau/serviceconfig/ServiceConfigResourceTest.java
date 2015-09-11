@@ -1,5 +1,6 @@
 package no.cantara.jau.serviceconfig;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -11,6 +12,7 @@ import org.testng.annotations.Test;
 import static com.jayway.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
@@ -19,6 +21,7 @@ public class ServiceConfigResourceTest {
     private Main main;
     private final String username = "read";
     private final String password= "baretillesing";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
 
     @BeforeClass
@@ -40,12 +43,13 @@ public class ServiceConfigResourceTest {
     }
 
     @Test
-    public void testCreateServiceConfig() {
+    public void testCreateServiceConfig() throws Exception {
         ServiceConfig serviceConfigResponse = createServiceConfigResponse();
         assertNotNull(serviceConfigResponse.getId());
     }
 
-    private ServiceConfig createServiceConfigResponse() {
+
+    private ServiceConfig createServiceConfigResponse() throws Exception{
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
@@ -55,7 +59,8 @@ public class ServiceConfigResourceTest {
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
 
         String path = "/serviceconfig";
-        String jsonRequest = ServiceConfigSerializer.toJson(serviceConfig);
+        String jsonRequest = mapper.writeValueAsString(serviceConfig);
+        //ServiceConfigSerializer.toJson(serviceConfig);
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -68,11 +73,12 @@ public class ServiceConfigResourceTest {
                 .post(path);
 
         String jsonResponse = response.body().asString();
-        return ServiceConfigSerializer.fromJson(jsonResponse);
+        return mapper.readValue(jsonResponse, ServiceConfig.class);
+        //ServiceConfigSerializer.fromJson(jsonResponse);
     }
 
     @Test
-    public void testGetServiceConfig() {
+    public void testGetServiceConfig() throws Exception {
         ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
         String path = "/serviceconfig/" + serviceConfigResponse.getId();
@@ -86,12 +92,13 @@ public class ServiceConfigResourceTest {
                 .get(path);
 
         String getResponse = response.body().asString();
-        ServiceConfig getServiceConfigResponse = ServiceConfigSerializer.fromJson(getResponse);
+        ServiceConfig getServiceConfigResponse =  mapper.readValue(getResponse, ServiceConfig.class);
+        //ServiceConfigSerializer.fromJson(getResponse);
         assertEquals(getServiceConfigResponse.getId(), getServiceConfigResponse.getId());
     }
 
     @Test
-    public void testDeleteServiceConfig() {
+    public void testDeleteServiceConfig() throws Exception {
         ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
         String path = "/serviceconfig/" + serviceConfigResponse.getId();
@@ -116,11 +123,12 @@ public class ServiceConfigResourceTest {
     }
 
     @Test
-    public void testPutServiceConfig() {
+    public void testPutServiceConfig() throws Exception {
         ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
         serviceConfigResponse.setName("something new");
-        String putJsonRequest = ServiceConfigSerializer.toJson(serviceConfigResponse);
+        String putJsonRequest = mapper.writeValueAsString(serviceConfigResponse);
+        //ServiceConfigSerializer.toJson(serviceConfigResponse);
 
         String path = "/serviceconfig";
         Response response = given().
@@ -135,7 +143,8 @@ public class ServiceConfigResourceTest {
                 .put(path);
 
         String jsonResponse = response.body().asString();
-        ServiceConfig updatedServiceConfig = ServiceConfigSerializer.fromJson(jsonResponse);
+        ServiceConfig updatedServiceConfig = mapper.readValue(jsonResponse,ServiceConfig.class);
+        //ServiceConfigSerializer.fromJson(jsonResponse);
         assertEquals(updatedServiceConfig.getName(), serviceConfigResponse.getName());
     }
 
