@@ -42,6 +42,11 @@ public class InMemConfigRepo implements ServiceConfigDao {
     }
 
     @Override
+    public ServiceConfig delete(String serviceConfigId) {
+        return serviceConfigs.remove(serviceConfigId);
+    }
+
+    @Override
     public ServiceConfig findByArtifactId(String artifactId) {
         String serviceConfigId = artifactIdToServiceConfigIdMapping.get(artifactId);
         if (serviceConfigId == null) {

@@ -17,4 +17,6 @@ public interface ServiceConfigDao {
     ServiceConfig findByClientId(String clientId);
 
     ServiceConfig get(String serviceConfigId);
+
+    ServiceConfig delete(String serviceConfigId);
 }

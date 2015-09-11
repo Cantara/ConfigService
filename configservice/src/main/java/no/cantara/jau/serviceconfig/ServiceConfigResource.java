@@ -68,6 +68,21 @@ public class ServiceConfigResource {
         }
     }
 
+    @DELETE
+    @Path("/{serviceConfigId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
+        log.trace("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
+
+        ServiceConfig serviceConfig = serviceConfigDao.delete(serviceConfigId);
+        if (serviceConfig != null) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } else {
+            log.warn("Could not find and therefore not delete serviceConfig with id={}", serviceConfigId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
 
     //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
     /**
