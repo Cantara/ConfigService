@@ -99,7 +99,7 @@ public class ServiceConfigResourceTest {
                 auth().basic(username, password)
                 .log().everything()
                 .expect()
-                .statusCode(200)
+                .statusCode(204)
                 .log().ifError()
                 .when()
                 .delete(path);

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.awt.*;
 
 /**
  * CRUD, http endpoint for ServiceConfig
@@ -54,7 +53,7 @@ public class ServiceConfigResource {
     }
 
     @PUT
-    @Path("/")
+    @Path("/")  //TODO Should be path /{serviceConfigId}
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateServiceConfig(String json) {
@@ -70,13 +69,12 @@ public class ServiceConfigResource {
         }
 
         ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.update(updatedServiceConfig);
-        if (persistedUpdatedServiceConfig != null) {
-            String jsonResult = ServiceConfigSerializer.toJson(updatedServiceConfig);
-            return Response.ok(jsonResult).build();
-        } else {
+        if (persistedUpdatedServiceConfig == null) {
             log.warn("Could not update serviceConfig with json={}", json);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        String jsonResult = ServiceConfigSerializer.toJson(updatedServiceConfig);
+        return Response.ok(jsonResult).build();
     }
 
     @GET
@@ -86,13 +84,12 @@ public class ServiceConfigResource {
         log.trace("getServiceConfig with serviceConfigId={}", serviceConfigId);
 
         ServiceConfig serviceConfig = serviceConfigDao.get(serviceConfigId);
-        if (serviceConfig != null) {
-            String jsonResult = ServiceConfigSerializer.toJson(serviceConfig);
-            return Response.ok(jsonResult).build();
-        } else {
+        if (serviceConfig == null) {
             log.warn("Could not find serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        String jsonResult = ServiceConfigSerializer.toJson(serviceConfig);
+        return Response.ok(jsonResult).build();
     }
 
     @DELETE
@@ -102,12 +99,11 @@ public class ServiceConfigResource {
         log.trace("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
 
         ServiceConfig serviceConfig = serviceConfigDao.delete(serviceConfigId);
-        if (serviceConfig != null) {
-            return Response.status(Response.Status.OK).build();
-        } else {
+        if (serviceConfig == null) {
             log.warn("Could not find and therefore not delete serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
