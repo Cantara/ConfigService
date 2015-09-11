@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 /**
@@ -40,6 +41,11 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testCreateServiceConfig() {
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
+        assertNotNull(serviceConfigResponse.getId());
+    }
+
+    private ServiceConfig createServiceConfigResponse() {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
@@ -62,8 +68,75 @@ public class ServiceConfigResourceTest {
                 .post(path);
 
         String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfigResponse = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertNotNull(serviceConfigResponse.getId());
+        return ServiceConfigSerializer.fromJson(jsonResponse);
+    }
+
+    @Test
+    public void testGetServiceConfig() {
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
+
+        String path = "/serviceconfig/" + serviceConfigResponse.getId();
+        Response response = given()
+                .auth().basic(username, password)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .get(path);
+
+        String getResponse = response.body().asString();
+        ServiceConfig getServiceConfigResponse = ServiceConfigSerializer.fromJson(getResponse);
+        assertEquals(getServiceConfigResponse.getId(), getServiceConfigResponse.getId());
+    }
+
+    @Test
+    public void testDeleteServiceConfig() {
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
+
+        String path = "/serviceconfig/" + serviceConfigResponse.getId();
+        Response response = given().
+                auth().basic(username, password)
+                .log().everything()
+                .expect()
+                .statusCode(204)
+                .log().ifError()
+                .when()
+                .delete(path);
+
+        path = "/serviceconfig/" + serviceConfigResponse.getId();
+        response = given().
+                auth().basic(username, password)
+                .log().everything()
+                .expect()
+                .statusCode(404)
+                .log().ifError()
+                .when()
+                .delete(path);
+    }
+
+    @Test
+    public void testPutServiceConfig() {
+        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
+
+        serviceConfigResponse.setName("something new");
+        String putJsonRequest = ServiceConfigSerializer.toJson(serviceConfigResponse);
+
+        String path = "/serviceconfig";
+        Response response = given().
+                auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(putJsonRequest)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .put(path);
+
+        String jsonResponse = response.body().asString();
+        ServiceConfig updatedServiceConfig = ServiceConfigSerializer.fromJson(jsonResponse);
+        assertEquals(updatedServiceConfig.getName(), serviceConfigResponse.getName());
     }
 
 

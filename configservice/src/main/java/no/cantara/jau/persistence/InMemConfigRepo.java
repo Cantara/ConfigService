@@ -37,6 +37,16 @@ public class InMemConfigRepo implements ServiceConfigDao {
     }
 
     @Override
+    public ServiceConfig get(String serviceConfigId) {
+        return serviceConfigs.get(serviceConfigId);
+    }
+
+    @Override
+    public ServiceConfig delete(String serviceConfigId) {
+        return serviceConfigs.remove(serviceConfigId);
+    }
+
+    @Override
     public ServiceConfig findByArtifactId(String artifactId) {
         String serviceConfigId = artifactIdToServiceConfigIdMapping.get(artifactId);
         if (serviceConfigId == null) {
@@ -59,9 +69,9 @@ public class InMemConfigRepo implements ServiceConfigDao {
         return serviceConfigs.get(serviceConfigId);
     }
 
-
-    public void update(ServiceConfig newServiceConfig) {
-        serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
+    @Override
+    public ServiceConfig update(ServiceConfig newServiceConfig) {
+        return serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
     }
 
     public void addOrUpdateConfig(String artifactId, ServiceConfig serviceConfig) {

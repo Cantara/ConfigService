@@ -52,6 +52,59 @@ public class ServiceConfigResource {
         }
     }
 
+    @PUT
+    @Path("/")  //TODO Should be path /{serviceConfigId}
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateServiceConfig(String json) {
+        log.trace("updateServiceConfig");
+
+        ServiceConfig updatedServiceConfig;
+        try {
+            updatedServiceConfig = ServiceConfigSerializer.fromJson(json);
+        } catch (RuntimeException e) {
+            Response.Status status = Response.Status.BAD_REQUEST;
+            log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
+            return Response.status(status).build();
+        }
+
+        ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.update(updatedServiceConfig);
+        if (persistedUpdatedServiceConfig == null) {
+            log.warn("Could not update serviceConfig with json={}", json);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        String jsonResult = ServiceConfigSerializer.toJson(updatedServiceConfig);
+        return Response.ok(jsonResult).build();
+    }
+
+    @GET
+    @Path("/{serviceConfigId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
+        log.trace("getServiceConfig with serviceConfigId={}", serviceConfigId);
+
+        ServiceConfig serviceConfig = serviceConfigDao.get(serviceConfigId);
+        if (serviceConfig == null) {
+            log.warn("Could not find serviceConfig with id={}", serviceConfigId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        String jsonResult = ServiceConfigSerializer.toJson(serviceConfig);
+        return Response.ok(jsonResult).build();
+    }
+
+    @DELETE
+    @Path("/{serviceConfigId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
+        log.trace("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
+
+        ServiceConfig serviceConfig = serviceConfigDao.delete(serviceConfigId);
+        if (serviceConfig == null) {
+            log.warn("Could not find and therefore not delete serviceConfig with id={}", serviceConfigId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
 
     //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
     /**
