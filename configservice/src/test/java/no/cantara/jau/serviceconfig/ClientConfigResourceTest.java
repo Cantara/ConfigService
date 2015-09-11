@@ -9,6 +9,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -67,8 +68,40 @@ public class ClientConfigResourceTest {
 
         clientId = clientConfig.clientId;
         assertNotNull(clientId);
+        ClientRegistrationRequest registration2 = new ClientRegistrationRequest("UserAdminService");
+        registration2.envInfo.putAll(System.getenv());
+
+        ClientConfig clientConfig2 = ConfigServiceClient.registerClient(url, username, password, registration2);
+        String clientId2 = clientConfig2.clientId;
+        assertFalse(clientId.equalsIgnoreCase(clientId2));
     }
 
+    @Test
+    public void testRegisterClientUnknownname() throws Exception {
+        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserService");
+        registration.envInfo.putAll(System.getenv());
+
+        ClientConfig clientConfig = ConfigServiceClient.registerClient(url, username, password, registration);
+        /*
+        String jsonRequest = mapper.writeValueAsString(registration);
+        String path = "/clientconfig";
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(jsonRequest)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .post(path);
+        String jsonResponse = response.body().asString();
+        ClientConfig clientConfig = mapper.readValue(jsonResponse, ClientConfig.class);
+        */
+
+        clientId = clientConfig.clientId;
+        assertNotNull(clientId);
+    }
 
     @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
