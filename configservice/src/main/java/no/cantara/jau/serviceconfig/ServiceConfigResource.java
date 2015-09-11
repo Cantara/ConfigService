@@ -45,10 +45,26 @@ public class ServiceConfigResource {
         try {
             ServiceConfig persistedServiceConfig = serviceConfigDao.create(newServiceConfig);
             String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
-            return Response.ok(jsonResult).build();
+            return Response.ok(jsonResult).build(); // Shouldn't this be 201 Created? http://www.restapitutorial.com/lessons/httpmethods.html
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("/{serviceConfigId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
+        log.trace("getServiceConfig with serviceConfigId={}", serviceConfigId);
+
+        ServiceConfig serviceConfig = serviceConfigDao.get(serviceConfigId);
+        if (serviceConfig != null) {
+            String jsonResult = ServiceConfigSerializer.toJson(serviceConfig);
+            return Response.ok(jsonResult).build();
+        } else {
+            log.warn("Could not find serviceConfig with id={}", serviceConfigId);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 

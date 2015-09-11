@@ -15,4 +15,6 @@ public interface ServiceConfigDao {
 
     void registerClient(String clientId, String serviceConfigId);
     ServiceConfig findByClientId(String clientId);
+
+    ServiceConfig get(String serviceConfigId);
 }
