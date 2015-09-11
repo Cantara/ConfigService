@@ -9,9 +9,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
@@ -77,30 +75,12 @@ public class ClientConfigResourceTest {
     }
 
     @Test
-    public void testRegisterClientUnknownname() throws Exception {
+    public void testRegisterClientUnknownName() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserService");
         registration.envInfo.putAll(System.getenv());
 
         ClientConfig clientConfig = ConfigServiceClient.registerClient(url, username, password, registration);
-        /*
-        String jsonRequest = mapper.writeValueAsString(registration);
-        String path = "/clientconfig";
-        Response response = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(path);
-        String jsonResponse = response.body().asString();
-        ClientConfig clientConfig = mapper.readValue(jsonResponse, ClientConfig.class);
-        */
-
-        clientId = clientConfig.clientId;
-        assertNotNull(clientId);
+        assertNull(clientConfig);
     }
 
     @Test(dependsOnMethods = "testRegisterClient")
