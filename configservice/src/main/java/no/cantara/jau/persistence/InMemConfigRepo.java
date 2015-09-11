@@ -69,8 +69,9 @@ public class InMemConfigRepo implements ServiceConfigDao {
         return serviceConfigs.get(serviceConfigId);
     }
 
-    public void update(ServiceConfig newServiceConfig) {
-        serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
+    @Override
+    public ServiceConfig update(ServiceConfig newServiceConfig) {
+        return serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
     }
 
     public void addOrUpdateConfig(String artifactId, ServiceConfig serviceConfig) {

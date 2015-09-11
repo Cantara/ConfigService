@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.awt.*;
 
 /**
  * CRUD, http endpoint for ServiceConfig
@@ -45,10 +46,36 @@ public class ServiceConfigResource {
         try {
             ServiceConfig persistedServiceConfig = serviceConfigDao.create(newServiceConfig);
             String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
-            return Response.ok(jsonResult).build(); // Shouldn't this be 201 Created? http://www.restapitutorial.com/lessons/httpmethods.html
+            return Response.ok(jsonResult).build();
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PUT
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateServiceConfig(String json) {
+        log.trace("updateServiceConfig");
+
+        ServiceConfig updatedServiceConfig;
+        try {
+            updatedServiceConfig = ServiceConfigSerializer.fromJson(json);
+        } catch (RuntimeException e) {
+            Response.Status status = Response.Status.BAD_REQUEST;
+            log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
+            return Response.status(status).build();
+        }
+
+        ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.update(updatedServiceConfig);
+        if (persistedUpdatedServiceConfig != null) {
+            String jsonResult = ServiceConfigSerializer.toJson(persistedUpdatedServiceConfig);
+            return Response.ok(jsonResult).build();
+        } else {
+            log.warn("Could not update serviceConfig with json={}", json);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
@@ -82,7 +109,6 @@ public class ServiceConfigResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-
 
     //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
     /**

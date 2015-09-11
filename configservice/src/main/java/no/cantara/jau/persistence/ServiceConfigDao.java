@@ -19,4 +19,6 @@ public interface ServiceConfigDao {
     ServiceConfig get(String serviceConfigId);
 
     ServiceConfig delete(String serviceConfigId);
+
+    ServiceConfig update(ServiceConfig updatedServiceConfig);
 }
