@@ -91,12 +91,11 @@ public class ServiceConfig {
     @Override
     public String toString() {
         return "ServiceConfig{" +
-                "name='" + name + '\'' +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", changedTimestamp='" + changedTimestamp + '\'' +
-                ", downloadItems=" + downloadItems +
-                ", startServiceScript='" + startServiceScript + '\'' +
+                ", downloadItemCount=" + downloadItems.size() +
+                ", configurationStores=" + configurationStores +
                 '}';
     }
-
-
 }
