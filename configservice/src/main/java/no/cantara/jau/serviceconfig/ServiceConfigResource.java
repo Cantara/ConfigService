@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
 @Path(ServiceConfigResource.SERVICECONFIG_PATH)
 public class ServiceConfigResource {
     private static final Logger log = LoggerFactory.getLogger(ServiceConfigResource.class);
-    public static final String SERVICECONFIG_PATH = ApplicationResource.APPLICATION_PATH + "{applicationId}/serviceconfig";
+    public static final String SERVICECONFIG_PATH = ApplicationResource.APPLICATION_PATH + "/{applicationId}/serviceconfig";
     private final ServiceConfigDao serviceConfigDao;
 
     @Autowired
