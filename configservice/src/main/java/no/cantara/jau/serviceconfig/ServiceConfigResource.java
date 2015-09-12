@@ -16,9 +16,10 @@ import javax.ws.rs.core.Response;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
-@Path("/serviceconfig")
+@Path(ServiceConfigResource.SERVICECONFIG_PATH)
 public class ServiceConfigResource {
     private static final Logger log = LoggerFactory.getLogger(ServiceConfigResource.class);
+    public static final String SERVICECONFIG_PATH = ApplicationResource.APPLICATION_PATH + "{applicationId}/serviceconfig";
     private final ServiceConfigDao serviceConfigDao;
 
     @Autowired

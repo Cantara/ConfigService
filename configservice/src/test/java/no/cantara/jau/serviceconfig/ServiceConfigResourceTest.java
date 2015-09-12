@@ -21,6 +21,8 @@ public class ServiceConfigResourceTest {
     private final String username = "read";
     private final String password= "baretillesing";
     private static final ObjectMapper mapper = new ObjectMapper();
+    private Application applicationResponse;
+    private ServiceConfig serviceConfigResponse;
 
 
     @BeforeClass
@@ -58,7 +60,7 @@ public class ServiceConfigResourceTest {
                 .post(ApplicationResource.APPLICATION_PATH);
 
         String jsonResponse = response.body().asString();
-        Application applicationResponse = mapper.readValue(jsonResponse, Application.class);
+        applicationResponse = mapper.readValue(jsonResponse, Application.class);
         assertNotNull(applicationResponse.id);
         assertEquals(applicationResponse.artifactId, application.artifactId);
     }
@@ -67,12 +69,6 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testCreateServiceConfig() throws Exception {
-        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
-        assertNotNull(serviceConfigResponse.getId());
-    }
-
-
-    private ServiceConfig createServiceConfigResponse() throws Exception{
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
@@ -81,7 +77,6 @@ public class ServiceConfigResourceTest {
         serviceConfig.addDownloadItem(downloadItem);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
 
-        String path = "/serviceconfig";
         String jsonRequest = mapper.writeValueAsString(serviceConfig);
         //ServiceConfigSerializer.toJson(serviceConfig);
         Response response = given()
@@ -93,18 +88,18 @@ public class ServiceConfigResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .post(path);
+                .post(ServiceConfigResource.SERVICECONFIG_PATH, applicationResponse.id);
 
         String jsonResponse = response.body().asString();
-        return mapper.readValue(jsonResponse, ServiceConfig.class);
-        //ServiceConfigSerializer.fromJson(jsonResponse);
+        serviceConfigResponse = mapper.readValue(jsonResponse, ServiceConfig.class);
+        assertNotNull(serviceConfigResponse.getId());
     }
 
-    @Test
-    public void testGetServiceConfig() throws Exception {
-        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
 
-        String path = "/serviceconfig/" + serviceConfigResponse.getId();
+
+    @Test(dependsOnMethods = "testCreateServiceConfig")
+    public void testGetServiceConfig() throws Exception {
+        String path = ServiceConfigResource.SERVICECONFIG_PATH + "/{serviceConfigId}";
         Response response = given()
                 .auth().basic(username, password)
                 .log().everything()
@@ -112,7 +107,7 @@ public class ServiceConfigResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .get(path);
+                .get(path, applicationResponse.id, serviceConfigResponse.getId());
 
         String getResponse = response.body().asString();
         ServiceConfig getServiceConfigResponse =  mapper.readValue(getResponse, ServiceConfig.class);
@@ -120,40 +115,13 @@ public class ServiceConfigResourceTest {
         assertEquals(getServiceConfigResponse.getId(), getServiceConfigResponse.getId());
     }
 
-    @Test
-    public void testDeleteServiceConfig() throws Exception {
-        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
-
-        String path = "/serviceconfig/" + serviceConfigResponse.getId();
-        Response response = given().
-                auth().basic(username, password)
-                .log().everything()
-                .expect()
-                .statusCode(204)
-                .log().ifError()
-                .when()
-                .delete(path);
-
-        path = "/serviceconfig/" + serviceConfigResponse.getId();
-        response = given().
-                auth().basic(username, password)
-                .log().everything()
-                .expect()
-                .statusCode(404)
-                .log().ifError()
-                .when()
-                .delete(path);
-    }
-
-    @Test
+    @Test(dependsOnMethods = "testGetServiceConfig")
     public void testPutServiceConfig() throws Exception {
-        ServiceConfig serviceConfigResponse = createServiceConfigResponse();
-
         serviceConfigResponse.setName("something new");
         String putJsonRequest = mapper.writeValueAsString(serviceConfigResponse);
         //ServiceConfigSerializer.toJson(serviceConfigResponse);
 
-        String path = "/serviceconfig";
+        String path = ServiceConfigResource.SERVICECONFIG_PATH; //TODO should use id here
         Response response = given().
                 auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -163,13 +131,37 @@ public class ServiceConfigResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .put(path);
+                .put(path, applicationResponse.id);
 
         String jsonResponse = response.body().asString();
         ServiceConfig updatedServiceConfig = mapper.readValue(jsonResponse,ServiceConfig.class);
         //ServiceConfigSerializer.fromJson(jsonResponse);
         assertEquals(updatedServiceConfig.getName(), serviceConfigResponse.getName());
     }
+
+    @Test(dependsOnMethods = "testPutServiceConfig")
+    public void testDeleteServiceConfig() throws Exception {
+        String path = ServiceConfigResource.SERVICECONFIG_PATH + "/{serviceConfigId}";
+        Response response = given().
+                auth().basic(username, password)
+                .log().everything()
+                .expect()
+                .statusCode(204)
+                .log().ifError()
+                .when()
+                .delete(path, applicationResponse.id, serviceConfigResponse.getId());
+
+        //path = "/serviceconfig/" + serviceConfigResponse.getId();
+        response = given().
+                auth().basic(username, password)
+                .log().everything()
+                .expect()
+                .statusCode(404)
+                .log().ifError()
+                .when()
+                .delete(path, applicationResponse.id, serviceConfigResponse.getId());
+    }
+
 
 
     //expect there to be a clientConfig with clientId=client1
