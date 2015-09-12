@@ -41,7 +41,11 @@ public class DownloadUtil {
      * http://www.codejava.net/java-se/networking/use-httpurlconnection-to-download-file-from-an-http-url
      * Downloads a file from a URL
      * @param sourceUrl HTTP URL of the file to be downloaded
+     * @param filenameOverride  filename to store the downloaded file as
+     * @param username  username  to authenticate against the server
+     * @param password  password  to authenticate against the server
      * @param targetDirectory path of the directory to save the file
+     * @return  Path to the downloaded file
      */
     public static Path downloadFile(String sourceUrl, String filenameOverride, String username, String password, String targetDirectory) {
         final int BUFFER_SIZE = 4096;

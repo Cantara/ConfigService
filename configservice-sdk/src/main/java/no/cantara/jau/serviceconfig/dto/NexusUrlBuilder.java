@@ -16,7 +16,7 @@ public class NexusUrlBuilder {
         this.repo = repo;
     }
 
-    /**
+    /*
      * http://blog.sonatype.com/2011/01/downloading-artifacts-from-nexus-with-bash/#.VZ5Oq7waa90
      * Output example: http://mvnrepo.cantara.no/service/local/artifact/maven/redirect?r=snapshots&g=net.whydah.identity&a=UserAdminService&v=2.1-SNAPSHOT&p=jar
      */
