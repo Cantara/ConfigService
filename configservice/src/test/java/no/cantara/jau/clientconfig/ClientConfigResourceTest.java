@@ -1,10 +1,12 @@
-package no.cantara.jau.serviceconfig;
+package no.cantara.jau.clientconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import no.cantara.jau.clientconfig.ClientConfigResource;
+import no.cantara.jau.serviceconfig.ApplicationResource;
+import no.cantara.jau.serviceconfig.Main;
+import no.cantara.jau.serviceconfig.ServiceConfigResource;
 import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
 import no.cantara.jau.serviceconfig.dto.*;
 import org.testng.annotations.AfterClass;

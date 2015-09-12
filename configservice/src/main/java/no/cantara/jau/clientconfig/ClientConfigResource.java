@@ -1,7 +1,6 @@
 package no.cantara.jau.clientconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.cantara.jau.persistence.ConfigSearcher;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;

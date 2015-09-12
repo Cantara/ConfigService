@@ -1,5 +1,6 @@
-package no.cantara.jau.persistence;
+package no.cantara.jau.clientconfig;
 
+import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
