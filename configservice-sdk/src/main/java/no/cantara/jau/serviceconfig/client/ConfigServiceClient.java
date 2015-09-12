@@ -1,25 +1,31 @@
 package no.cantara.jau.serviceconfig.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.cantara.jau.serviceconfig.dto.*;
+import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
+import no.cantara.jau.serviceconfig.dto.ClientConfig;
+import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-13.
  */
 public class ConfigServiceClient {
+    public static final Charset CHARSET = Charset.forName("UTF-8");
+    public static final String APPLICATION_STATE_FILENAME = "applicationState.properties";
+    public static final String CLIENT_ID = "clientId";
+    public static final String LAST_CHANGED = "lastChanged";
+    public static final String COMMAND = "command";
     private static final Logger log = LoggerFactory.getLogger(ConfigServiceClient.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-    public static final Charset CHARSET = Charset.forName("UTF-8");
 
     private final String url;
     private final String username;
@@ -49,7 +55,8 @@ public class ConfigServiceClient {
         }
 
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            log.warn("registerClient failed. responseCode={}, responseMessage={}", connection.getResponseCode(), connection.getResponseMessage());
+            log.warn("registerClient failed. url={}, responseCode={}, responseMessage={}",
+                    url, connection.getResponseCode(), connection.getResponseMessage());
             return null;
         }
 
@@ -60,11 +67,68 @@ public class ConfigServiceClient {
                 result.append((char) c);
             }
             String jsonResponse = result.toString();
-            return mapper.readValue(jsonResponse, ClientConfig.class);
+            ClientConfig clientConfig = mapper.readValue(jsonResponse, ClientConfig.class);
+            log.info("registerClient ok. clientId={}", clientConfig.clientId);
+            return clientConfig;
         }
     }
 
-    public ClientConfig checkForUpdate(String clientId, String configChecksum, Map<String, String> envInfo) throws IOException {
+
+    public void saveApplicationState(ClientConfig clientConfig) {
+        final Properties applicationState = new Properties();
+        applicationState.put(CLIENT_ID, clientConfig.clientId);
+        applicationState.put(LAST_CHANGED, clientConfig.serviceConfig.getLastChanged());
+        applicationState.put(COMMAND, clientConfig.serviceConfig.getStartServiceScript());
+
+        OutputStream output = null;
+        try {
+            output = new FileOutputStream(APPLICATION_STATE_FILENAME);
+            // save properties to project root folder
+            applicationState.store(output, null);
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    //intentionally ignored
+                }
+            }
+        }
+    }
+    public Properties getApplicationState() {
+        if (!new File(APPLICATION_STATE_FILENAME).exists()) {
+            return null;
+        }
+
+        Properties properties = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream(APPLICATION_STATE_FILENAME);
+            properties.load(input);
+            return properties;
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    //intentionally ignored
+                }
+            }
+        }
+    }
+    public void cleanApplicationState() {
+        File applicationStatefile = new File(APPLICATION_STATE_FILENAME);
+        if (applicationStatefile.exists()) {
+            applicationStatefile.delete();
+        }
+    }
+
+
+    public ClientConfig checkForUpdate(String clientId, String serviceConfigLastChanged, Map<String, String> envInfo) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url + "/" + clientId).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -75,7 +139,7 @@ public class ConfigServiceClient {
         }
 
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        String jsonRequest = mapper.writeValueAsString(new CheckForUpdateRequest(configChecksum, envInfo));
+        String jsonRequest = mapper.writeValueAsString(new CheckForUpdateRequest(serviceConfigLastChanged, envInfo));
         try (OutputStream output = connection.getOutputStream()) {
             output.write(jsonRequest.getBytes(CHARSET));
         }
@@ -84,7 +148,12 @@ public class ConfigServiceClient {
             return null;
         }
 
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_PRECON_FAILED) {
+            throw new IllegalStateException("412 http precondition failed. Client not registered in ConfigServer.");
+        }
+
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            //TODO log only exception message, not stacktrace for known/expected exceptions like ConnectException: Connection refused.
             log.warn("checkForUpdate failed. responseCode={}, responseMessage={}", connection.getResponseCode(), connection.getResponseMessage());
             return null;
         }
@@ -101,6 +170,7 @@ public class ConfigServiceClient {
     }
 
 
+    /*
     @Deprecated
     public static String fetchServiceConfig(String url, String username, String password) throws IOException {
         URLConnection conn = new URL(url).openConnection();
@@ -130,7 +200,8 @@ public class ConfigServiceClient {
 
         //Parse
         ServiceConfig serviceConfig = ServiceConfigSerializer.fromJson(response);
-        log.debug("Parsed serviceConfig (timestamp: {})", serviceConfig.getChangedTimestamp());
+        log.debug("Parsed serviceConfig (timestamp: {})", serviceConfig.getLastChanged());
         return serviceConfig;
     }
+    */
 }

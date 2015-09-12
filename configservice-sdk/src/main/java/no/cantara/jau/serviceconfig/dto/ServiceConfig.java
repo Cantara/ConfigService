@@ -20,13 +20,10 @@ public class ServiceConfig {
     private String name;
     /**
      * A timestamp when the config was last changed.
-     * Primarily intended that clients should choose to update their ServiceConfig if this timestamp is not identical to their previous timestamp.
-     * Timestamp is chosen over hash for human readability reasons only.
-     *
      * ISO 8601 combined format, see https://en.wikipedia.org/?title=ISO_8601#Combined_date_and_time_representations
      * For example "2007-04-05T14:30".
      */
-    private String changedTimestamp;
+    private String lastChanged;
     private List<DownloadItem> downloadItems;
     private List<NamedPropertiesStore> configurationStores;
 
@@ -38,10 +35,13 @@ public class ServiceConfig {
 
     public ServiceConfig(String name) {
         this.name = name;
-        this.changedTimestamp = df.format(Instant.now());
+        setUpdated();
         this.downloadItems = new ArrayList<>();
         this.configurationStores = new ArrayList<>();
+    }
 
+    private void setUpdated() {
+        this.lastChanged = df.format(Instant.now());
     }
 
     public void addDownloadItem(DownloadItem downloadItem) {
@@ -59,11 +59,14 @@ public class ServiceConfig {
     public void setName(String name) {
         this.name = name;
     }
-    public void setChangedTimestamp(String changedTimestamp) {
-        this.changedTimestamp = changedTimestamp;
+    //jackson
+    private void setLastChanged(String lastChanged) {
+        this.lastChanged = lastChanged;
     }
-    public void setDownloadItems(List<DownloadItem> downloadItems) {
+    //jackson
+    private void setDownloadItems(List<DownloadItem> downloadItems) {
         this.downloadItems = downloadItems;
+
     }
     public void setStartServiceScript(String startServiceScript) {
         this.startServiceScript = startServiceScript;
@@ -75,8 +78,8 @@ public class ServiceConfig {
     public String getName() {
         return name;
     }
-    public String getChangedTimestamp() {
-        return changedTimestamp;
+    public String getLastChanged() {
+        return lastChanged;
     }
     public List<DownloadItem> getDownloadItems() {
         return downloadItems;
@@ -93,9 +96,35 @@ public class ServiceConfig {
         return "ServiceConfig{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", changedTimestamp='" + changedTimestamp + '\'' +
+                ", lastChanged='" + lastChanged + '\'' +
                 ", downloadItemCount=" + downloadItems.size() +
                 ", configurationStores=" + configurationStores +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceConfig that = (ServiceConfig) o;
+
+        if (!id.equals(that.id)) return false;
+        if (!name.equals(that.name)) return false;
+        if (downloadItems != null ? !downloadItems.equals(that.downloadItems) : that.downloadItems != null) return false;
+        if (configurationStores != null ? !configurationStores.equals(that.configurationStores) : that.configurationStores != null)
+            return false;
+        return startServiceScript.equals(that.startServiceScript);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (downloadItems != null ? downloadItems.hashCode() : 0);
+        result = 31 * result + (configurationStores != null ? configurationStores.hashCode() : 0);
+        result = 31 * result + startServiceScript.hashCode();
+        return result;
     }
 }

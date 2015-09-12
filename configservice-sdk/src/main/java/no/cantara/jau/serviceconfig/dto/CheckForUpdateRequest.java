@@ -7,20 +7,20 @@ import java.util.Map;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-09-04.
  */
 public class CheckForUpdateRequest {
-    public String checksum;
+    public String serviceConfigLastChanged;
     public Map<String, String> envInfo;
 
     //jackson
     private CheckForUpdateRequest() {
     }
 
-    public CheckForUpdateRequest(String checksum) {
-        this.checksum = checksum;
+    public CheckForUpdateRequest(String serviceConfigLastChanged) {
+        this.serviceConfigLastChanged = serviceConfigLastChanged;
         this.envInfo = new HashMap<>();
     }
 
-    public CheckForUpdateRequest(String checksum, Map<String, String> envInfo) {
-        this.checksum = checksum;
+    public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo) {
+        this.serviceConfigLastChanged = serviceConfigLastChanged;
         this.envInfo = envInfo;
     }
 }

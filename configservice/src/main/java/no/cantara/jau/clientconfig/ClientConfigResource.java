@@ -64,6 +64,7 @@ public class ClientConfigResource {
             log.warn("Could not convert to Json {}", clientConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+        log.info("registered {}", clientConfig);
         return Response.ok(jsonResult).build();
     }
 
@@ -73,7 +74,7 @@ public class ClientConfigResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkForUpdate(@PathParam("clientId") String clientId, String json) {
-        log.trace("checkForUpdates with clientId={}", clientId);
+        log.trace("checkForUpdate with clientId={}", clientId);
         CheckForUpdateRequest body;
         try {
             body = mapper.readValue(json, CheckForUpdateRequest.class);
@@ -82,16 +83,27 @@ public class ClientConfigResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
-        ClientConfig clientConfig = clientService.getClientConfig(clientId, body.checksum);
-        //TODO return 204 No content if checksum is the same
+        ClientConfig newClientConfig = clientService.getClientConfig(clientId);
+        if (newClientConfig == null) {
+            String msg = "No ClientConfig could be found. Not registered? clientId=" + clientId + ", serviceConfigLastChanged=" + body.serviceConfigLastChanged;
+            log.debug(msg);
+            return Response.status(Response.Status.PRECONDITION_FAILED).entity(msg).build();
+        }
+
+        if (newClientConfig.serviceConfig.getLastChanged().equals(body.serviceConfigLastChanged)) {
+            log.debug("ClientConfig has not changed, return 204 No Content serviceConfigLastChanged={}", body.serviceConfigLastChanged);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
 
         String jsonResult;
         try {
-            jsonResult = mapper.writeValueAsString(clientConfig);
+            jsonResult = mapper.writeValueAsString(newClientConfig);
         } catch (IOException e) {
-            log.warn("Could not convert to Json {}", clientConfig.toString());
+            log.warn("Could not convert to Json {}", newClientConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+        log.info("New ClientConfig found. clientId={}, serviceConfigLastChangedServer={}, serviceConfigLastChangedFromClient={}",
+                clientId, newClientConfig.serviceConfig.getLastChanged(), body.serviceConfigLastChanged);
         return Response.ok(jsonResult).build();
     }
 }

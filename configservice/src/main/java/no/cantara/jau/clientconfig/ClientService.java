@@ -41,7 +41,7 @@ public class ClientService {
         return clientConfig;
     }
 
-    public ClientConfig getClientConfig(String clientId, String serviceConfigChecksum) {
+    public ClientConfig getClientConfig(String clientId) {
         ServiceConfig serviceConfig = dao.findByClientId(clientId);
         if (serviceConfig == null) {
             log.warn("No ServiceConfig was found for clientId={}", clientId);

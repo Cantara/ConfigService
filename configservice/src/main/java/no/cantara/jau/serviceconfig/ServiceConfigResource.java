@@ -32,7 +32,7 @@ public class ServiceConfigResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createServiceConfig(@PathParam("applicationId") String applicationId, String json) {
-        log.trace("createServiceConfig");
+        //log.trace("createServiceConfig");
 
         ServiceConfig newServiceConfig;
         try {
@@ -45,6 +45,7 @@ public class ServiceConfigResource {
 
         try {
             ServiceConfig persistedServiceConfig = serviceConfigDao.createServiceConfig(applicationId, newServiceConfig);
+            log.info("created {}", persistedServiceConfig);
             String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
             return Response.ok(jsonResult).build();
         } catch (RuntimeException e) {

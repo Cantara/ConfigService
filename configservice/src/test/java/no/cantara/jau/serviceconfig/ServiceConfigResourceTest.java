@@ -199,7 +199,7 @@ public class ServiceConfigResourceTest {
         String jsonResponse = response.body().asString();
         ServiceConfig serviceConfig = ServiceConfigSerializer.fromJson(jsonResponse);
         assertEquals(serviceConfig.getName(), "Service1-1.23");
-        assertNotNull(serviceConfig.getChangedTimestamp());
+        assertNotNull(serviceConfig.getLastChanged());
     }
     */
 }

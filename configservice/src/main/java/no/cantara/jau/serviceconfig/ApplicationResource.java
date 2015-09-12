@@ -37,8 +37,7 @@ public class ApplicationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createApplication(String json) {
-        log.trace("createApplication");
-
+        //log.trace("createApplication");
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
         String artifactId =  JsonPath.read(document, "$.artifactId");
         if (artifactId == null) {
@@ -47,6 +46,7 @@ public class ApplicationResource {
             return Response.status(status).build();
         }
         Application application = serviceConfigDao.createApplication(new Application(artifactId));
+        log.info("created {}", application);
 
         String createdJson;
         try {

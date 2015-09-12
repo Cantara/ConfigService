@@ -15,4 +15,12 @@ public class ClientConfig {
         this.clientId = clientId;
         this.serviceConfig = serviceConfig;
     }
+
+    @Override
+    public String toString() {
+        return "ClientConfig{" +
+                "clientId='" + clientId + '\'' +
+                ", " + serviceConfig +
+                '}';
+    }
 }
