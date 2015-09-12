@@ -1,9 +1,6 @@
 package no.cantara.jau.persistence;
 
-import no.cantara.jau.serviceconfig.dto.DownloadItem;
-import no.cantara.jau.serviceconfig.dto.MavenMetadata;
-import no.cantara.jau.serviceconfig.dto.NexusUrlBuilder;
-import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+import no.cantara.jau.serviceconfig.dto.*;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,16 +14,25 @@ import java.util.UUID;
  */
 @Service
 public class InMemConfigRepo implements ServiceConfigDao {
+    private final Map<String, Application> idToApplication;
     private final Map<String, ServiceConfig> serviceConfigs;
     private final Map<String, String> artifactIdToServiceConfigIdMapping;
     private final Map<String, String> clientIdToServiceConfigIdMapping;
 
 
     public InMemConfigRepo() {
+        this.idToApplication = new HashMap<>();
         this.serviceConfigs = new HashMap<>();
         this.artifactIdToServiceConfigIdMapping = new HashMap<>();
         this.clientIdToServiceConfigIdMapping = new HashMap<>();
         addTestData();
+    }
+
+    @Override
+    public Application createApplication(Application newApplication) {
+        newApplication.id = UUID.randomUUID().toString();
+        idToApplication.put(newApplication.id, newApplication);
+        return newApplication;
     }
 
     @Override

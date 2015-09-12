@@ -1,11 +1,15 @@
 package no.cantara.jau.persistence;
 
+import no.cantara.jau.serviceconfig.dto.Application;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 public interface ServiceConfigDao {
+    Application createApplication(Application newApplication);
+
+
     void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig);
     ServiceConfig findConfig(String clientId);
 

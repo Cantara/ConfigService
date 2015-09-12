@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import static com.jayway.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
@@ -41,6 +40,30 @@ public class ServiceConfigResourceTest {
             main.stop();
         }
     }
+
+
+    @Test
+    public void testCreateApplication() throws Exception {
+        Application application = new Application("UserAdminService");
+        String jsonRequest = mapper.writeValueAsString(application);
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(jsonRequest)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .post(ApplicationResource.APPLICATION_PATH);
+
+        String jsonResponse = response.body().asString();
+        Application applicationResponse = mapper.readValue(jsonResponse, Application.class);
+        assertNotNull(applicationResponse.id);
+        assertEquals(applicationResponse.artifactId, application.artifactId);
+    }
+
+
 
     @Test
     public void testCreateServiceConfig() throws Exception {
