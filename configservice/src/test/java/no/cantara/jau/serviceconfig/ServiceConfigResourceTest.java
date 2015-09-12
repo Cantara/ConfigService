@@ -69,16 +69,8 @@ public class ServiceConfigResourceTest {
 
     @Test
     public void testCreateServiceConfig() throws Exception {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-
-        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-
+        ServiceConfig serviceConfig = createServiceConfig();
         String jsonRequest = mapper.writeValueAsString(serviceConfig);
-        //ServiceConfigSerializer.toJson(serviceConfig);
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -95,6 +87,16 @@ public class ServiceConfigResourceTest {
         assertNotNull(serviceConfigResponse.getId());
     }
 
+    private ServiceConfig createServiceConfig() {
+        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
+        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
+        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
+
+        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
+        serviceConfig.addDownloadItem(downloadItem);
+        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
+        return serviceConfig;
+    }
 
 
     @Test(dependsOnMethods = "testCreateServiceConfig")

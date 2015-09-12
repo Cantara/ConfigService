@@ -13,16 +13,16 @@ public interface ServiceConfigDao {
     void addOrUpdateConfig(String clientId, ServiceConfig serviceConfig);
     ServiceConfig findConfig(String clientId);
 
-    ServiceConfig create(ServiceConfig newServiceConfig);
+    ServiceConfig createServiceConfig(String applicationId, ServiceConfig newServiceConfig);
 
     ServiceConfig findByArtifactId(String artifactId);
 
     void registerClient(String clientId, String serviceConfigId);
     ServiceConfig findByClientId(String clientId);
 
-    ServiceConfig get(String serviceConfigId);
+    ServiceConfig getServiceConfig(String serviceConfigId);
 
-    ServiceConfig delete(String serviceConfigId);
+    ServiceConfig deleteServiceConfig(String serviceConfigId);
 
-    ServiceConfig update(ServiceConfig updatedServiceConfig);
+    ServiceConfig updateServiceConfig(ServiceConfig updatedServiceConfig);
 }

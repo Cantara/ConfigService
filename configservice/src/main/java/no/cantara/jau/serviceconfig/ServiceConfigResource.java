@@ -31,7 +31,7 @@ public class ServiceConfigResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceConfig(String json) {
+    public Response createServiceConfig(@PathParam("applicationId") String applicationId, String json) {
         log.trace("createServiceConfig");
 
         ServiceConfig newServiceConfig;
@@ -44,7 +44,7 @@ public class ServiceConfigResource {
         }
 
         try {
-            ServiceConfig persistedServiceConfig = serviceConfigDao.create(newServiceConfig);
+            ServiceConfig persistedServiceConfig = serviceConfigDao.createServiceConfig(applicationId, newServiceConfig);
             String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
             return Response.ok(jsonResult).build();
         } catch (RuntimeException e) {
@@ -69,7 +69,7 @@ public class ServiceConfigResource {
             return Response.status(status).build();
         }
 
-        ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.update(updatedServiceConfig);
+        ServiceConfig persistedUpdatedServiceConfig = serviceConfigDao.updateServiceConfig(updatedServiceConfig);
         if (persistedUpdatedServiceConfig == null) {
             log.warn("Could not update serviceConfig with json={}", json);
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -84,7 +84,7 @@ public class ServiceConfigResource {
     public Response getServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
         log.trace("getServiceConfig with serviceConfigId={}", serviceConfigId);
 
-        ServiceConfig serviceConfig = serviceConfigDao.get(serviceConfigId);
+        ServiceConfig serviceConfig = serviceConfigDao.getServiceConfig(serviceConfigId);
         if (serviceConfig == null) {
             log.warn("Could not find serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -99,7 +99,7 @@ public class ServiceConfigResource {
     public Response deleteServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
         log.trace("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
 
-        ServiceConfig serviceConfig = serviceConfigDao.delete(serviceConfigId);
+        ServiceConfig serviceConfig = serviceConfigDao.deleteServiceConfig(serviceConfigId);
         if (serviceConfig == null) {
             log.warn("Could not find and therefore not delete serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
