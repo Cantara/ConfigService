@@ -23,11 +23,11 @@ public class ClientConfigResource {
     public static final String CLIENTCONFIG_PATH = "/clientconfig";
     private static final Logger log = LoggerFactory.getLogger(ClientConfigResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-    private final ConfigSearcher configSearcher;
+    private final ClientService clientService;
 
     @Autowired
-    public ClientConfigResource(ConfigSearcher configSearcher) {
-        this.configSearcher = configSearcher;
+    public ClientConfigResource(ClientService clientService) {
+        this.clientService = clientService;
     }
 
     //https://github.com/Cantara/Java-Auto-Update/issues/8
@@ -38,9 +38,7 @@ public class ClientConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerClient(String json) {
         log.trace("registerClient");
-
-        //Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
-        //String artifactId =  JsonPath.read(document, "$.artifactId");
+        //Should probably use jsonpath
         ClientRegistrationRequest registration;
         try {
             registration = mapper.readValue(json, ClientRegistrationRequest.class);
@@ -51,7 +49,7 @@ public class ClientConfigResource {
 
         ClientConfig clientConfig;
         try {
-            clientConfig = configSearcher.registerClient(registration);
+            clientConfig = clientService.registerClient(registration);
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Not enough information to register client.").build();
         }
@@ -66,7 +64,7 @@ public class ClientConfigResource {
             log.warn("Could not convert to Json {}", clientConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-        return Response.ok(jsonResult).build(); //Switch to 201 created and set url
+        return Response.ok(jsonResult).build();
     }
 
     //https://github.com/Cantara/Java-Auto-Update/issues/9
@@ -84,7 +82,7 @@ public class ClientConfigResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
-        ClientConfig clientConfig = configSearcher.getClientConfig(clientId, body.checksum);
+        ClientConfig clientConfig = clientService.getClientConfig(clientId, body.checksum);
         //TODO return 204 No content if checksum is the same
 
         String jsonResult;

@@ -15,12 +15,12 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-08-23.
  */
 @Service
-public class ConfigSearcher {
-    private static final Logger log = LoggerFactory.getLogger(ConfigSearcher.class);
+public class ClientService {
+    private static final Logger log = LoggerFactory.getLogger(ClientService.class);
     private final ServiceConfigDao dao;
 
     @Autowired
-    public ConfigSearcher(ServiceConfigDao dao) {
+    public ClientService(ServiceConfigDao dao) {
         this.dao = dao;
     }
 
@@ -36,8 +36,6 @@ public class ConfigSearcher {
         }
         ClientConfig clientConfig = new ClientConfig(UUID.randomUUID().toString(), serviceConfig);
         dao.registerClient(clientConfig.clientId, clientConfig.serviceConfig.getId());
-
-        //TODO persist coupling between clientConfig.clientId and serviceConfig
 
         //TODO persist registration.envInfo
         return clientConfig;

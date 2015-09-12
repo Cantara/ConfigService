@@ -38,7 +38,7 @@ public class ConfigServiceClient {
             output.write(jsonRequest.getBytes(CHARSET));
         }
 
-        if (connection.getResponseCode() != HttpURLConnection.HTTP_CREATED && connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             log.warn("registerClient failed. responseCode={}, responseMessage={}", connection.getResponseCode(), connection.getResponseMessage());
             return null;
         }
