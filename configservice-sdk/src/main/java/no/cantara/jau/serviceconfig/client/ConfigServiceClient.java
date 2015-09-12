@@ -21,8 +21,18 @@ public class ConfigServiceClient {
     private static final ObjectMapper mapper = new ObjectMapper();
     public static final Charset CHARSET = Charset.forName("UTF-8");
 
+    private final String url;
+    private final String username;
+    private final String password;
 
-    public static ClientConfig registerClient(String url, String username, String password, ClientRegistrationRequest request) throws IOException {
+
+    public ConfigServiceClient(String url, String username, String password) {
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    }
+
+    public ClientConfig registerClient(ClientRegistrationRequest request) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -54,8 +64,7 @@ public class ConfigServiceClient {
         }
     }
 
-    public static ClientConfig checkForUpdate(String url, String username, String password, String clientId, String configChecksum,
-                                              Map<String, String> envInfo) throws IOException {
+    public ClientConfig checkForUpdate(String clientId, String configChecksum, Map<String, String> envInfo) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url + "/" + clientId).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);

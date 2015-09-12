@@ -26,6 +26,7 @@ public class ClientConfigResourceTest {
     private final String password= "baretillesing";
     private static final ObjectMapper mapper = new ObjectMapper();
     private String clientId;
+    private ConfigServiceClient configServiceClient;
 
 
     @BeforeClass
@@ -39,7 +40,7 @@ public class ClientConfigResourceTest {
         RestAssured.basePath = Main.CONTEXT_PATH;
         url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientConfigResource.CLIENTCONFIG_PATH;
 
-
+        configServiceClient = new ConfigServiceClient(url, username, password);
         addTestData();
     }
 
@@ -98,7 +99,7 @@ public class ClientConfigResourceTest {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
 
-        ClientConfig clientConfig = ConfigServiceClient.registerClient(url, username, password, registration);
+        ClientConfig clientConfig = configServiceClient.registerClient(registration);
         /*
         String jsonRequest = mapper.writeValueAsString(registration);
         String path = "/clientconfig";
@@ -121,7 +122,7 @@ public class ClientConfigResourceTest {
         ClientRegistrationRequest registration2 = new ClientRegistrationRequest("UserAdminService");
         registration2.envInfo.putAll(System.getenv());
 
-        ClientConfig clientConfig2 = ConfigServiceClient.registerClient(url, username, password, registration2);
+        ClientConfig clientConfig2 = configServiceClient.registerClient(registration2);
         String clientId2 = clientConfig2.clientId;
         assertFalse(clientId.equalsIgnoreCase(clientId2));
     }
@@ -131,13 +132,13 @@ public class ClientConfigResourceTest {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserService");
         registration.envInfo.putAll(System.getenv());
 
-        ClientConfig clientConfig = ConfigServiceClient.registerClient(url, username, password, registration);
+        ClientConfig clientConfig = configServiceClient.registerClient(registration);
         assertNull(clientConfig);
     }
 
     @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
-        ClientConfig clientConfig = ConfigServiceClient.checkForUpdate(url, username, password, clientId, "checksumHere", System.getenv());
+        ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, "checksumHere", System.getenv());
         assertNotNull(clientConfig);
         assertEquals(clientConfig.clientId, clientId);
     }

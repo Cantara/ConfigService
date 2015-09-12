@@ -78,6 +78,7 @@ public class ServiceConfigResource {
         return Response.ok(jsonResult).build();
     }
 
+    // example http://localhost:8086/jau/application/ad4911cf-9e1a-4307-bacc-3de0a2aae679/serviceconfig/fd5cf7d8-4b6e-445b-9fbc-b468fcc44014
     @GET
     @Path("/{serviceConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
