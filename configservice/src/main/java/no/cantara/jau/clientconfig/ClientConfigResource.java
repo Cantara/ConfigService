@@ -54,6 +54,7 @@ public class ClientConfigResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Not enough information to register client.").build();
         }
         if (clientConfig == null) {
+            log.debug("Returning 404, not found");
             return Response.status(Response.Status.NOT_FOUND).entity("Valid request, but no matching ServiceConfig could be found. Probably missing data on server.").build();
         }
 
