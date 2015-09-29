@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.cantara.jau</groupId>
     <artifactId>configservice-parent</artifactId>
-    <version>0.2-alpha1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>ConfigService Parent</name>
     <url>https://wiki.cantara.no/display/dev/ConfigService</url>
