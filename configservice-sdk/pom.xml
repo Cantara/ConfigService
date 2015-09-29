@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.cantara.jau</groupId>
         <artifactId>configservice-parent</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2-alpha1</version>
     </parent>
 
     <dependencies>
