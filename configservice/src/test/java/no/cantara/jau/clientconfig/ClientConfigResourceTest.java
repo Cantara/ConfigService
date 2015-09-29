@@ -98,6 +98,7 @@ public class ClientConfigResourceTest {
     public void testRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
+        registration.clientName = "client123";
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
         /*
@@ -119,10 +120,11 @@ public class ClientConfigResourceTest {
 
         clientId = clientConfig.clientId;
         assertNotNull(clientId);
+
         ClientRegistrationRequest registration2 = new ClientRegistrationRequest("UserAdminService");
         registration2.envInfo.putAll(System.getenv());
-
         ClientConfig clientConfig2 = configServiceClient.registerClient(registration2);
+
         String clientId2 = clientConfig2.clientId;
         assertFalse(clientId.equalsIgnoreCase(clientId2));
     }

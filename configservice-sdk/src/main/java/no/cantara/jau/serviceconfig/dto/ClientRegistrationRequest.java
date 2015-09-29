@@ -9,6 +9,7 @@ import java.util.Map;
 public class ClientRegistrationRequest {
     public String artifactId;
     public Map<String, String> envInfo;
+    public String clientName;
 
     public ClientRegistrationRequest() {
         this.envInfo = new HashMap<>();
@@ -17,5 +18,10 @@ public class ClientRegistrationRequest {
     public ClientRegistrationRequest(String artifactId) {
         this.artifactId = artifactId;
         this.envInfo = new HashMap<>();
+    }
+
+    public ClientRegistrationRequest(String artifactId, String clientName) {
+        this(artifactId);
+        clientName = clientName;
     }
 }
