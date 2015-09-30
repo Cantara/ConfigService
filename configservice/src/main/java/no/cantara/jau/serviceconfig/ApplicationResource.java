@@ -37,7 +37,7 @@ public class ApplicationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createApplication(String json) {
-        //log.trace("createApplication");
+        log.trace("Invoked createApplication with {}", json);
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
         String artifactId =  JsonPath.read(document, "$.artifactId");
         if (artifactId == null) {

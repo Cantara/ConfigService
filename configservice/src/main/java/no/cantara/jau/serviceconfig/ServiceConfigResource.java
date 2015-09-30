@@ -33,6 +33,7 @@ public class ServiceConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createServiceConfig(@PathParam("applicationId") String applicationId, String json) {
         //log.trace("createServiceConfig");
+    	log.trace("Invoked createServiceConfig with json {} and applicationId {}", json, applicationId);
 
         ServiceConfig newServiceConfig;
         try {
@@ -59,7 +60,7 @@ public class ServiceConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateServiceConfig(String json) {
-        log.trace("updateServiceConfig");
+    	log.trace("Invoked updateServiceConfig with json {}", json);
 
         ServiceConfig updatedServiceConfig;
         try {
