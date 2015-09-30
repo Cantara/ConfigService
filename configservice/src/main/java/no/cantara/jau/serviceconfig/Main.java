@@ -27,6 +27,13 @@ import java.util.logging.LogManager;
 public class Main {
     public static final String CONTEXT_PATH = "/jau";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    
+    final static ConstrettoConfiguration configuration = new ConstrettoBuilder()
+            .createPropertiesStore()
+            .addResource(Resource.create("classpath:config.properties"))
+            .addResource(Resource.create("file:./config_override.properties"))
+            .done()
+            .getConfiguration();
 
     private int webappPort;
     private Server server;
@@ -49,13 +56,6 @@ public class Main {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
-
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
-                .createPropertiesStore()
-                .addResource(Resource.create("classpath:config.properties"))
-                .addResource(Resource.create("file:./config_override.properties"))
-                .done()
-                .getConfiguration();
 
         log.info("Starting ConfigService");
         Integer webappPort = configuration.evaluateToInt("service.port");
@@ -150,8 +150,10 @@ public class Main {
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
         securityHandler.addConstraintMapping(constraintMapping);
         HashLoginService loginService = new HashLoginService("ConfigService");
-        //loginService.setConfig("src/main/resources/authentication.properties");       //not working!
-        loginService.putUser("read", new Password("baretillesing"), new String[]{"user"});
+        String userName = configuration.evaluateToString("login.user");
+        String password = configuration.evaluateToString("login.password");
+        log.trace("Main instantiated with basic auth user: {} pass: {}", userName, password);
+        loginService.putUser(userName, new Password(password), new String[]{"user"});
         securityHandler.setLoginService(loginService);
         return securityHandler;
     }
