@@ -14,3 +14,10 @@ target/
 /.settings
 /.project
 /.classpath
+
+configservice-sdk/.classpath
+configservice-sdk/.project
+configservice-sdk/.settings/
+configservice/.classpath
+configservice/.project
+configservice/.settings/
