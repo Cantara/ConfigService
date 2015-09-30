@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>configservice</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.2-alpha8</version>
     <packaging>jar</packaging>
     <name>ConfigService Server</name>
 
     <parent>
         <groupId>no.cantara.jau</groupId>
         <artifactId>configservice-parent</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.2-alpha8</version>
     </parent>
 
     <!-- mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates -->
