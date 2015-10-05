@@ -5,33 +5,34 @@ releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
 snapshotRepo=http://mvnrepo.cantara.no/content/repositories/snapshots
 groupId=no/cantara/jau
 artifactId=configservice
-V=SNAPSHOT
 
+# use CONFIGSERVICE_VERSION environment variable if available
+# default to version SNAPSHOT
+version="${CONFIGSERVICE_VERSION:-SNAPSHOT}"
 
-if [[ $V == *SNAPSHOT* ]]; then
+if [[ $version == *SNAPSHOT* ]]; then
    echo Note: If the artifact version contains "SNAPSHOT", the latest snapshot version is downloaded, ignoring the version before SNAPSHOT.
    path="$snapshotRepo/$groupId/$artifactId"
    version=`curl -s "$path/maven-metadata.xml" | grep "<version>" | sed "s/.*<version>\([^<]*\)<\/version>.*/\1/" | tail -n 1`
    echo "Version $version"
    build=`curl -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
-   JARFILE="$artifactId-$build.jar"
-   url="$path/$version/$JARFILE"
+   jarfile="$artifactId-$build.jar"
+   url="$path/$version/$jarfile"
 else #A specific Release version
    path="releaseRepo/$groupId/$artifactId"
-   url=$path/$V/$artifactId-$V.jar
-   JARFILE=$artifactId-$V.jar
+   url=$path/$version/$artifactId-$version.jar
+   jarfile=$artifactId-$version.jar
 fi
 
 # Download artifact
 echo Downloading $url
-wget -O $JARFILE -q -N $url
-
+wget -O $jarfile -q -N $url
 
 # Create symlink or replace existing sym link
 if [ -h $artifactId.jar ]; then
    unlink $artifactId.jar
 fi
-ln -s $JARFILE $artifactId.jar
+ln -s $jarfile $artifactId.jar
 
 # Delete old jar files
 jar=$artifactId*.jar
