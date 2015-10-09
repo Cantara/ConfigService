@@ -8,7 +8,7 @@ RUN useradd -d "$HOME" -u 500 -m -s /bin/bash $USER
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		supervisor \
 	&& rm -rf /var/lib/apt/lists/*
-RUN echo "This is just a test, to change the dockerimage"
+
 ## Set up start of services
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
