@@ -2,7 +2,7 @@
 # Script to download deployment unit from a Maven artifact repository.
 
 APP=configservice.jar
-START_APP_COMMAND="/usr/bin/java -Dlogback.configurationFile=./logback.xml -jar $APP &"
+START_APP_COMMAND="/usr/bin/java -Dlogback.configurationFile=./logback.xml -jar $APP"
 
 
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
@@ -29,7 +29,7 @@ else #A specific Release version
 fi
 
 
-shaUrl=url.sha1
+shaUrl=$url.sha1
 shaFromWeb=$(wget $shaUrl -q -O -)
 if [ -f $APP ]; then
   localSha=$(sha1sum $jarfile | awk '{print $1}')
@@ -61,7 +61,7 @@ else
   fi
   
   echo "Starting $APP"
-  $START_APP_COMMAND
+  $START_APP_COMMAND&
   
 
 fi

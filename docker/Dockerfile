@@ -18,8 +18,12 @@ COPY toRoot/* $HOME/
 RUN chown -R $USER:$USER $HOME
 RUN chmod 755 $HOME/*.sh
 
-ADD crontab $HOME/crontab
+ADD crontab /etc/cron.d/configservice
+RUN chmod 0644 /etc/cron.d/configservice
+
 RUN touch /var/log/cron.log
+RUN chown $USER /var/log/cron.log
+RUN crontab -u $USER /etc/cron.d/configservice
 
 EXPOSE 8086
-CMD ["/usr/bin/supervisord"]
+CMD cron && /usr/bin/supervisord
