@@ -2,6 +2,8 @@
 # Script to download deployment unit from a Maven artifact repository.
 
 APP=configservice.jar
+START_APP_COMMAND="/usr/bin/java -Dlogback.configurationFile=./logback.xml -jar $APP &"
+
 
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
 snapshotRepo=http://mvnrepo.cantara.no/content/repositories/snapshots
@@ -40,7 +42,7 @@ if [ "$shaFromWeb" == "$localSha" ]; then
   echo "Already got newest version. Not doing anything."
 else
   echo "stopping running app, if it is running"
-  pkill -f '/usr/bin/java -Dlogback.configurationFile=./logback.xml -jar "$APP"&' # this doesn't work
+  pkill -f "$START_APP_COMMAND"
   echo Downloading $url
   wget -O $jarfile -q -N $url
 
@@ -59,6 +61,7 @@ else
   fi
   
   echo "Starting $APP"
-  /usr/bin/java -Dlogback.configurationFile=./logback.xml -jar "$APP"&
+  $START_APP_COMMAND
+  
 
 fi
