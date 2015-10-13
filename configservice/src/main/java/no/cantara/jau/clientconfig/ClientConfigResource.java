@@ -69,8 +69,6 @@ public class ClientConfigResource {
         return Response.ok(jsonResult).build();
     }
 
-    // Another test.
-
     //https://github.com/Cantara/Java-Auto-Update/issues/9
     @POST
     @Path("/{clientId}")
