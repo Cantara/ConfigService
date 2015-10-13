@@ -68,7 +68,6 @@ public class ClientConfigResource {
         log.info("registered {}", clientConfig);
         return Response.ok(jsonResult).build();
     }
-    // This is a test for Jenkins Github webhook plugin.
 
     //https://github.com/Cantara/Java-Auto-Update/issues/9
     @POST
