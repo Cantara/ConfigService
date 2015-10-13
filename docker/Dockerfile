@@ -26,4 +26,4 @@ RUN chown $USER /var/log/cron.log
 RUN crontab -u $USER /etc/cron.d/configservice
 
 EXPOSE 8086
-CMD cron && /usr/bin/supervisord
+CMD /usr/bin/supervisord
