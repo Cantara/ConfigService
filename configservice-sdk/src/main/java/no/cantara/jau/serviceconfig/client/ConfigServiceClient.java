@@ -7,10 +7,15 @@ import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.rmi.UnexpectedException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
@@ -54,10 +59,22 @@ public class ConfigServiceClient {
             output.write(jsonRequest.getBytes(CHARSET));
         }
 
-        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        int responseCode = connection.getResponseCode();
+        String responseMessage = connection.getResponseMessage();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
             log.warn("registerClient failed. url={}, responseCode={}, responseMessage={}",
-                    url, connection.getResponseCode(), connection.getResponseMessage());
-            return null;
+                    url, responseCode, responseMessage);
+
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw new BadRequestException(responseMessage);
+            } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                throw new NotFoundException(responseMessage);
+            } else if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                throw new InternalServerErrorException(responseMessage);
+            } else {
+                throw new UnexpectedException("Got code: " + responseCode + ", and message: " +
+                        responseMessage);
+            }
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
@@ -169,39 +186,4 @@ public class ConfigServiceClient {
         }
     }
 
-
-    /*
-    @Deprecated
-    public static String fetchServiceConfig(String url, String username, String password) throws IOException {
-        URLConnection conn = new URL(url).openConnection();
-        if (username != null && password != null) {
-            String usernameAndPassword = username + ":" + password;
-            String encoded = Base64.getEncoder().encodeToString(usernameAndPassword.getBytes());
-            conn.setRequestProperty("Authorization", "Basic " + encoded);
-        }
-        conn.setDoOutput(true);
-
-        try (Reader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-            StringBuilder result = new StringBuilder();
-            int c;
-            while ((c = reader.read()) != -1) {
-                result.append((char) c);
-            }
-            return result.toString();
-        }
-    }
-
-    @Deprecated
-    public static ServiceConfig fetchAndParseServiceConfig(String url, String username, String password)
-            throws IOException {
-
-        String response = fetchServiceConfig(url, username, password);
-        log.debug("Fetched ServiceConfig (length: {}).", response.length());
-
-        //Parse
-        ServiceConfig serviceConfig = ServiceConfigSerializer.fromJson(response);
-        log.debug("Parsed serviceConfig (timestamp: {})", serviceConfig.getLastChanged());
-        return serviceConfig;
-    }
-    */
 }

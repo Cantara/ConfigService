@@ -13,6 +13,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.NotFoundException;
+
 import static com.jayway.restassured.RestAssured.given;
 import static org.testng.Assert.*;
 
@@ -134,8 +136,12 @@ public class ClientConfigResourceTest {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserService");
         registration.envInfo.putAll(System.getenv());
 
-        ClientConfig clientConfig = configServiceClient.registerClient(registration);
-        assertNull(clientConfig);
+        try {
+            ClientConfig clientConfig = configServiceClient.registerClient(registration);
+            fail("Should not get this far.");
+        } catch (NotFoundException e) {
+            assertNotNull(e);
+        }
     }
 
     @Test(dependsOnMethods = "testRegisterClient")
