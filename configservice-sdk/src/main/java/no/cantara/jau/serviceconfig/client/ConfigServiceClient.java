@@ -7,15 +7,10 @@ import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.rmi.UnexpectedException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
@@ -62,19 +57,7 @@ public class ConfigServiceClient {
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            log.warn("registerClient failed. url={}, responseCode={}, responseMessage={}",
-                    url, responseCode, responseMessage);
-
-            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-                throw new BadRequestException(responseMessage);
-            } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                throw new NotFoundException(responseMessage);
-            } else if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                throw new InternalServerErrorException(responseMessage);
-            } else {
-                throw new UnexpectedException("Got code: " + responseCode + ", and message: " +
-                        responseMessage);
-            }
+            ResponseErrorHandler.handle(responseCode, responseMessage, url);
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {

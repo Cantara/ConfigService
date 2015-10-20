@@ -141,8 +141,19 @@ public class ClientConfigResourceTest {
             fail("Should not get this far.");
         } catch (NotFoundException e) {
             assertNotNull(e);
+        } catch (Exception e) {
+            fail("Should not get another exception.");
         }
     }
+
+    @Test
+    public void testBrokenJsonShouldReturnBadRequest() throws Exception {
+        javax.ws.rs.core.Response response = new ClientConfigResource(null).registerClient("{broken json");
+
+        assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+
 
     @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
@@ -150,4 +161,5 @@ public class ClientConfigResourceTest {
         assertNotNull(clientConfig);
         assertEquals(clientConfig.clientId, clientId);
     }
+
 }
