@@ -4,33 +4,41 @@
 APP=configservice.jar
 START_APP_COMMAND="/usr/bin/java -Dlogback.configurationFile=./logback.xml -jar $APP"
 
-
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
 snapshotRepo=http://mvnrepo.cantara.no/content/repositories/snapshots
 groupId=no/cantara/jau
 artifactId=configservice
 
-# use CONFIGSERVICE_VERSION environment variable if available
+# use APP_VERSION environment variable if available
 # default to version SNAPSHOT
-version="${CONFIGSERVICE_VERSION:-SNAPSHOT}"
+version="${APP_VERSION:-SNAPSHOT}"
+
+# Set these two to something if repository is not open
+username=
+password=
+
+if [[ -v username && -v password ]]; then
+  wgetAuth="--user=$username --password=$password"
+  curlAuth="--user $username:$password"
+fi
 
 if [[ $version == *SNAPSHOT* ]]; then
    echo Note: If the artifact version contains "SNAPSHOT", the latest snapshot version is downloaded, ignoring the version before SNAPSHOT.
    path="$snapshotRepo/$groupId/$artifactId"
-   version=`curl -s "$path/maven-metadata.xml" | grep "<version>" | sed "s/.*<version>\([^<]*\)<\/version>.*/\1/" | tail -n 1`
-   echo "Version $version"
-   build=`curl -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
+   version=`curl $curlAuth -s "$path/maven-metadata.xml" | grep "<version>" | sed "s/.*<version>\([^<]*\)<\/version>.*/\1/" | tail -n 1`
+   echo "Found version=$version from metadata $path/maven-metadata.xml"
+   build=`curl $curlAuth -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
    jarfile="$artifactId-$build.jar"
    url="$path/$version/$jarfile"
 else #A specific Release version
-   path="releaseRepo/$groupId/$artifactId"
+   path="$releaseRepo/$groupId/$artifactId"
    url=$path/$version/$artifactId-$version.jar
    jarfile=$artifactId-$version.jar
 fi
 
 
 shaUrl=$url.sha1
-shaFromWeb=$(wget $shaUrl -q -O -)
+shaFromWeb=$(wget $wgetAuth $shaUrl -q -O -)
 if [ -f $APP ]; then
   localSha=$(sha1sum $jarfile | awk '{print $1}')
 else
@@ -44,7 +52,7 @@ else
   echo "stopping running app, if it is running"
   pkill -f "$START_APP_COMMAND"
   echo Downloading $url
-  wget -O $jarfile -q -N $url
+  wget $wgetAuth -O $jarfile -q -N $url
 
   # Create symlink or replace existing sym link
   if [ -h $artifactId.jar ]; then
