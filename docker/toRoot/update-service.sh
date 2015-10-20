@@ -13,14 +13,14 @@ artifactId=configservice
 # default to version SNAPSHOT
 version="${APP_VERSION:-SNAPSHOT}"
 
-# Set these two to something if repository is not open
-username=
-password=
-
-if [[ -v username && -v password ]]; then
-  wgetAuth="--user=$username --password=$password"
-  curlAuth="--user $username:$password"
-fi
+# Set the next lines to something if repository is not open
+# username=
+# password=
+# if [[ -z $username && -z $password ]]; then
+#  wgetAuth="--user=$username --password=$password"
+#  curlAuth="--user $username:$password"
+#  echo "setting username and password"
+# fi
 
 if [[ $version == *SNAPSHOT* ]]; then
    echo Note: If the artifact version contains "SNAPSHOT", the latest snapshot version is downloaded, ignoring the version before SNAPSHOT.
