@@ -1,5 +1,6 @@
 package no.cantara.jau.clientconfig;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
@@ -14,8 +15,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.NoContentException;
+
+import java.io.IOException;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 /**
@@ -153,13 +158,71 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
+    @Test
+    public void testLackingInformationShouldReturnBadRequest() throws JsonProcessingException {
+        ClientService clientService = mock(ClientService.class);
+        when(clientService.registerClient(any())).thenThrow(IllegalArgumentException.class);
+        ClientConfigResource clientConfigResource = new ClientConfigResource(clientService);
 
+        ClientRegistrationRequest clientRegistrationRequest = new ClientRegistrationRequest("UserAdminService");
+        ObjectMapper mapper = new ObjectMapper();
+
+        String jsonRequest = mapper.writeValueAsString(clientRegistrationRequest);
+
+        javax.ws.rs.core.Response response = clientConfigResource.registerClient(jsonRequest);
+
+        assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
+    }
 
     @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
         ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, "checksumHere", System.getenv());
         assertNotNull(clientConfig);
         assertEquals(clientConfig.clientId, clientId);
+    }
+
+    @Test
+    public void testCheckForUpdateBrokenJson() {
+        javax.ws.rs.core.Response response = new ClientConfigResource(null).checkForUpdate("", "{broken json");
+
+        assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testCheckForUpdateUnregisteredClient() {
+        ClientService clientService = mock(ClientService.class);
+        String clientId = "";
+        when(clientService.getClientConfig(clientId)).thenReturn(null);
+
+        javax.ws.rs.core.Response response = new ClientConfigResource(clientService).checkForUpdate(clientId, "{}");
+
+        assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.PRECONDITION_FAILED.getStatusCode());
+    }
+
+    @Test
+    public void testCheckForUpdateUnchangedClientConfig() throws IOException {
+        String clientId = "Bar";
+        String lastChanged = "Foo";
+
+        ServiceConfig serviceConfig = mock(ServiceConfig.class);
+        when(serviceConfig.getLastChanged()).thenReturn(lastChanged);
+
+        ClientConfig clientConfig = new ClientConfig(clientId, serviceConfig);
+
+        ClientService clientService = mock(ClientService.class);
+        when(clientService.getClientConfig(clientId)).thenReturn(clientConfig);
+
+
+        CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest(lastChanged);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(checkForUpdateRequest);
+
+
+
+        javax.ws.rs.core.Response response = new ClientConfigResource(clientService).checkForUpdate(clientId, jsonRequest);
+
+
+        assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode());
     }
 
 }

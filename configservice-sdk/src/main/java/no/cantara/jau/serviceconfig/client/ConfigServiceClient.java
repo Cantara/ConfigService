@@ -7,10 +7,14 @@ import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.NoContentException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.rmi.UnexpectedException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
@@ -57,7 +61,7 @@ public class ConfigServiceClient {
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            ResponseErrorHandler.handle(responseCode, responseMessage, url);
+            ClientResponseErrorHandler.handle(responseCode, responseMessage, url);
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
@@ -144,18 +148,10 @@ public class ConfigServiceClient {
             output.write(jsonRequest.getBytes(CHARSET));
         }
 
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
-            return null;
-        }
-
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_PRECON_FAILED) {
-            throw new IllegalStateException("412 http precondition failed. Client not registered in ConfigServer.");
-        }
-
-        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            //TODO log only exception message, not stacktrace for known/expected exceptions like ConnectException: Connection refused.
-            log.warn("checkForUpdate failed. responseCode={}, responseMessage={}", connection.getResponseCode(), connection.getResponseMessage());
-            return null;
+        String responseMessage = connection.getResponseMessage();
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            ClientResponseErrorHandler.handle(responseCode, responseMessage, url);
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
