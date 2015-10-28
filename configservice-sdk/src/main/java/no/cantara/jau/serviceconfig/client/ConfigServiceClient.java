@@ -60,6 +60,7 @@ public class ConfigServiceClient {
 
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
+
         if (responseCode != HttpURLConnection.HTTP_OK) {
             ClientResponseErrorHandler.handle(responseCode, responseMessage, url);
         }
