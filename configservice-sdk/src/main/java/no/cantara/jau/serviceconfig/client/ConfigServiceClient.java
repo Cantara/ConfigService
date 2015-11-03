@@ -129,7 +129,7 @@ public class ConfigServiceClient {
     }
 
 
-    public ClientConfig checkForUpdate(String clientId, String serviceConfigLastChanged, Map<String, String> envInfo, String clientName) throws IOException {
+    public ClientConfig checkForUpdate(String clientId, CheckForUpdateRequest checkForUpdateRequest) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url + "/" + clientId).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -140,7 +140,7 @@ public class ConfigServiceClient {
         }
 
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        String jsonRequest = mapper.writeValueAsString(new CheckForUpdateRequest(serviceConfigLastChanged, envInfo, clientName));
+        String jsonRequest = mapper.writeValueAsString(checkForUpdateRequest);
         try (OutputStream output = connection.getOutputStream()) {
             output.write(jsonRequest.getBytes(CHARSET));
         }
