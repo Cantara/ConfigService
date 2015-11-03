@@ -12,7 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Properties;
 
 /**

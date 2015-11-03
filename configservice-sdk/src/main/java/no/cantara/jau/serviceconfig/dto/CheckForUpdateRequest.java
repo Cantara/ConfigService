@@ -9,7 +9,7 @@ import java.util.Map;
 public class CheckForUpdateRequest {
     public String serviceConfigLastChanged;
     public Map<String, String> envInfo;
-    public Map<String, String> tags;
+    public String tags;
     public String clientName;
 
     //jackson
@@ -19,7 +19,6 @@ public class CheckForUpdateRequest {
     public CheckForUpdateRequest(String serviceConfigLastChanged) {
         this.serviceConfigLastChanged = serviceConfigLastChanged;
         this.envInfo = new HashMap<>();
-        this.tags = new HashMap<>();
     }
 
     public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo) {
@@ -32,7 +31,7 @@ public class CheckForUpdateRequest {
         this.clientName = clientName;
     }
 
-    public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, Map<String, String> tags,
+    public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, String tags,
                                  String clientName) {
         this(serviceConfigLastChanged, envInfo, clientName);
         this.tags = tags;
