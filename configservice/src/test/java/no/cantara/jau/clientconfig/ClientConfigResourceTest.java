@@ -176,7 +176,7 @@ public class ClientConfigResourceTest {
 
     @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
-        ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, "checksumHere", System.getenv());
+        ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, "checksumHere", System.getenv(), "");
         assertNotNull(clientConfig);
         assertEquals(clientConfig.clientId, clientId);
     }

@@ -7,14 +7,10 @@ import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.NoContentException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.rmi.UnexpectedException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
@@ -133,7 +129,7 @@ public class ConfigServiceClient {
     }
 
 
-    public ClientConfig checkForUpdate(String clientId, String serviceConfigLastChanged, Map<String, String> envInfo) throws IOException {
+    public ClientConfig checkForUpdate(String clientId, String serviceConfigLastChanged, Map<String, String> envInfo, String clientName) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url + "/" + clientId).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -144,7 +140,7 @@ public class ConfigServiceClient {
         }
 
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        String jsonRequest = mapper.writeValueAsString(new CheckForUpdateRequest(serviceConfigLastChanged, envInfo));
+        String jsonRequest = mapper.writeValueAsString(new CheckForUpdateRequest(serviceConfigLastChanged, envInfo, clientName));
         try (OutputStream output = connection.getOutputStream()) {
             output.write(jsonRequest.getBytes(CHARSET));
         }

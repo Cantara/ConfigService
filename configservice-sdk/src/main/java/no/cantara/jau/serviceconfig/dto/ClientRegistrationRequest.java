@@ -22,6 +22,6 @@ public class ClientRegistrationRequest {
 
     public ClientRegistrationRequest(String artifactId, String clientName) {
         this(artifactId);
-        clientName = clientName;
+        this.clientName = clientName;
     }
 }

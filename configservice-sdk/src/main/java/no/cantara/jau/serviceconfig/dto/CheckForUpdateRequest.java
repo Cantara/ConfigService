@@ -9,6 +9,7 @@ import java.util.Map;
 public class CheckForUpdateRequest {
     public String serviceConfigLastChanged;
     public Map<String, String> envInfo;
+    public String clientName;
 
     //jackson
     private CheckForUpdateRequest() {
@@ -22,5 +23,10 @@ public class CheckForUpdateRequest {
     public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo) {
         this.serviceConfigLastChanged = serviceConfigLastChanged;
         this.envInfo = envInfo;
+    }
+
+    public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, String clientName) {
+        this(serviceConfigLastChanged, envInfo);
+        this.clientName = clientName;
     }
 }
