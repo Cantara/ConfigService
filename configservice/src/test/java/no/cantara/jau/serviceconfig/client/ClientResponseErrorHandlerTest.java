@@ -1,7 +1,6 @@
 package no.cantara.jau.serviceconfig.client;
 
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
@@ -9,6 +8,8 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.NoContentException;
 import java.net.HttpURLConnection;
 import java.rmi.UnexpectedException;
+
+import static org.testng.Assert.fail;
 
 public class ClientResponseErrorHandlerTest {
 

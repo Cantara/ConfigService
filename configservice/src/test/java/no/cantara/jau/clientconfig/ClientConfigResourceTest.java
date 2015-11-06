@@ -5,23 +5,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import jdk.nashorn.internal.ir.RuntimeNode;
 import no.cantara.jau.serviceconfig.ApplicationResource;
 import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
 import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
 import no.cantara.jau.serviceconfig.dto.*;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import sun.net.www.http.HttpClient;
 
 import javax.ws.rs.NotFoundException;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -239,23 +242,28 @@ public class ClientConfigResourceTest {
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
-        String html = getHTML("http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ApplicationResource.APPLICATION_PATH + registration.artifactId + "/status");
+        String html = getHTML("http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ApplicationResource.APPLICATION_PATH + registration.artifactId + "/status",
+                username, password);
 
         assertTrue(html.contains(clientConfig.clientId));
     }
 
-    public static String getHTML(String urlToRead) throws Exception {
-        StringBuilder result = new StringBuilder();
-        URL url = new URL(urlToRead);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+    public static String getHTML(String urlToRead, String username, String password) throws Exception {
+        URL url = new URL (urlToRead);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Authorization", "Basic " + username + ":" + password);
+        InputStream content = (InputStream)connection.getInputStream();
+        BufferedReader in   =
+                new BufferedReader (new InputStreamReader (content));
+        String ret = "";
         String line;
-        while ((line = rd.readLine()) != null) {
-            result.append(line);
+        while ((line = in.readLine()) != null) {
+            ret += line;
         }
-        rd.close();
-        return result.toString();
+        return line;
     }
 
 
