@@ -200,7 +200,7 @@ public class ClientConfigResourceTest {
     public void testCheckForUpdateUnregisteredClient() {
         ClientService clientService = mock(ClientService.class);
         String clientId = "";
-        when(clientService.checkForUpdatedClientConfig(clientId, any(CheckForUpdateRequest.class))).thenReturn(null);
+        when(clientService.checkForUpdatedClientConfig(anyString(), any(CheckForUpdateRequest.class))).thenReturn(null);
 
         javax.ws.rs.core.Response response = new ClientConfigResource(clientService).checkForUpdate(clientId, "{}");
 
@@ -239,7 +239,7 @@ public class ClientConfigResourceTest {
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
-        String html = getHTML("http://localhost::" + main.getPort() + Main.CONTEXT_PATH + ApplicationResource.APPLICATION_PATH + registration.artifactId + "/status");
+        String html = getHTML("http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ApplicationResource.APPLICATION_PATH + registration.artifactId + "/status");
 
         assertTrue(html.contains(clientConfig.clientId));
     }
