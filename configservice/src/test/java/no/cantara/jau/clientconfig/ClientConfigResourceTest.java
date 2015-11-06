@@ -244,12 +244,12 @@ public class ClientConfigResourceTest {
 
     public static String getHTML(String urlToRead, String username, String password) throws Exception {
         URL url = new URL (urlToRead);
-        String basicAuth = "Basic " + username + ":" + password;
+        String basicAuth = username + ":" + password;
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", Base64.getEncoder().encodeToString(basicAuth.getBytes()));
+        connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(basicAuth.getBytes()));
         InputStream content = (InputStream)connection.getInputStream();
         BufferedReader in   =
                 new BufferedReader (new InputStreamReader (content));
