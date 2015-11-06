@@ -218,7 +218,7 @@ public class ClientConfigResourceTest {
         ClientConfig clientConfig = new ClientConfig(clientId, serviceConfig);
 
         ClientService clientService = mock(ClientService.class);
-        when(clientService.checkForUpdatedClientConfig(clientId, any(CheckForUpdateRequest.class))).thenReturn(clientConfig);
+        when(clientService.checkForUpdatedClientConfig(anyString(), any(CheckForUpdateRequest.class))).thenReturn(clientConfig);
 
 
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest(lastChanged);
