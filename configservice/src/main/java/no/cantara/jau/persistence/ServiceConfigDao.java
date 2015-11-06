@@ -25,4 +25,6 @@ public interface ServiceConfigDao {
     ServiceConfig deleteServiceConfig(String serviceConfigId);
 
     ServiceConfig updateServiceConfig(ServiceConfig updatedServiceConfig);
+
+    String getArtifactId(ServiceConfig serviceConfig);
 }

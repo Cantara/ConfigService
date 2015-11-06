@@ -161,8 +161,4 @@ public class ConfigServiceClient {
         }
     }
 
-    public String getUrl() {
-        return url;
-    }
-
 }

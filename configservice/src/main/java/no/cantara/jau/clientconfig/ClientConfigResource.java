@@ -76,23 +76,23 @@ public class ClientConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkForUpdate(@PathParam("clientId") String clientId, String json) {
         log.trace("checkForUpdate with clientId={}", clientId);
-        CheckForUpdateRequest body;
+        CheckForUpdateRequest checkForUpdateRequest;
         try {
-            body = mapper.readValue(json, CheckForUpdateRequest.class);
+            checkForUpdateRequest = mapper.readValue(json, CheckForUpdateRequest.class);
         } catch (IOException e) {
             log.error("Error parsing json. {}, json={}", e.getMessage(), json);
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
-        ClientConfig newClientConfig = clientService.getClientConfig(clientId);
+        ClientConfig newClientConfig = clientService.checkForUpdatedClientConfig(clientId, checkForUpdateRequest);
         if (newClientConfig == null) {
-            String msg = "No ClientConfig could be found. Not registered? clientId=" + clientId + ", serviceConfigLastChanged=" + body.serviceConfigLastChanged;
+            String msg = "No ClientConfig could be found. Not registered? clientId=" + clientId + ", serviceConfigLastChanged=" + checkForUpdateRequest.serviceConfigLastChanged;
             log.debug(msg);
             return Response.status(Response.Status.PRECONDITION_FAILED).entity(msg).build();
         }
 
-        if (newClientConfig.serviceConfig.getLastChanged().equals(body.serviceConfigLastChanged)) {
-            log.debug("ClientConfig has not changed, return 204 No Content serviceConfigLastChanged={}", body.serviceConfigLastChanged);
+        if (newClientConfig.serviceConfig.getLastChanged().equals(checkForUpdateRequest.serviceConfigLastChanged)) {
+            log.debug("ClientConfig has not changed, return 204 No Content serviceConfigLastChanged={}", checkForUpdateRequest.serviceConfigLastChanged);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
 
@@ -104,7 +104,7 @@ public class ClientConfigResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         log.info("New ClientConfig found. clientId={}, serviceConfigLastChangedServer={}, serviceConfigLastChangedFromClient={}",
-                clientId, newClientConfig.serviceConfig.getLastChanged(), body.serviceConfigLastChanged);
+                clientId, newClientConfig.serviceConfig.getLastChanged(), checkForUpdateRequest.serviceConfigLastChanged);
         return Response.ok(jsonResult).build();
     }
 }

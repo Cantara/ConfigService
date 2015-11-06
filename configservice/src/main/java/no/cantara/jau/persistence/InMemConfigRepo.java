@@ -67,6 +67,7 @@ public class InMemConfigRepo implements ServiceConfigDao {
         }
         return serviceConfigs.get(serviceConfigId);
     }
+
     private Application findApplication(String artifactId) {
         for (Map.Entry<String, Application> entry : idToApplication.entrySet()) {
             if (entry.getValue().artifactId.equals(artifactId)) {
@@ -93,6 +94,20 @@ public class InMemConfigRepo implements ServiceConfigDao {
     @Override
     public ServiceConfig updateServiceConfig(ServiceConfig newServiceConfig) {
         return serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
+    }
+
+    @Override
+    public String getArtifactId(ServiceConfig serviceConfig) {
+        String serviceConfigId = serviceConfig.getId();
+        String applicationId = applicationIdToServiceConfigIdMapping.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(serviceConfigId))
+                .findFirst()
+                .get()
+                .getKey();
+
+        Application application = idToApplication.get(applicationId);
+        return application.artifactId;
     }
 
     public void addOrUpdateConfig(String applicationId, ServiceConfig serviceConfig) {
