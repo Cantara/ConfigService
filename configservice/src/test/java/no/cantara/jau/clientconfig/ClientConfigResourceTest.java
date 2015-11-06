@@ -15,13 +15,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.NotFoundException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Base64;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.mockito.Mockito.*;
@@ -236,30 +230,13 @@ public class ClientConfigResourceTest {
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
-        String html = getHTML("http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ApplicationResource.APPLICATION_PATH + registration.artifactId + "/status",
-                username, password);
+        Response response = given()
+                .auth().basic(username, password)
+                .get(ApplicationResource.APPLICATION_PATH);
 
-        assertTrue(html.contains(clientConfig.clientId));
+        assertTrue(response.body().asString().contains(clientConfig.clientId));
     }
 
-    public static String getHTML(String urlToRead, String username, String password) throws Exception {
-        URL url = new URL (urlToRead);
-        String basicAuth = username + ":" + password;
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(basicAuth.getBytes()));
-        InputStream content = (InputStream)connection.getInputStream();
-        BufferedReader in   =
-                new BufferedReader (new InputStreamReader (content));
-        String ret = "";
-        String line;
-        while ((line = in.readLine()) != null) {
-            ret += line;
-        }
-        return line;
-    }
 
 
 }
