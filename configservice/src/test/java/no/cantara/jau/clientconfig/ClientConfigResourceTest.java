@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import no.cantara.jau.serviceconfig.ApplicationResource;
 import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
@@ -250,11 +251,12 @@ public class ClientConfigResourceTest {
 
     public static String getHTML(String urlToRead, String username, String password) throws Exception {
         URL url = new URL (urlToRead);
+        String basicAuth = "Basic " + username + ":" + password;
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", "Basic " + username + ":" + password);
+        connection.setRequestProperty("Authorization", Base64.encode(basicAuth.getBytes()));
         InputStream content = (InputStream)connection.getInputStream();
         BufferedReader in   =
                 new BufferedReader (new InputStreamReader (content));
