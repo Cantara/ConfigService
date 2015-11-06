@@ -230,9 +230,11 @@ public class ClientConfigResourceTest {
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
+        String path = ApplicationResource.APPLICATION_PATH + "/UserAdminService/status";
+
         Response response = given()
                 .auth().basic(username, password)
-                .get(ApplicationResource.APPLICATION_PATH);
+                .get(path);
 
         assertTrue(response.body().asString().contains(clientConfig.clientId));
     }
