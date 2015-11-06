@@ -5,19 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import no.cantara.jau.serviceconfig.ApplicationResource;
 import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
 import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
 import no.cantara.jau.serviceconfig.dto.*;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.mockito.Mockito.*;
@@ -256,7 +249,7 @@ public class ClientConfigResourceTest {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", Base64.encode(basicAuth.getBytes()));
+        connection.setRequestProperty("Authorization", Base64.getEncoder().encodeToString(basicAuth.getBytes()));
         InputStream content = (InputStream)connection.getInputStream();
         BufferedReader in   =
                 new BufferedReader (new InputStreamReader (content));
