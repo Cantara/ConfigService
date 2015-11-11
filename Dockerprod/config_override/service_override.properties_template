@@ -1,2 +1,2 @@
-version=0.4-alpha2
+version=SNAPSHOT
 JAVA_PARAMS="-Dlogback.configurationFile=./logback.xml -Xms128m -Xmx1024m"
