@@ -3,7 +3,6 @@
 docker build -t configservice-dev .
 
 CONFIG_FILE="$(dirname $(pwd))/config_override.properties"
-VERSION=SNAPSHOT
 
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "config_override.properties in parent directory is missing"
@@ -20,5 +19,5 @@ fi
 echo "Starting instance. Do 'docker exec -it configservice-dev bash' to get shell"
 
 CONFIG="-v $CONFIG_FILE:/home/configservice/config_override.properties"
-
 docker run --rm -p 8086:8086 --name configservice-dev $CONFIG $LOCAL configservice-dev
+

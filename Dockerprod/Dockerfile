@@ -6,7 +6,7 @@ ENV HOME=/home/$USER
 RUN useradd -d "$HOME" -u 500 -m -s /bin/bash $USER
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-		cron supervisor \
+		supervisor \
 	&& rm -rf /var/lib/apt/lists/*
 
 ## Set up start of services
@@ -18,12 +18,10 @@ COPY toRoot/* $HOME/
 RUN chown -R $USER:$USER $HOME
 RUN chmod 755 $HOME/*.sh
 
-ADD crontab /etc/cron.d/configservice
-RUN chmod 0644 /etc/cron.d/configservice
+COPY config_override/* $HOME/config_override/
+RUN chown -R $USER:$USER $HOME
 
-RUN touch /var/log/cron.log
-RUN chown $USER /var/log/cron.log
-RUN crontab -u $USER /etc/cron.d/configservice
+VOLUME ["/home/configservice/config_override"]
 
 EXPOSE 8086
 CMD /usr/bin/supervisord
