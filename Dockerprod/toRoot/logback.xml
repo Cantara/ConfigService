@@ -4,7 +4,7 @@
     <property name="appName" value="pharmacyinventory" />
 
     <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/pharmacyinventory.log</file>
+        <file>${LOG_DIR}/configservice.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_DIR}/pharmacyinventory-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
