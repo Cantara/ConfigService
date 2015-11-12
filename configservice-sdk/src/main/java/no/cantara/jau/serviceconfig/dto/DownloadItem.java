@@ -1,10 +1,15 @@
 package no.cantara.jau.serviceconfig.dto;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-public class DownloadItem {
-    public String url;
+public class DownloadItem implements Serializable {
+	
+	private static final long serialVersionUID = -6920085900315128790L;
+	
+	public String url;
     public String username;
     public String password;
     private String filename;

@@ -1,5 +1,6 @@
 package no.cantara.jau.serviceconfig.dto;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,8 +9,11 @@ import java.util.List;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-public class ServiceConfig {
-    private static final DateTimeFormatter df = DateTimeFormatter.ISO_INSTANT;
+public class ServiceConfig implements Serializable {
+
+	private static final long serialVersionUID = -7717945124215182099L;
+
+	private static final DateTimeFormatter df = DateTimeFormatter.ISO_INSTANT;
 
     private String id;
 
