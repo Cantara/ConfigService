@@ -1,12 +1,12 @@
 <configuration scan="true" scanPeriod="60 seconds">
     <property name="LOG_DIR" value="logs/" />
     <property name="env" value="prod" />
-    <property name="appName" value="pharmacyinventory" />
+    <property name="appName" value="configservice" />
 
     <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/configservice.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/pharmacyinventory-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/configservice-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -19,8 +19,7 @@
 
     <logger name="org.eclipse.jetty" level="WARN"/>
 
-    <logger name="no.nmd.pharmacy.stocklevel.cache.StockLevelMessageReceiver" level="DEBUG"/>
-    <logger name="no.nmd" level="DEBUG"/>
+    <logger name="no.cantara.jau" level="DEBUG"/>
 
     <root level="info">
         <appender-ref ref="logfile" />
