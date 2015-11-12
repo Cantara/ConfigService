@@ -47,6 +47,7 @@ public class PersistedConfigRepo implements ServiceConfigDao {
     public Application createApplication(Application newApplication) {
         newApplication.id = UUID.randomUUID().toString();
         idToApplication.put(newApplication.id, newApplication);
+        db.commit();
         return newApplication;
     }
 
