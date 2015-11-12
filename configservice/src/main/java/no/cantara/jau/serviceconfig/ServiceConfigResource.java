@@ -86,7 +86,7 @@ public class ServiceConfigResource {
         try {
             jsonResult = mapper.writeValueAsString(updatedServiceConfig);
         } catch (JsonProcessingException e) {
-            log.error("", e);
+            log.error("{}", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok(jsonResult).build();
