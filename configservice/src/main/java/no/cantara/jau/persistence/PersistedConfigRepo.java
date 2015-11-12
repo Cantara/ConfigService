@@ -2,36 +2,52 @@ package no.cantara.jau.persistence;
 
 import no.cantara.jau.serviceconfig.dto.Application;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+
+import org.constretto.ConstrettoBuilder;
+import org.constretto.ConstrettoConfiguration;
+import org.constretto.model.Resource;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * This class is a mess. Should be totally redesigned after the public API is stable.
- *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-public class InMemConfigRepo implements ServiceConfigDao {
+@Service
+public class PersistedConfigRepo implements ServiceConfigDao {
     private final Map<String, Application> idToApplication;
     private final Map<String, ServiceConfig> serviceConfigs;
     private final Map<String, String> applicationIdToServiceConfigIdMapping;
     private final Map<String, String> clientIdToServiceConfigIdMapping;
+    
+    private DB db;
+    
+    final static ConstrettoConfiguration configuration = new ConstrettoBuilder()
+            .createPropertiesStore()
+            .addResource(Resource.create("classpath:application.properties"))
+            .addResource(Resource.create("file:./config_override/application_override.properties"))
+            .done()
+            .getConfiguration();
 
-
-    public InMemConfigRepo() {
-        this.idToApplication = new HashMap<>();
-        this.serviceConfigs = new HashMap<>();
-        this.applicationIdToServiceConfigIdMapping = new HashMap<>();
-        this.clientIdToServiceConfigIdMapping = new HashMap<>();
-        //addTestData();
+    public PersistedConfigRepo() {
+    	String mapDBPath = configuration.evaluateToString("mapdb.path");
+    	db = DBMaker.newFileDB(new File(mapDBPath)).make();
+    	
+        this.idToApplication = db.getHashMap("idToApplication");
+        this.serviceConfigs = db.getHashMap("serviceConfigs");
+        this.applicationIdToServiceConfigIdMapping = db.getHashMap("applicationIdToServiceConfigIdMapping");
+        this.clientIdToServiceConfigIdMapping = db.getHashMap("clientIdToServiceConfigIdMapping");
     }
 
     @Override
     public Application createApplication(Application newApplication) {
         newApplication.id = UUID.randomUUID().toString();
         idToApplication.put(newApplication.id, newApplication);
+        db.commit();
         return newApplication;
     }
 
@@ -40,6 +56,7 @@ public class InMemConfigRepo implements ServiceConfigDao {
         newServiceConfig.setId(UUID.randomUUID().toString());
         serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
         applicationIdToServiceConfigIdMapping.put(applicationId, newServiceConfig.getId());
+        db.commit();
         return newServiceConfig;
     }
 
@@ -50,7 +67,9 @@ public class InMemConfigRepo implements ServiceConfigDao {
 
     @Override
     public ServiceConfig deleteServiceConfig(String serviceConfigId) {
-        return serviceConfigs.remove(serviceConfigId);
+    	ServiceConfig config = serviceConfigs.remove(serviceConfigId);
+    	db.commit();
+        return config;
     }
 
     @Override
@@ -79,6 +98,7 @@ public class InMemConfigRepo implements ServiceConfigDao {
     @Override
     public void registerClient(String clientId, String serviceConfigId) {
         clientIdToServiceConfigIdMapping.put(clientId, serviceConfigId);
+        db.commit();
     }
 
     @Override
@@ -92,7 +112,9 @@ public class InMemConfigRepo implements ServiceConfigDao {
 
     @Override
     public ServiceConfig updateServiceConfig(ServiceConfig newServiceConfig) {
-        return serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
+    	ServiceConfig config = serviceConfigs.put(newServiceConfig.getId(), newServiceConfig);
+    	db.commit();
+        return config;
     }
 
     @Override
@@ -119,6 +141,7 @@ public class InMemConfigRepo implements ServiceConfigDao {
         }
 
         applicationIdToServiceConfigIdMapping.put(applicationId, serviceConfigId);
+        db.commit();
     }
 
     //Should probably be moved to somewhere else.

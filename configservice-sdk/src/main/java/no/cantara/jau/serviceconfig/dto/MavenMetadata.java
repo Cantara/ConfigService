@@ -1,10 +1,15 @@
 package no.cantara.jau.serviceconfig.dto;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-14.
  */
-public class MavenMetadata {
-    public String groupId;
+public class MavenMetadata implements Serializable {
+	
+	private static final long serialVersionUID = 3740450878067789729L;
+	
+	public String groupId;
     public String artifactId;
     public String version;
     public String packaging = "jar";

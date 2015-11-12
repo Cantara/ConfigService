@@ -43,6 +43,12 @@
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
         </dependency>
+        
+        <dependency>
+		   <groupId>org.mapdb</groupId>
+		   <artifactId>mapdb</artifactId>
+		   <version>1.0.8</version>
+		</dependency>
 
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
