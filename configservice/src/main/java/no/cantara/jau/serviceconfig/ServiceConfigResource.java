@@ -1,8 +1,9 @@
 package no.cantara.jau.serviceconfig;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
-import no.cantara.jau.serviceconfig.dto.ServiceConfigSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 /**
  * CRUD, http endpoint for ServiceConfig
@@ -18,8 +20,11 @@ import javax.ws.rs.core.Response;
  */
 @Path(ServiceConfigResource.SERVICECONFIG_PATH)
 public class ServiceConfigResource {
-    private static final Logger log = LoggerFactory.getLogger(ServiceConfigResource.class);
     public static final String SERVICECONFIG_PATH = ApplicationResource.APPLICATION_PATH + "/{applicationId}/serviceconfig";
+
+    private static final Logger log = LoggerFactory.getLogger(ServiceConfigResource.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     private final ServiceConfigDao serviceConfigDao;
 
     @Autowired
@@ -37,8 +42,8 @@ public class ServiceConfigResource {
 
         ServiceConfig newServiceConfig;
         try {
-            newServiceConfig = ServiceConfigSerializer.fromJson(json);
-        } catch (RuntimeException e) {
+            newServiceConfig = mapper.readValue(json, ServiceConfig.class);
+        } catch (IOException e) {
             Response.Status status = Response.Status.BAD_REQUEST;
             log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
             return Response.status(status).build();
@@ -47,25 +52,25 @@ public class ServiceConfigResource {
         try {
             ServiceConfig persistedServiceConfig = serviceConfigDao.createServiceConfig(applicationId, newServiceConfig);
             log.info("created {}", persistedServiceConfig);
-            String jsonResult = ServiceConfigSerializer.toJson(persistedServiceConfig);
+            String jsonResult = mapper.writeValueAsString(persistedServiceConfig);
             return Response.ok(jsonResult).build();
-        } catch (RuntimeException e) {
+        } catch (IOException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PUT
-    @Path("/")  //TODO Should be path /{serviceConfigId}
+    @Path("/{serviceConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateServiceConfig(String json) {
+    public Response updateServiceConfig(@PathParam("serviceConfigId") String serviceConfigId, String json) {
     	log.trace("Invoked updateServiceConfig with json {}", json);
 
         ServiceConfig updatedServiceConfig;
         try {
-            updatedServiceConfig = ServiceConfigSerializer.fromJson(json);
-        } catch (RuntimeException e) {
+            updatedServiceConfig = mapper.readValue(json, ServiceConfig.class);
+        } catch (IOException e) {
             Response.Status status = Response.Status.BAD_REQUEST;
             log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
             return Response.status(status).build();
@@ -76,7 +81,14 @@ public class ServiceConfigResource {
             log.warn("Could not update serviceConfig with json={}", json);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        String jsonResult = ServiceConfigSerializer.toJson(updatedServiceConfig);
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(updatedServiceConfig);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
         return Response.ok(jsonResult).build();
     }
 
@@ -92,7 +104,14 @@ public class ServiceConfigResource {
             log.warn("Could not find serviceConfig with id={}", serviceConfigId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        String jsonResult = ServiceConfigSerializer.toJson(serviceConfig);
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(serviceConfig);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
         return Response.ok(jsonResult).build();
     }
 
@@ -110,29 +129,4 @@ public class ServiceConfigResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    //http://localhost:8086/jau/serviceconfig/query?clientid=clientid1
-    /**
-     * @param clientid  unique id of client which query for config
-     * @return  a representation of ServiceConfig for this client
-     */
-    @GET
-    @Path("/query")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Deprecated //use /clientconfig/{clientId} instead 
-    public Response findServiceConfig(@QueryParam("clientid") String clientid) {
-        log.trace("findServiceConfig with clientid={}", clientid);
-        try {
-            ServiceConfig serviceConfig = serviceConfigDao.findConfig(clientid);
-            if (serviceConfig == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-
-            String json = ServiceConfigSerializer.toJson(serviceConfig);
-            log.trace("findServiceConfig with clientid={} returned {}", clientid, serviceConfig);
-            return Response.ok(json).build();
-        } catch (RuntimeException e) {
-            log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 }

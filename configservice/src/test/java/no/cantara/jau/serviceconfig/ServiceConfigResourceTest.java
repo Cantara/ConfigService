@@ -121,9 +121,8 @@ public class ServiceConfigResourceTest {
     public void testPutServiceConfig() throws Exception {
         serviceConfigResponse.setName("something new");
         String putJsonRequest = mapper.writeValueAsString(serviceConfigResponse);
-        //ServiceConfigSerializer.toJson(serviceConfigResponse);
 
-        String path = ServiceConfigResource.SERVICECONFIG_PATH; //TODO should use id here
+        String path = ServiceConfigResource.SERVICECONFIG_PATH + "/" + serviceConfigResponse.getId();
         Response response = given().
                 auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -137,8 +136,8 @@ public class ServiceConfigResourceTest {
 
         String jsonResponse = response.body().asString();
         ServiceConfig updatedServiceConfig = mapper.readValue(jsonResponse,ServiceConfig.class);
-        //ServiceConfigSerializer.fromJson(jsonResponse);
         assertEquals(updatedServiceConfig.getName(), serviceConfigResponse.getName());
+        assertEquals(updatedServiceConfig.getId(), serviceConfigResponse.getId());
     }
 
     @Test(dependsOnMethods = "testPutServiceConfig")
@@ -181,25 +180,5 @@ public class ServiceConfigResourceTest {
                 .get(path);
     }
 
-    /*
-    @Test
-    public void testFindServiceConfigOK() throws Exception {
-        //GET
-        String path = "/serviceconfig/query";
-        Response response = given()
-                .auth().basic(username, password)
-                .queryParam("clientid", "clientid1")
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .get(path);
 
-        String jsonResponse = response.body().asString();
-        ServiceConfig serviceConfig = ServiceConfigSerializer.fromJson(jsonResponse);
-        assertEquals(serviceConfig.getName(), "Service1-1.23");
-        assertNotNull(serviceConfig.getLastChanged());
-    }
-    */
 }
