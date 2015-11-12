@@ -57,7 +57,7 @@ public class Main {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        log.info("Starting ConfigService");
+        log.debug("Starting ConfigService");
         Integer webappPort = configuration.evaluateToInt("service.port");
 
         try {
@@ -152,7 +152,7 @@ public class Main {
         HashLoginService loginService = new HashLoginService("ConfigService");
         String userName = configuration.evaluateToString("login.user");
         String password = configuration.evaluateToString("login.password");
-        log.trace("Main instantiated with basic auth user: {} pass: {}", userName, password);
+        log.debug("Main instantiated with basic auth user={}", userName);
         loginService.putUser(userName, new Password(password), new String[]{"user"});
         securityHandler.setLoginService(loginService);
         return securityHandler;
