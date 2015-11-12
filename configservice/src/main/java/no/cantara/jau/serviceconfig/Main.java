@@ -30,8 +30,8 @@ public class Main {
     
     final static ConstrettoConfiguration configuration = new ConstrettoBuilder()
             .createPropertiesStore()
-            .addResource(Resource.create("classpath:config.properties"))
-            .addResource(Resource.create("file:./config_override.properties"))
+            .addResource(Resource.create("classpath:application.properties"))
+            .addResource(Resource.create("file:./config_override/application_override.properties"))
             .done()
             .getConfiguration();
 
