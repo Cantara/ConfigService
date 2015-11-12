@@ -3,4 +3,4 @@ service.port=8086
 login.user=read
 login.password=baretillesing
 
-mapdb.path=./serviceConfig.db
+mapdb.path=./db/serviceConfig.db

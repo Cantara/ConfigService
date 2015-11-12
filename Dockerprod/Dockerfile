@@ -18,10 +18,11 @@ COPY toRoot/* $HOME/
 RUN chown -R $USER:$USER $HOME
 RUN chmod 755 $HOME/*.sh
 
+RUN mkdir $HOME/db
 COPY config_override/* $HOME/config_override/
 RUN chown -R $USER:$USER $HOME
 
-VOLUME ["/home/configservice/config_override"]
+VOLUME ["/home/configservice/config_override", "/home/configservice/db"]
 
 EXPOSE 8086
 CMD /usr/bin/supervisord
