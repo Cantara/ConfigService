@@ -35,7 +35,9 @@ public class PersistedConfigRepo implements ServiceConfigDao {
 
     public PersistedConfigRepo() {
     	String mapDBPath = configuration.evaluateToString("mapdb.path");
-    	db = DBMaker.newFileDB(new File(mapDBPath)).make();
+        File mapDbPathFile = new File(mapDBPath);
+        mapDbPathFile.getParentFile().mkdirs();
+    	db = DBMaker.newFileDB(mapDbPathFile).make();
     	
         this.idToApplication = db.getHashMap("idToApplication");
         this.serviceConfigs = db.getHashMap("serviceConfigs");
