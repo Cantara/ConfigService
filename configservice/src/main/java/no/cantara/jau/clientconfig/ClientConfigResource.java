@@ -92,7 +92,7 @@ public class ClientConfigResource {
         }
 
         if (newClientConfig.serviceConfig.getLastChanged().equals(checkForUpdateRequest.serviceConfigLastChanged)) {
-            log.debug("ClientConfig has not changed, return 204 No Content serviceConfigLastChanged={}", checkForUpdateRequest.serviceConfigLastChanged);
+            log.trace("ClientConfig has not changed, return 204 No Content serviceConfigLastChanged={}", checkForUpdateRequest.serviceConfigLastChanged);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
 
