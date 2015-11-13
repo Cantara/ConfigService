@@ -2,10 +2,8 @@ package no.cantara.jau.persistence;
 
 import no.cantara.jau.serviceconfig.dto.Application;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+import no.cantara.jau.util.Configuration;
 
-import org.constretto.ConstrettoBuilder;
-import org.constretto.ConstrettoConfiguration;
-import org.constretto.model.Resource;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.springframework.stereotype.Service;
@@ -25,16 +23,9 @@ public class PersistedConfigRepo implements ServiceConfigDao {
     private final Map<String, String> clientIdToServiceConfigIdMapping;
     
     private DB db;
-    
-    final static ConstrettoConfiguration configuration = new ConstrettoBuilder()
-            .createPropertiesStore()
-            .addResource(Resource.create("classpath:application.properties"))
-            .addResource(Resource.create("file:./config_override/application_override.properties"))
-            .done()
-            .getConfiguration();
 
     public PersistedConfigRepo() {
-    	String mapDBPath = configuration.evaluateToString("mapdb.path");
+    	String mapDBPath = Configuration.getString("mapdb.path");
         File mapDbPathFile = new File(mapDBPath);
         mapDbPathFile.getParentFile().mkdirs();
     	db = DBMaker.newFileDB(mapDbPathFile).make();

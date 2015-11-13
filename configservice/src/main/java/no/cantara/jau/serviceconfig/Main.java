@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
 
+import no.cantara.jau.util.Configuration;
+
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -27,13 +29,6 @@ import java.util.logging.LogManager;
 public class Main {
     public static final String CONTEXT_PATH = "/jau";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    
-    final static ConstrettoConfiguration configuration = new ConstrettoBuilder()
-            .createPropertiesStore()
-            .addResource(Resource.create("classpath:application.properties"))
-            .addResource(Resource.create("file:./config_override/application_override.properties"))
-            .done()
-            .getConfiguration();
 
     private int webappPort;
     private Server server;
@@ -58,7 +53,7 @@ public class Main {
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
         log.debug("Starting ConfigService");
-        Integer webappPort = configuration.evaluateToInt("service.port");
+        Integer webappPort = Configuration.getInt("service.port");
 
         try {
 
@@ -150,8 +145,8 @@ public class Main {
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
         securityHandler.addConstraintMapping(constraintMapping);
         HashLoginService loginService = new HashLoginService("ConfigService");
-        String userName = configuration.evaluateToString("login.user");
-        String password = configuration.evaluateToString("login.password");
+        String userName = Configuration.getString("login.user");
+        String password = Configuration.getString("login.password");
         log.debug("Main instantiated with basic auth user={}", userName);
         loginService.putUser(userName, new Password(password), new String[]{"user"});
         securityHandler.setLoginService(loginService);
