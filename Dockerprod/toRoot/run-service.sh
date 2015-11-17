@@ -6,7 +6,5 @@ source config_override/service_override.properties # this might override JAVA_PA
 
 START_APP_COMMAND="/usr/bin/java $JAVA_PARAMS -jar $APP"
 
-./update-service.sh
-
 echo "Starting $APP"
 $START_APP_COMMAND
