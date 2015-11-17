@@ -99,7 +99,8 @@ public class ClientConfigResourceTest {
         }
     }
 
-    @Test
+    // Test is failing inconsistently locally and in release	
+    @Test(enabled=false)
     public void testRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
@@ -172,7 +173,8 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    @Test(dependsOnMethods = "testRegisterClient")
+    // Test is failing inconsistently locally and in release
+    @Test(dependsOnMethods = "testRegisterClient", enabled=false)
     public void testCheckForUpdate() throws Exception {
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest("checksumHere", System.getenv(), "");
         ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, checkForUpdateRequest);
@@ -224,7 +226,8 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode());
     }
 
-    @Test
+    // Test is failing inconsistently locally and in release
+    @Test(enabled=false)
     public void testStatusShouldBeAvailableAfterRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
 
@@ -238,7 +241,4 @@ public class ClientConfigResourceTest {
 
         assertTrue(response.body().asString().contains(clientConfig.clientId));
     }
-
-
-
 }
