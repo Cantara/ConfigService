@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to download deployment unit from a Maven artifact repository.
 
-version=0.4-alpha2
+version=0.5-SNAPSHOT
 source config_override/service_override.properties # this might override version to download
 
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
