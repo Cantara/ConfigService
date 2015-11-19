@@ -1,4 +1,4 @@
-# Running the Docker container
+# Running the Docker container 
 
 ## How it works
 * The configuration override of the application is volume mounted when running the Docker image
