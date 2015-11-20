@@ -1,0 +1,8 @@
+/var/log/supervisor/*.log {
+    missingok
+    notifempty
+    compress
+    size 20M
+    daily
+    create 0744 root root
+}

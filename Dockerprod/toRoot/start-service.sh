@@ -1,4 +1,6 @@
 #!/bin/bash
+# Script to start Java application.
+# DO NOT CALL THIS MANUALLY! Intended for use by supervisord only.
 
 APP=configservice.jar
 JAVA_PARAMS="-Dlogback.configurationFile=./logback-default.xml -Xms128m -Xmx1024m"
