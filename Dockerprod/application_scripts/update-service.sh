@@ -1,6 +1,7 @@
 #!/bin/bash
 # Script to download deployment unit from a Maven artifact repository.
-# How to upgrade application:
+# How to upgrade application when using release versions (when running SNAPSHOTs, a
+# cron job will run the scripts for you):
 ## Change version in config_override/service_override.properties
 ## ./update-service.sh
 ## ./stop-service.sh
