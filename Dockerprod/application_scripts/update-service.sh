@@ -7,8 +7,7 @@
 ## supervisord will automatically start the service again
 
 #Timestamp with some whitespace for readability in log
-printf "\n"
-date +" --- %Y-%m-%d_%H:%M:%S ---"
+date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S ---"
 
 # Default repos, override in service_override.properties
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases

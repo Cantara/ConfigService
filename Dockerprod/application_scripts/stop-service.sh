@@ -2,8 +2,7 @@
 # Kills a running process based on $APP variable specified in config_override/service_override.properties
 
 #Print timestamp with some whitespace for readability in log
-printf "\n"
-date +"%Y-%m-%d_%H:%M:%S"
+date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S"
 
 SERVICE_OVERRIDE=config_override/service_override.properties
 source $SERVICE_OVERRIDE
