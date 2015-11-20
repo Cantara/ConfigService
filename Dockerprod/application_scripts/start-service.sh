@@ -2,7 +2,7 @@
 # Script to start Java application.
 # DO NOT CALL THIS MANUALLY! Intended for use by supervisord only.
 
-date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S"
+date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S --- "
 
 APP=configservice.jar
 JAVA_PARAMS="-Dlogback.configurationFile=./logback-default.xml -Xms128m -Xmx1024m"
