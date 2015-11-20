@@ -1,0 +1,7 @@
+# A CRON job is running on this user.
+It automatically updates the Java application if a new SNAPSHOT version is available. As such, it is only
+doing anything if this is a test environment with the application running a SNAPSHOT version.
+THE CRON JOB HAS NO FUNCTION IN A PRODUCTION SETTING!
+
+This is what it does:
+* *  *   *   *     /home/$USER/update-service.sh >> /var/log/cron.log 2>&1 && /home/$USER/stop-service.sh >> /var/log/cron.log 2>&1

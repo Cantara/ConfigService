@@ -15,27 +15,28 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ## Configure application
 COPY application_scripts/* $HOME/
+COPY CRON $HOME/
 RUN chown -R $USER:$USER $HOME
 RUN chmod 755 $HOME/*.sh
 
-#Directories to persist for data volumes
+##Directories to persist for data volumes
 RUN mkdir $HOME/logs
 RUN mkdir $HOME/db
 COPY config_override_templates/* $HOME/config_override/
 RUN chown -R $USER:$USER $HOME
 
-#Configure crontab
+##Configure crontab
 ADD crontab /etc/cron.d/configservice
 RUN chmod 0644 /etc/cron.d/configservice
 RUN touch /var/log/cron.log
 RUN chown $USER /var/log/cron.log
 RUN crontab -u $USER /etc/cron.d/configservice
 
-#Configure logrotate
+##Configure logrotate
 COPY logrotate_config/logrotate.conf /etc/logrotate.conf
 COPY logrotate_config/logrotate.d/* /etc/logrotate.d/
 
-#Download application
+##Download application
 RUN su - $USER -c "$HOME/update-service.sh"
 
 VOLUME ["$HOME/config_override", "$HOME/db", "$HOME/logs"]
