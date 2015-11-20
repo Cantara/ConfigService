@@ -8,7 +8,7 @@
 
 #Timestamp with some whitespace for readability in log
 printf "\n"
-date +"%Y-%m-%d_%H:%M:%S"
+date +" --- %Y-%m-%d_%H:%M:%S ---"
 
 # Default repos, override in service_override.properties
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
@@ -52,7 +52,7 @@ if [[ $version == *SNAPSHOT* ]]; then
    build=`curl $curlAuth -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
    jarfile="$artifactId-$build.jar"
    url="$path/$version/$jarfile"
-else #A specific Release version
+else #A specific release version
    path="$releaseRepo/$groupId/$artifactId"
    url=$path/$version/$artifactId-$version.jar
    jarfile=$artifactId-$version.jar
@@ -81,7 +81,7 @@ if [ "$shaFromWeb" == "$localSha" ]; then
     echo "Got newest version locally, but it's not the one running. Updating symlink."
     create_or_replace_symlink
   fi
-else
+else #Download new version and update symlink
   echo Downloading $url
   wget -O $jarfile -q -N $url
 
