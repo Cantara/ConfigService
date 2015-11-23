@@ -9,12 +9,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		supervisor cron logrotate \
 	&& rm -rf /var/lib/apt/lists/*
 
+## Fix for python/supervisor error "ImportError: No module named pkg_resources"
+RUN wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python
+
 ## Set up start of services
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+## Download scripts
+RUN wget https://raw.githubusercontent.com/Cantara/devops/master/pull_deploy/linux/build/Docker/application_scripts/start-service.sh \
+    -P $HOME && \
+    wget https://raw.githubusercontent.com/Cantara/devops/master/pull_deploy/linux/build/Docker/application_scripts/stop-service.sh \
+    -P $HOME && \
+    wget https://raw.githubusercontent.com/Cantara/devops/master/pull_deploy/linux/build/Docker/application_scripts/update-service.sh \
+    -P $HOME
+
 ## Configure application
-COPY application_scripts/* $HOME/
+#COPY application_scripts/* $HOME/
 COPY CRON $HOME/
 RUN chmod 755 $HOME/*.sh
 
@@ -43,4 +54,4 @@ RUN su - $USER -c "$HOME/update-service.sh"
 VOLUME ["$HOME/config_override", "$HOME/db", "$HOME/logs"]
 
 EXPOSE 8086
-CMD /usr/bin/supervisord
+CMD /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
