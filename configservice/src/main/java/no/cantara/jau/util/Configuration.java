@@ -11,7 +11,7 @@ public class Configuration {
             .addResource(Resource.create("classpath:application.properties"))
             .addResource(Resource.create("file:./config_override/application_override.properties"))
             .done()
-            .getConfiguration(); 
+            .getConfiguration();
 	
 	private Configuration() {}
 	
