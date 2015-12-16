@@ -4,5 +4,6 @@
     compress
     size 20M
     daily
-    create 0744 root root
+    create 0744 configservice configservice
+    rotate 4
 }
