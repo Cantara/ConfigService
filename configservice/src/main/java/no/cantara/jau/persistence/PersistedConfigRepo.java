@@ -6,6 +6,8 @@ import no.cantara.jau.util.Configuration;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.UUID;
  */
 @Service
 public class PersistedConfigRepo implements ServiceConfigDao {
+    private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
     private final Map<String, Application> idToApplication;
     private final Map<String, ServiceConfig> serviceConfigs;
     private final Map<String, String> applicationIdToServiceConfigIdMapping;
@@ -145,6 +148,16 @@ public class PersistedConfigRepo implements ServiceConfigDao {
             return null;
         }
         return serviceConfigs.get(serviceConfigId);
+    }
+
+    @Override
+    public ServiceConfig changeServiceConfigForClientToUse(String clientId, String serviceConfigId) {
+        ServiceConfig serviceConfig = serviceConfigs.get(serviceConfigId);
+        if (serviceConfig != null) {
+            clientIdToServiceConfigIdMapping.put(clientId, serviceConfigId);
+            db.commit();
+        }
+        return serviceConfig;
     }
 
 

@@ -110,6 +110,12 @@ public class InMemConfigRepo implements ServiceConfigDao {
         return application.artifactId;
     }
 
+    @Override
+    public ServiceConfig changeServiceConfigForClientToUse(String clientId, String serviceConfigId) {
+        //TODO: Implementation
+        return null;
+    }
+
     public void addOrUpdateConfig(String applicationId, ServiceConfig serviceConfig) {
         String serviceConfigId = serviceConfig.getId();
         if (serviceConfigId == null) {
