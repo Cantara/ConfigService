@@ -2,6 +2,7 @@ package no.cantara.jau.clientconfig;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.org.apache.regexp.internal.RE;
 import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.persistence.StatusDao;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.Service;
 import java.io.IOException;
 
 /**
@@ -50,6 +52,28 @@ public class ClientResource {
             jsonResult = mapper.writeValueAsString(status);
         } catch (IOException e) {
             log.warn("Could not convert to Json {}", status.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return Response.ok(jsonResult).build();
+    }
+
+    @GET
+    @Path("/{clientId}/config")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClientConfig(@PathParam("clientId") String clientId) {
+        log.trace("Invoked getClientConfig");
+        ServiceConfig serviceConfig = configDao.findByClientId(clientId);
+
+        if (serviceConfig == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(serviceConfig);
+        } catch (IOException e) {
+            log.warn("Could not convert to Json {}", serviceConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
