@@ -116,6 +116,12 @@ public class InMemConfigRepo implements ServiceConfigDao {
         return null;
     }
 
+    @Override
+    public Map<String, ServiceConfig> getAllServiceConfigs() {
+        //TODO: Implementation
+        return null;
+    }
+
     public void addOrUpdateConfig(String applicationId, ServiceConfig serviceConfig) {
         String serviceConfigId = serviceConfig.getId();
         if (serviceConfigId == null) {

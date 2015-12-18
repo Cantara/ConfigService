@@ -3,7 +3,7 @@ package no.cantara.jau.persistence;
 import no.cantara.jau.serviceconfig.dto.Application;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 
-import javax.xml.ws.Service;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
@@ -31,4 +31,6 @@ public interface ServiceConfigDao {
     String getArtifactId(ServiceConfig serviceConfig);
 
     ServiceConfig changeServiceConfigForClientToUse(String clientId, String serviceConfigId);
+
+    Map<String, ServiceConfig> getAllServiceConfigs();
 }

@@ -160,6 +160,10 @@ public class PersistedConfigRepo implements ServiceConfigDao {
         return serviceConfig;
     }
 
+    @Override
+    public Map<String, ServiceConfig> getAllServiceConfigs() {
+        return serviceConfigs;
+    }
 
     /*
     private void addTestData() {

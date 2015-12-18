@@ -12,6 +12,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * CRUD, http endpoint for ServiceConfig
@@ -87,6 +88,24 @@ public class ServiceConfigResource {
             jsonResult = mapper.writeValueAsString(updatedServiceConfig);
         } catch (JsonProcessingException e) {
             log.error("{}", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(jsonResult).build();
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllServiceConfigs() {
+        log.trace("invoked getAllServiceConfigs");
+
+        Map<String, ServiceConfig> serviceConfig = serviceConfigDao.getAllServiceConfigs();
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(serviceConfig);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok(jsonResult).build();
