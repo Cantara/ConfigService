@@ -85,7 +85,7 @@ public class ClientResource {
 
         if (configDao.findByClientId(clientId) == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Client with id '" +
-                    clientId + "' does not exist.")
+                    clientId + "' is not registered.")
                     .build();
         }
 
