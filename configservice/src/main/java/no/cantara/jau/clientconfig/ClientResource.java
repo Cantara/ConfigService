@@ -100,6 +100,11 @@ public class ClientResource {
         ServiceConfig oldServiceConfig = configDao.changeServiceConfigForClientToUse(clientId,
                 newClientConfig.serviceConfig.getId());
 
+        if (oldServiceConfig == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("ServiceConfig with id {} does not exist.")
+                    .build();
+        }
+
         String jsonResult;
         try {
             jsonResult = mapper.writeValueAsString(oldServiceConfig);
