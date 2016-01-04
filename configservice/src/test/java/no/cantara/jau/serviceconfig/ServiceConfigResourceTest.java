@@ -164,6 +164,7 @@ public class ServiceConfigResourceTest {
     }
 
 
+
     //expect there to be a clientConfig with clientId=client1
     @Test
     public void testFindServiceConfigUnAuthorized() throws Exception {
@@ -178,4 +179,6 @@ public class ServiceConfigResourceTest {
                 .when()
                 .get(path);
     }
+
+
 }
