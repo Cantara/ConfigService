@@ -47,15 +47,7 @@ public class ClientResource {
         log.trace("getStatusForAll");
         ClientStatus status = statusDao.getStatus(clientId);
 
-        String jsonResult;
-        try {
-            jsonResult = mapper.writeValueAsString(status);
-        } catch (IOException e) {
-            log.warn("Could not convert to Json {}", status.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-
-        return Response.ok(jsonResult).build();
+        return mapResponseToJson(status);
     }
 
     @GET
@@ -69,15 +61,7 @@ public class ClientResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        String jsonResult;
-        try {
-            jsonResult = mapper.writeValueAsString(serviceConfig);
-        } catch (IOException e) {
-            log.warn("Could not convert to Json {}", serviceConfig.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-
-        return Response.ok(jsonResult).build();
+        return mapResponseToJson(serviceConfig);
     }
 
     @PUT
@@ -98,23 +82,36 @@ public class ClientResource {
         }
 
         String serviceConfigId = newClientConfig.serviceConfig.getId();
+
+        if (configDao.findByClientId(clientId) == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Client with id '" +
+                    clientId + "' does not exist.")
+                    .build();
+        }
+
         ServiceConfig oldServiceConfig = configDao.changeServiceConfigForClientToUse(clientId,
                 serviceConfigId);
 
         if (oldServiceConfig == null) {
-            log.trace("ServiceConfig with id {} does not exist. Config for client {} not updated.");
-            return Response.status(Response.Status.BAD_REQUEST).entity("ServiceConfig with id " +
-                    serviceConfigId + " does not exist. Config for client " + clientId + " not updated.")
+            log.trace("ServiceConfig with id '" + serviceConfigId + "' does not exist. Config for client '"
+                    + clientId + "' not updated.");
+            return Response.status(Response.Status.BAD_REQUEST).entity("ServiceConfig with id '" +
+                    serviceConfigId + "' does not exist. Config for clientId '" + clientId + "' not updated.")
                     .build();
         }
 
+        return mapResponseToJson(oldServiceConfig);
+    }
+
+    private Response mapResponseToJson(Object response) {
         String jsonResult;
         try {
-            jsonResult = mapper.writeValueAsString(oldServiceConfig);
-        } catch (JsonProcessingException e) {
-            log.error("{}", e);
+            jsonResult = mapper.writeValueAsString(response);
+        } catch (IOException e) {
+            log.warn("Could not convert to Json {}", response.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+
         return Response.ok(jsonResult).build();
     }
 
