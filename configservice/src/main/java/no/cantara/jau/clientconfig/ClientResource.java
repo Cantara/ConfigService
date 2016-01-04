@@ -97,11 +97,14 @@ public class ClientResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
+        String serviceConfigId = newClientConfig.serviceConfig.getId();
         ServiceConfig oldServiceConfig = configDao.changeServiceConfigForClientToUse(clientId,
-                newClientConfig.serviceConfig.getId());
+                serviceConfigId);
 
         if (oldServiceConfig == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("ServiceConfig with id {} does not exist.")
+            log.trace("ServiceConfig with id {} does not exist. Config for client {} not updated.");
+            return Response.status(Response.Status.BAD_REQUEST).entity("ServiceConfig with id " +
+                    serviceConfigId + " does not exist. Config for client " + clientId + " not updated.")
                     .build();
         }
 
