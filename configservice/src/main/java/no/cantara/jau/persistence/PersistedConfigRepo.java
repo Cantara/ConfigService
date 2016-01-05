@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-//@Service
+@Service
 public class PersistedConfigRepo implements ServiceConfigDao {
     private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
     private final Map<String, Application> idToApplication;
@@ -32,7 +32,7 @@ public class PersistedConfigRepo implements ServiceConfigDao {
         File mapDbPathFile = new File(mapDBPath);
         mapDbPathFile.getParentFile().mkdirs();
     	db = DBMaker.newFileDB(mapDbPathFile).make();
-
+    	
         this.idToApplication = db.getHashMap("idToApplication");
         this.serviceConfigs = db.getHashMap("serviceConfigs");
         this.applicationIdToServiceConfigIdMapping = db.getHashMap("applicationIdToServiceConfigIdMapping");

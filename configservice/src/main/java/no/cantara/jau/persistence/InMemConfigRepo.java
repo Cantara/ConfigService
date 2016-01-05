@@ -14,7 +14,6 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 //Add @Service and remove @Service from PersistedConfigRepo to activate.
-    @Service
 public class InMemConfigRepo implements ServiceConfigDao {
     private final Map<String, Application> idToApplication;
     private final Map<String, ServiceConfig> serviceConfigs;
