@@ -235,7 +235,7 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode());
     }
 
-    @Test(dependsOnMethods = "testCheckForUpdate")
+    @Test
     public void testChangeServiceConfigForSingleClient() throws IOException {
         ServiceConfig serviceConfig = createServiceConfig("for-single-client");
         String jsonRequestServiceConfig = mapper.writeValueAsString(serviceConfig);
