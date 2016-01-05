@@ -8,6 +8,8 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,9 +29,11 @@ public class PersistedConfigRepo implements ServiceConfigDao {
     
     private DB db;
 
-    public PersistedConfigRepo() {
-    	String mapDBPath = Configuration.getString("mapdb.path");
-        File mapDbPathFile = new File(mapDBPath);
+    @Autowired
+    public PersistedConfigRepo(
+            @Value("${mapdb.path}") String mapDbPath) {
+        File mapDbPathFile = new File(mapDbPath);
+        log.debug("Using MapDB from {}", mapDbPathFile.getAbsolutePath());
         mapDbPathFile.getParentFile().mkdirs();
     	db = DBMaker.newFileDB(mapDbPathFile).make();
     	
