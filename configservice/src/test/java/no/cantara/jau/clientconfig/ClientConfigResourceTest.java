@@ -37,7 +37,7 @@ public class ClientConfigResourceTest {
     @BeforeClass
     public void startServer() throws Exception {
         new Thread(() -> {
-            main = new Main(6644);
+            main = new Main(6645);
             main.start();
         }).start();
         Thread.sleep(2000);
@@ -100,7 +100,7 @@ public class ClientConfigResourceTest {
     }
 
     // Test is failing inconsistently locally and in release	
-    @Test(enabled=false)
+    @Test(enabled=true)
     public void testRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
@@ -174,7 +174,7 @@ public class ClientConfigResourceTest {
     }
 
     // Test is failing inconsistently locally and in release
-    @Test(dependsOnMethods = "testRegisterClient", enabled=false)
+    @Test(dependsOnMethods = "testRegisterClient", enabled=true)
     public void testCheckForUpdate() throws Exception {
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest("checksumHere", System.getenv(), "");
         ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, checkForUpdateRequest);
@@ -227,7 +227,7 @@ public class ClientConfigResourceTest {
     }
 
     // Test is failing inconsistently locally and in release
-    @Test(enabled=false)
+    @Test(enabled=true)
     public void testStatusShouldBeAvailableAfterRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
 
