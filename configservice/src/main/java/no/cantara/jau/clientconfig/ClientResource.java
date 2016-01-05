@@ -70,7 +70,7 @@ public class ClientResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateClientConfig(@PathParam("clientId") String clientId,
                                                         String clientConfigAsJson) {
-        log.trace("Invoked updateClientConfig clientId={} with json {}", clientId,
+        log.debug("Invoked updateClientConfig clientId={} with json {}", clientId,
                 clientConfigAsJson);
 
         ClientConfig newClientConfig;

@@ -38,8 +38,7 @@ public class ServiceConfigResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createServiceConfig(@PathParam("applicationId") String applicationId, String json) {
-        //log.trace("createServiceConfig");
-    	log.trace("Invoked createServiceConfig with json {} and applicationId {}", json, applicationId);
+    	log.debug("Invoked createServiceConfig with json {} and applicationId {}", json, applicationId);
 
         ServiceConfig newServiceConfig;
         try {
@@ -66,7 +65,7 @@ public class ServiceConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateServiceConfig(@PathParam("serviceConfigId") String serviceConfigId, String json) {
-    	log.trace("Invoked updateServiceConfig with json {}", json);
+    	log.debug("Invoked updateServiceConfig with json {}", json);
 
         ServiceConfig updatedServiceConfig;
         try {
@@ -138,7 +137,7 @@ public class ServiceConfigResource {
     @Path("/{serviceConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteServiceConfig(@PathParam("serviceConfigId") String serviceConfigId) {
-        log.trace("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
+        log.debug("deleteServiceConfig with serviceConfigId={}", serviceConfigId);
 
         ServiceConfig serviceConfig = serviceConfigDao.deleteServiceConfig(serviceConfigId);
         if (serviceConfig == null) {
