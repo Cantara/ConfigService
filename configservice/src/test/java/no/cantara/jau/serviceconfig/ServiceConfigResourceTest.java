@@ -71,6 +71,7 @@ public class ServiceConfigResourceTest {
     public void testCreateServiceConfig() throws Exception {
         ServiceConfig serviceConfig = createServiceConfig();
         String jsonRequest = mapper.writeValueAsString(serviceConfig);
+
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -94,6 +95,7 @@ public class ServiceConfigResourceTest {
 
         ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
         serviceConfig.addDownloadItem(downloadItem);
+        serviceConfig.addEventExtractionConfigs("testtag", new EventExtractionConfig("\\bheihei\\b", "logs/blabla.logg"));
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         return serviceConfig;
     }

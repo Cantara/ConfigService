@@ -1,5 +1,6 @@
 package no.cantara.jau.serviceconfig.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
@@ -23,6 +24,7 @@ public class ConfigServiceClient {
     public static final String CLIENT_ID = "clientId";
     public static final String LAST_CHANGED = "lastChanged";
     public static final String COMMAND = "command";
+    public static final String EVENT_EXTRACTION_CONFIGS = "eventExtractionConfigs";
     private static final Logger log = LoggerFactory.getLogger(ConfigServiceClient.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -80,6 +82,14 @@ public class ConfigServiceClient {
         applicationState.put(LAST_CHANGED, clientConfig.serviceConfig.getLastChanged());
         applicationState.put(COMMAND, clientConfig.serviceConfig.getStartServiceScript());
 
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonEventExtractionConfigs;
+        try {
+            jsonEventExtractionConfigs = mapper.writeValueAsString(clientConfig.serviceConfig.getEventExtractionConfigs());
+            applicationState.put(EVENT_EXTRACTION_CONFIGS, jsonEventExtractionConfigs);
+        } catch (JsonProcessingException e) {
+            log.error("Could not write convert event extraction configs to JSON!", e);
+        }
         OutputStream output = null;
         try {
             output = new FileOutputStream(APPLICATION_STATE_FILENAME);
