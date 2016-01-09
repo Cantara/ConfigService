@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
@@ -30,6 +32,7 @@ public class ServiceConfig implements Serializable {
     private String lastChanged;
     private List<DownloadItem> downloadItems;
     private List<NamedPropertiesStore> configurationStores;
+    private Map<String, EventExtractionConfig> eventExtractionConfigs;
 
     private String startServiceScript;
 
@@ -42,6 +45,7 @@ public class ServiceConfig implements Serializable {
         setUpdated();
         this.downloadItems = new ArrayList<>();
         this.configurationStores = new ArrayList<>();
+        this.eventExtractionConfigs = new HashMap<>();
     }
 
     private void setUpdated() {
@@ -56,6 +60,9 @@ public class ServiceConfig implements Serializable {
         configurationStores.add(propertiesStore);
     }
 
+    public void addEventExtractionConfigs(String tagName, EventExtractionConfig eventExtractionTag) {
+        eventExtractionConfigs.put(tagName, eventExtractionTag);
+    }
 
     public void setId(String id) {
         this.id = id;
@@ -94,6 +101,9 @@ public class ServiceConfig implements Serializable {
     public String getStartServiceScript() {
         return startServiceScript;
     }
+    public Map<String, EventExtractionConfig> getEventExtractionConfigs() {
+        return eventExtractionConfigs;
+    }
 
     @Override
     public String toString() {
@@ -103,6 +113,7 @@ public class ServiceConfig implements Serializable {
                 ", lastChanged='" + lastChanged + '\'' +
                 ", downloadItemCount=" + downloadItems.size() +
                 ", configurationStores=" + configurationStores +
+                ", eventExtractionConfigs=" + eventExtractionConfigs +
                 '}';
     }
 
@@ -118,6 +129,8 @@ public class ServiceConfig implements Serializable {
         if (downloadItems != null ? !downloadItems.equals(that.downloadItems) : that.downloadItems != null) return false;
         if (configurationStores != null ? !configurationStores.equals(that.configurationStores) : that.configurationStores != null)
             return false;
+        if (eventExtractionConfigs != null ? !eventExtractionConfigs.equals(that.eventExtractionConfigs) : that.eventExtractionConfigs != null)
+            return false;
         return startServiceScript.equals(that.startServiceScript);
 
     }
@@ -128,6 +141,7 @@ public class ServiceConfig implements Serializable {
         result = 31 * result + name.hashCode();
         result = 31 * result + (downloadItems != null ? downloadItems.hashCode() : 0);
         result = 31 * result + (configurationStores != null ? configurationStores.hashCode() : 0);
+        result = 31 * result + (eventExtractionConfigs != null ? eventExtractionConfigs.hashCode() : 0);
         result = 31 * result + startServiceScript.hashCode();
         return result;
     }
