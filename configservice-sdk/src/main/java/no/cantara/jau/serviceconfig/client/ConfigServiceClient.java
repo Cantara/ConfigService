@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
-import no.cantara.jau.serviceconfig.dto.EventExtractionConfig;
+import no.cantara.jau.serviceconfig.dto.EventExtractionTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +14,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-13.
@@ -88,9 +85,9 @@ public class ConfigServiceClient {
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            String jsonEventExtractionConfigs = mapper.writeValueAsString(clientConfig.serviceConfig
-                    .getEventExtractionConfigs());
-            applicationState.put(EVENT_EXTRACTION_CONFIGS, jsonEventExtractionConfigs);
+            String jsonEventExtractionTags = mapper.writeValueAsString(clientConfig.serviceConfig
+                    .getEventExtractionTags());
+            applicationState.put(EVENT_EXTRACTION_CONFIGS, jsonEventExtractionTags);
         } catch (JsonProcessingException io) {
             throw new RuntimeException(io);
         }
@@ -135,15 +132,15 @@ public class ConfigServiceClient {
         }
     }
 
-    public Map<String, EventExtractionConfig> getEventExtractionConfigs() {
-        String eventExtractionConfigs = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
-        if (eventExtractionConfigs == null) {
-            return new HashMap<>();
+    public List<EventExtractionTag> getEventExtractionTags() {
+        String eventExtractionTags = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
+        if (eventExtractionTags == null) {
+            return new ArrayList<>();
         }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(eventExtractionConfigs, new TypeReference<HashMap<String, EventExtractionConfig>>(){});
+            return mapper.readValue(eventExtractionTags, new TypeReference<List<EventExtractionTag>>(){});
         } catch (IOException io) {
             throw new RuntimeException(io);
         }

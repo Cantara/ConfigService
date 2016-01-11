@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -93,12 +94,13 @@ public class ClientConfigResourceTest {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-        EventExtractionConfig extractionConfig = new EventExtractionConfig("\\bfoobar\\b", "path/to/log/file.log");
+        EventExtractionTag extractionTag = new EventExtractionTag("testtag");
+        extractionTag.addEventExtractionItem(new EventExtractionItem("\\bfoobar\\b", "path/to/log/file.log"));
 
         ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version + "-"
         + identifier);
         serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.addEventExtractionConfigs("testtag", extractionConfig);
+        serviceConfig.addEventExtractionTag(extractionTag);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         return serviceConfig;
     }
@@ -198,8 +200,8 @@ public class ClientConfigResourceTest {
 
     @Test(dependsOnMethods = "testRegisterClient", enabled=false)
     public void testGetExtractionConfigs() {
-        Map<String, EventExtractionConfig> configs = configServiceClient.getEventExtractionConfig();
-        Assert.assertNotNull(configs.get("testtag"));
+        List<EventExtractionTag> tags = configServiceClient.getEventExtractionTags();
+        Assert.assertEquals(tags.size(), 1);
     }
 
     @Test
@@ -246,7 +248,7 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode());
     }
 
-    @Test(enabled=false)
+    @Test
     public void testChangeServiceConfigForSingleClient() throws IOException {
         ServiceConfig serviceConfig = createServiceConfig("for-single-client");
         String jsonRequestServiceConfig = mapper.writeValueAsString(serviceConfig);
