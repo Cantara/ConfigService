@@ -135,7 +135,7 @@ public class ConfigServiceClient {
         }
     }
 
-    public Map<String, EventExtractionConfig> getEventExtractionConfig() {
+    public Map<String, EventExtractionConfig> getEventExtractionConfigs() {
         String eventExtractionConfigs = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
         if (eventExtractionConfigs == null) {
             return new HashMap<>();
