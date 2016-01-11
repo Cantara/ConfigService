@@ -1,10 +1,12 @@
 package no.cantara.jau.serviceconfig.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
+import no.cantara.jau.serviceconfig.dto.EventExtractionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -83,12 +87,12 @@ public class ConfigServiceClient {
         applicationState.put(COMMAND, clientConfig.serviceConfig.getStartServiceScript());
 
         ObjectMapper mapper = new ObjectMapper();
-        String jsonEventExtractionConfigs;
         try {
-            jsonEventExtractionConfigs = mapper.writeValueAsString(clientConfig.serviceConfig.getEventExtractionConfigs());
+            String jsonEventExtractionConfigs = mapper.writeValueAsString(clientConfig.serviceConfig
+                    .getEventExtractionConfigs());
             applicationState.put(EVENT_EXTRACTION_CONFIGS, jsonEventExtractionConfigs);
-        } catch (JsonProcessingException e) {
-            log.error("Could not write convert event extraction configs to JSON!", e);
+        } catch (JsonProcessingException io) {
+            throw new RuntimeException(io);
         }
         OutputStream output = null;
         try {
@@ -130,6 +134,21 @@ public class ConfigServiceClient {
             }
         }
     }
+
+    public Map<String, EventExtractionConfig> getEventExtractionConfig() {
+        String eventExtractionConfigs = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
+        if (eventExtractionConfigs == null) {
+            return new HashMap<>();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(eventExtractionConfigs, new TypeReference<HashMap<String, EventExtractionConfig>>(){});
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        }
+    }
+
     public void cleanApplicationState() {
         File applicationStatefile = new File(APPLICATION_STATE_FILENAME);
         if (applicationStatefile.exists()) {
