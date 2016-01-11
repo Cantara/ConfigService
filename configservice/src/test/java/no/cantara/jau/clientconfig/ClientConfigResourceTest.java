@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.mockito.Mockito.*;
@@ -92,10 +93,12 @@ public class ClientConfigResourceTest {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
+        EventExtractionConfig extractionConfig = new EventExtractionConfig("\\bfoobar\\b", "path/to/log/file.log");
 
         ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version + "-"
         + identifier);
         serviceConfig.addDownloadItem(downloadItem);
+        serviceConfig.addEventExtractionConfigs("testtag", extractionConfig);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         return serviceConfig;
     }
@@ -106,16 +109,18 @@ public class ClientConfigResourceTest {
         if (main != null) {
             main.stop();
         }
+        configServiceClient.cleanApplicationState();
     }
 
     // Test fails in Jenkins due to mapdb persistence not handled correctly in tests
-    @Test(enabled=false)
+    @Test(enabled=true)
     public void testRegisterClient() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
         registration.envInfo.putAll(System.getenv());
         registration.clientName = "client123";
 
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
+        configServiceClient.saveApplicationState(clientConfig);
         /*
         String jsonRequest = mapper.writeValueAsString(registration);
         String path = "/clientconfig";
@@ -189,6 +194,12 @@ public class ClientConfigResourceTest {
         ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, checkForUpdateRequest);
         assertNotNull(clientConfig);
         assertEquals(clientConfig.clientId, clientId);
+    }
+
+    @Test(dependsOnMethods = "testRegisterClient")
+    public void testGetExtractionConfigs() {
+        Map<String, EventExtractionConfig> configs = configServiceClient.getEventExtractionConfig();
+        Assert.assertNotNull(configs.get("testtag"));
     }
 
     @Test
