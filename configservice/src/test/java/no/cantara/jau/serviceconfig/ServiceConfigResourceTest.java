@@ -95,9 +95,10 @@ public class ServiceConfigResourceTest {
 
         ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version);
         serviceConfig.addDownloadItem(downloadItem);
-        EventExtractionTag tag = new EventExtractionTag("testtag");
-        tag.addEventExtractionItem(new EventExtractionItem("\\bheihei\\b", "logs/blabla.logg"));
-        serviceConfig.addEventExtractionTag(tag);
+        EventExtractionConfig extractionConfig = new EventExtractionConfig("jau");
+        EventExtractionTag tag = new EventExtractionTag("testtag", "\\bheihei\\b", "logs/blabla.logg");
+        extractionConfig.addEventExtractionTag(tag);
+        serviceConfig.addEventExtractionConfig(extractionConfig);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         return serviceConfig;
     }

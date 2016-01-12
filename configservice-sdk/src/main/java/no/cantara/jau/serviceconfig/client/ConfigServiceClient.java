@@ -3,10 +3,7 @@ package no.cantara.jau.serviceconfig.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
-import no.cantara.jau.serviceconfig.dto.ClientConfig;
-import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
-import no.cantara.jau.serviceconfig.dto.EventExtractionTag;
+import no.cantara.jau.serviceconfig.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +83,7 @@ public class ConfigServiceClient {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonEventExtractionTags = mapper.writeValueAsString(clientConfig.serviceConfig
-                    .getEventExtractionTags());
+                    .getEventExtractionConfigs());
             applicationState.put(EVENT_EXTRACTION_CONFIGS, jsonEventExtractionTags);
         } catch (JsonProcessingException io) {
             throw new RuntimeException(io);
@@ -132,15 +129,15 @@ public class ConfigServiceClient {
         }
     }
 
-    public List<EventExtractionTag> getEventExtractionTags() {
-        String eventExtractionTags = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
-        if (eventExtractionTags == null) {
+    public List<EventExtractionConfig> getEventExtractionConfigs() {
+        String eventExtractionConfigs = getApplicationState().getProperty(EVENT_EXTRACTION_CONFIGS);
+        if (eventExtractionConfigs == null) {
             return new ArrayList<>();
         }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(eventExtractionTags, new TypeReference<List<EventExtractionTag>>(){});
+            return mapper.readValue(eventExtractionConfigs, new TypeReference<List<EventExtractionConfig>>(){});
         } catch (IOException io) {
             throw new RuntimeException(io);
         }

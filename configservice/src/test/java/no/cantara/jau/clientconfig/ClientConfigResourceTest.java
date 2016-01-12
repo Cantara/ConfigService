@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.mockito.Mockito.*;
@@ -94,13 +93,14 @@ public class ClientConfigResourceTest {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-        EventExtractionTag extractionTag = new EventExtractionTag("testtag");
-        extractionTag.addEventExtractionItem(new EventExtractionItem("\\bfoobar\\b", "path/to/log/file.log"));
+        EventExtractionConfig extractionConfig = new EventExtractionConfig("jau");
+        EventExtractionTag tag = new EventExtractionTag("testtag", "\\bheihei\\b", "logs/blabla.logg");
+        extractionConfig.addEventExtractionTag(tag);
 
         ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version + "-"
         + identifier);
         serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.addEventExtractionTag(extractionTag);
+        serviceConfig.addEventExtractionConfig(extractionConfig);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
         return serviceConfig;
     }
@@ -200,8 +200,12 @@ public class ClientConfigResourceTest {
 
     @Test(dependsOnMethods = "testRegisterClient", enabled=false)
     public void testGetExtractionConfigs() {
-        List<EventExtractionTag> tags = configServiceClient.getEventExtractionTags();
+        List<EventExtractionConfig> tags = configServiceClient.getEventExtractionConfigs();
+
+        log.info(tags.toString());
         Assert.assertEquals(tags.size(), 1);
+        Assert.assertEquals(tags.get(0).groupName, "jau");
+        Assert.assertEquals(tags.get(0).tags.get(0).filePath, "logs/blabla.logg");
     }
 
     @Test
