@@ -3,11 +3,13 @@ package no.cantara.jau.clientconfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.regexp.internal.RE;
+import no.cantara.jau.persistence.EventsDao;
 import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.persistence.StatusDao;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
 import no.cantara.jau.serviceconfig.dto.ServiceConfig;
+import no.cantara.jau.serviceconfig.dto.event.ExtractedEventsStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +33,16 @@ public class ClientResource {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private final StatusDao statusDao;
+    private final EventsDao eventsDao;
     private final ServiceConfigDao configDao;
 
     @Autowired
     public ClientResource(ServiceConfigDao configDao,
-                          StatusDao statusDao) {
+                          StatusDao statusDao,
+                          EventsDao eventsDao) {
         this.configDao = configDao;
         this.statusDao = statusDao;
+        this.eventsDao = eventsDao;
     }
 
     @GET
@@ -48,6 +53,15 @@ public class ClientResource {
         ClientStatus status = statusDao.getStatus(clientId);
 
         return mapResponseToJson(status);
+    }
+
+    @GET
+    @Path("/{clientId}/events")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClientEvents(@PathParam("clientId") String clientId) {
+        log.trace("getClientEvents");
+        ExtractedEventsStore store = eventsDao.getEvents(clientId);
+        return mapResponseToJson(store);
     }
 
     @GET

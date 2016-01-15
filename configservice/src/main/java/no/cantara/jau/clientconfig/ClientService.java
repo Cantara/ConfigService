@@ -1,5 +1,6 @@
 package no.cantara.jau.clientconfig;
 
+import no.cantara.jau.persistence.EventsDao;
 import no.cantara.jau.persistence.StatusDao;
 import no.cantara.jau.persistence.ServiceConfigDao;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
@@ -21,11 +22,13 @@ public class ClientService {
     private static final Logger log = LoggerFactory.getLogger(ClientService.class);
     private final ServiceConfigDao dao;
     private final StatusDao statusDao;
+    private final EventsDao eventsDao;
 
     @Autowired
-    public ClientService(ServiceConfigDao dao, StatusDao statusDao) {
+    public ClientService(ServiceConfigDao dao, StatusDao statusDao, EventsDao eventsDao) {
         this.dao = dao;
         this.statusDao = statusDao;
+        this.eventsDao = eventsDao;
     }
 
     /**
@@ -54,6 +57,7 @@ public class ClientService {
         }
         String artifactId = dao.getArtifactId(serviceConfig);
         statusDao.saveStatus(clientId, new ClientStatus(checkForUpdateRequest, artifactId));
+        eventsDao.saveEvents(clientId, checkForUpdateRequest.eventsStore);
         return new ClientConfig(clientId, serviceConfig);
     }
 }
