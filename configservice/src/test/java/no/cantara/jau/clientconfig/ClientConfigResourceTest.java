@@ -10,6 +10,8 @@ import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
 import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
 import no.cantara.jau.serviceconfig.dto.*;
+import no.cantara.jau.serviceconfig.dto.event.EventExtractionConfig;
+import no.cantara.jau.serviceconfig.dto.event.EventExtractionTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;

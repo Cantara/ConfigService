@@ -1,5 +1,7 @@
 package no.cantara.jau.serviceconfig.dto;
 
+import no.cantara.jau.serviceconfig.dto.event.EventExtractionConfig;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;

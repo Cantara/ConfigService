@@ -1,4 +1,4 @@
-package no.cantara.jau.serviceconfig.dto;
+package no.cantara.jau.serviceconfig.dto.event;
 
 import java.io.Serializable;
 import java.util.ArrayList;

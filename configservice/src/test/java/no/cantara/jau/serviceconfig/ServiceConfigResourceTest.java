@@ -5,6 +5,8 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import no.cantara.jau.serviceconfig.dto.*;
+import no.cantara.jau.serviceconfig.dto.event.EventExtractionConfig;
+import no.cantara.jau.serviceconfig.dto.event.EventExtractionTag;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
