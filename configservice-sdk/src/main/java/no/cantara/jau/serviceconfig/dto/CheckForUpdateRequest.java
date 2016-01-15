@@ -1,6 +1,9 @@
 package no.cantara.jau.serviceconfig.dto;
 
+import no.cantara.jau.serviceconfig.dto.event.ExtractedEventsStore;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,6 +14,7 @@ public class CheckForUpdateRequest {
     public Map<String, String> envInfo;
     public String tags;
     public String clientName;
+    public ExtractedEventsStore eventsStore;
 
     //jackson
     private CheckForUpdateRequest() {
@@ -29,6 +33,13 @@ public class CheckForUpdateRequest {
     public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, String clientName) {
         this(serviceConfigLastChanged, envInfo);
         this.clientName = clientName;
+    }
+
+    public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, String clientName,
+                                 ExtractedEventsStore eventsStore) {
+        this(serviceConfigLastChanged, envInfo);
+        this.clientName = clientName;
+        this.eventsStore= eventsStore;
     }
 
     public CheckForUpdateRequest(String serviceConfigLastChanged, Map<String, String> envInfo, String tags,
