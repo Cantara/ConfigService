@@ -1,6 +1,10 @@
 package no.cantara.jau.clientconfig;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import net.minidev.json.JSONArray;
 import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
 import no.cantara.jau.serviceconfig.dto.ClientConfig;
 import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
@@ -61,12 +65,24 @@ public class ClientConfigResource {
         String jsonResult;
         try {
             jsonResult = mapper.writeValueAsString(clientConfig);
+
+            removeExtractionConfigForOldJau(registration, jsonResult);
+
         } catch (IOException e) {
             log.warn("Could not convert to Json {}", clientConfig.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         log.info("registered {}", clientConfig);
         return Response.ok(jsonResult).build();
+    }
+
+    private void removeExtractionConfigForOldJau(ClientRegistrationRequest registration, String jsonResult) throws IOException {
+        String jauVersion = registration.envInfo.get("jau.version");
+        if ("0.4.1".equals(jauVersion)) {
+            ObjectNode jsonNode = (ObjectNode) mapper.readTree(jsonResult);
+            ObjectNode serviceConfigNode = (ObjectNode) jsonNode.get("serviceConfig");
+            serviceConfigNode.remove("eventExtractionConfigs");
+        }
     }
 
     //https://github.com/Cantara/Java-Auto-Update/issues/9
