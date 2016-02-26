@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import no.cantara.jau.persistence.MapDbTestSupport;
 import no.cantara.jau.serviceconfig.dto.*;
 import no.cantara.jau.serviceconfig.dto.event.EventExtractionConfig;
 import no.cantara.jau.serviceconfig.dto.event.EventExtractionTag;
@@ -26,9 +27,9 @@ public class ServiceConfigResourceTest {
     private Application applicationResponse;
     private ServiceConfig serviceConfigResponse;
 
-
     @BeforeClass
-    public void startServer() throws InterruptedException {
+    public void startServer() throws Exception {
+        MapDbTestSupport.cleanAllData();
         new Thread(() -> {
             main = new Main(6644);
             main.start();
@@ -45,10 +46,9 @@ public class ServiceConfigResourceTest {
         }
     }
 
-
     @Test
     public void testCreateApplication() throws Exception {
-        Application application = new Application("UserAdminService");
+        Application application = new Application("ServiceConfigResourceTestApplication");
         String jsonRequest = mapper.writeValueAsString(application);
         Response response = given()
                 .auth().basic(username, password)
@@ -67,9 +67,7 @@ public class ServiceConfigResourceTest {
         assertEquals(applicationResponse.artifactId, application.artifactId);
     }
 
-
-
-    @Test
+    @Test(dependsOnMethods = "testCreateApplication")
     public void testCreateServiceConfig() throws Exception {
         ServiceConfig serviceConfig = createServiceConfig();
         String jsonRequest = mapper.writeValueAsString(serviceConfig);
@@ -105,7 +103,6 @@ public class ServiceConfigResourceTest {
         return serviceConfig;
     }
 
-
     @Test(dependsOnMethods = "testCreateServiceConfig")
     public void testGetServiceConfig() throws Exception {
         String path = ServiceConfigResource.SERVICECONFIG_PATH + "/{serviceConfigId}";
@@ -120,7 +117,6 @@ public class ServiceConfigResourceTest {
 
         String getResponse = response.body().asString();
         ServiceConfig getServiceConfigResponse =  mapper.readValue(getResponse, ServiceConfig.class);
-        //ServiceConfigSerializer.fromJson(getResponse);
         assertEquals(getServiceConfigResponse.getId(), getServiceConfigResponse.getId());
     }
 
@@ -150,7 +146,7 @@ public class ServiceConfigResourceTest {
     @Test(dependsOnMethods = "testPutServiceConfig")
     public void testDeleteServiceConfig() throws Exception {
         String path = ServiceConfigResource.SERVICECONFIG_PATH + "/{serviceConfigId}";
-        Response response = given().
+        given().
                 auth().basic(username, password)
                 .log().everything()
                 .expect()
@@ -159,8 +155,7 @@ public class ServiceConfigResourceTest {
                 .when()
                 .delete(path, applicationResponse.id, serviceConfigResponse.getId());
 
-        //path = "/serviceconfig/" + serviceConfigResponse.getId();
-        response = given().
+        given().
                 auth().basic(username, password)
                 .log().everything()
                 .expect()
@@ -170,14 +165,11 @@ public class ServiceConfigResourceTest {
                 .delete(path, applicationResponse.id, serviceConfigResponse.getId());
     }
 
-
-
-    //expect there to be a clientConfig with clientId=client1
     @Test
     public void testFindServiceConfigUnAuthorized() throws Exception {
         //GET
         String path = "/serviceconfig/query";
-        Response response = given()
+        given()
                 .queryParam("clientid", "clientid1")
                 .log().everything()
                 .expect()

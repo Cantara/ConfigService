@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import no.cantara.jau.persistence.MapDbTestSupport;
 import no.cantara.jau.serviceconfig.ApplicationResource;
 import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
@@ -29,23 +30,22 @@ import static org.testng.Assert.*;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
- * TODO: Tests were made for InMemPersistance. Using MapDB for persistence, several tests often fail
- * due to race conditions when using the same db
  */
 public class ClientConfigResourceTest {
     private static final Logger log = LoggerFactory.getLogger(ClientConfigResourceTest.class);
     private Main main;
-    private String url;
     private final String username = "read";
     private final String password= "baretillesing";
     private static final ObjectMapper mapper = new ObjectMapper();
-    private String clientId;
     private ConfigServiceClient configServiceClient;
-    private String applicationId;
-
+    private Application testApplication;
+    private ClientConfig testClientConfig;
 
     @BeforeClass
     public void startServer() throws Exception {
+
+        MapDbTestSupport.cleanAllData();
+
         new Thread(() -> {
             main = new Main(6645);
             main.start();
@@ -53,19 +53,23 @@ public class ClientConfigResourceTest {
         Thread.sleep(2000);
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
-        url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientConfigResource.CLIENTCONFIG_PATH;
-
+        String url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientConfigResource.CLIENTCONFIG_PATH;
         configServiceClient = new ConfigServiceClient(url, username, password);
         addTestData();
     }
 
     private void addTestData() throws Exception {
-        Application application = new Application("UserAdminService");
-        String jsonRequest = mapper.writeValueAsString(application);
-        Response response = given()
+        testApplication = createApplication("ClientConfigResourceTestApplication");
+
+        createServiceConfig("first", testApplication);
+    }
+
+    private Application createApplication(String artifactId) throws IOException {
+        Application application = new Application(artifactId);
+        Response createApplicationResponse = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
-                .body(jsonRequest)
+                .body(mapper.writeValueAsString(application))
                 .log().everything()
                 .expect()
                 .statusCode(200)
@@ -73,26 +77,11 @@ public class ClientConfigResourceTest {
                 .when()
                 .post(ApplicationResource.APPLICATION_PATH);
 
-        String jsonResponse = response.body().asString();
-        Application applicationResponse = mapper.readValue(jsonResponse, Application.class);
-        applicationId = applicationResponse.id;
-
-        ServiceConfig serviceConfig = createServiceConfig("first");
-
-        String jsonRequest2 = mapper.writeValueAsString(serviceConfig);
-        Response response2 = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest2)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(ServiceConfigResource.SERVICECONFIG_PATH, applicationResponse.id);
+        return mapper.readValue(createApplicationResponse.body().asString(), Application.class);
     }
-    private ServiceConfig createServiceConfig(String identifier) {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.0.1.Final");
+
+    private ServiceConfig createServiceConfig(String identifier, Application application) throws IOException {
+        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", application.artifactId, "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
         EventExtractionConfig extractionConfig = new EventExtractionConfig("jau");
@@ -104,7 +93,21 @@ public class ClientConfigResourceTest {
         serviceConfig.addDownloadItem(downloadItem);
         serviceConfig.addEventExtractionConfig(extractionConfig);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-        return serviceConfig;
+
+        String jsonRequest = mapper.writeValueAsString(serviceConfig);
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(jsonRequest)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .post(ServiceConfigResource.SERVICECONFIG_PATH, application.id);
+
+        String jsonResponse = response.body().asString();
+        return mapper.readValue(jsonResponse, ServiceConfig.class);
     }
 
 
@@ -116,50 +119,43 @@ public class ClientConfigResourceTest {
         configServiceClient.cleanApplicationState();
     }
 
-    // Test fails in Jenkins due to mapdb persistence not handled correctly in tests
-    @Test(enabled=false)
+    @Test
     public void testRegisterClient() throws Exception {
-        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
+
+        ClientRegistrationRequest registration = new ClientRegistrationRequest(testApplication.artifactId);
         registration.envInfo.putAll(System.getenv());
         registration.clientName = "client123";
 
-        ClientConfig clientConfig = configServiceClient.registerClient(registration);
-        configServiceClient.saveApplicationState(clientConfig);
-        /*
-        String jsonRequest = mapper.writeValueAsString(registration);
-        String path = "/clientconfig";
-        Response response = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequest)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(path);
-        String jsonResponse = response.body().asString();
-        ClientConfig clientConfig = mapper.readValue(jsonResponse, ClientConfig.class);
-        */
+        this.testClientConfig = configServiceClient.registerClient(registration);
+        assertNotNull(testClientConfig);
 
-        clientId = clientConfig.clientId;
-        assertNotNull(clientId);
-
-        ClientRegistrationRequest registration2 = new ClientRegistrationRequest("UserAdminService");
-        registration2.envInfo.putAll(System.getenv());
-        ClientConfig clientConfig2 = configServiceClient.registerClient(registration2);
-
+        ClientConfig clientConfig2 = configServiceClient.registerClient(registration);
         String clientId2 = clientConfig2.clientId;
-        assertFalse(clientId.equalsIgnoreCase(clientId2));
+        assertFalse(testClientConfig.clientId.equalsIgnoreCase(clientId2));
     }
 
     @Test
-    public void testRegisterClientUnknownName() throws Exception {
-        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserService");
+    public void testRegisterClientUnknownArtifactId() throws Exception {
+        ClientRegistrationRequest registration = new ClientRegistrationRequest("UnknownArtifactId");
         registration.envInfo.putAll(System.getenv());
 
         try {
             ClientConfig clientConfig = configServiceClient.registerClient(registration);
+            fail("Should not get this far.");
+        } catch (NotFoundException e) {
+            assertNotNull(e);
+        } catch (Exception e) {
+            fail("Should not get another exception.");
+        }
+    }
+
+    @Test
+    public void testRegisterClientWithoutServiceConfigShouldReturnNotFound() throws Exception {
+        Application applicationWithoutServiceConfig = createApplication("NewArtifactId");
+
+        ClientRegistrationRequest request = new ClientRegistrationRequest(applicationWithoutServiceConfig.artifactId);
+        try {
+            ClientConfig clientConfig = configServiceClient.registerClient(request);
             fail("Should not get this far.");
         } catch (NotFoundException e) {
             assertNotNull(e);
@@ -181,7 +177,7 @@ public class ClientConfigResourceTest {
         when(clientService.registerClient(any())).thenThrow(IllegalArgumentException.class);
         ClientConfigResource clientConfigResource = new ClientConfigResource(clientService);
 
-        ClientRegistrationRequest clientRegistrationRequest = new ClientRegistrationRequest("UserAdminService");
+        ClientRegistrationRequest clientRegistrationRequest = new ClientRegistrationRequest("arbitrary-artifact-id");
         ObjectMapper mapper = new ObjectMapper();
 
         String jsonRequest = mapper.writeValueAsString(clientRegistrationRequest);
@@ -191,17 +187,18 @@ public class ClientConfigResourceTest {
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    // Test fails in Jenkins due to mapdb persistence not handled correctly in tests
-    @Test(dependsOnMethods = "testRegisterClient", enabled=false)
+    @Test(dependsOnMethods = "testRegisterClient")
     public void testCheckForUpdate() throws Exception {
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest("checksumHere", System.getenv(), "");
-        ClientConfig clientConfig = configServiceClient.checkForUpdate(clientId, checkForUpdateRequest);
+        ClientConfig clientConfig = configServiceClient.checkForUpdate(testClientConfig.clientId, checkForUpdateRequest);
         assertNotNull(clientConfig);
-        assertEquals(clientConfig.clientId, clientId);
+        assertEquals(clientConfig.clientId, testClientConfig.clientId);
     }
 
-    @Test(dependsOnMethods = "testRegisterClient", enabled=false)
+    @Test(dependsOnMethods = "testRegisterClient")
     public void testGetExtractionConfigs() {
+        configServiceClient.saveApplicationState(testClientConfig);
+
         List<EventExtractionConfig> tags = configServiceClient.getEventExtractionConfigs();
 
         log.info(tags.toString());
@@ -256,28 +253,14 @@ public class ClientConfigResourceTest {
 
     @Test
     public void testChangeServiceConfigForSingleClient() throws IOException {
-        ServiceConfig serviceConfig = createServiceConfig("for-single-client");
-        String jsonRequestServiceConfig = mapper.writeValueAsString(serviceConfig);
-        Response newServiceConfigResponse = given()
-                .auth().basic(username, password)
-                .contentType(ContentType.JSON)
-                .body(jsonRequestServiceConfig)
-                .log().everything()
-                .expect()
-                .statusCode(200)
-                .log().ifError()
-                .when()
-                .post(ServiceConfigResource.SERVICECONFIG_PATH, applicationId);
+        ServiceConfig serviceConfig = createServiceConfig("for-single-client", testApplication);
 
-        String getResponse = newServiceConfigResponse.body().asString();
-        ServiceConfig getServiceConfigResponse =  mapper.readValue(getResponse, ServiceConfig.class);
-
-        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
+        ClientRegistrationRequest registration = new ClientRegistrationRequest(testApplication.artifactId);
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
         Assert.assertNotNull(clientConfig.clientId);
 
-        clientConfig.serviceConfig = getServiceConfigResponse;
+        clientConfig.serviceConfig = serviceConfig;
 
         String jsonNewClientConfig = mapper.writeValueAsString(clientConfig);
 
@@ -293,19 +276,14 @@ public class ClientConfigResourceTest {
                 .put(ClientResource.CLIENT_PATH + "/{clientId}/config", clientConfig.clientId);
     }
 
-    // Test fails in Jenkins due to mapdb persistence not handled correctly in tests
-    @Test(enabled=false)
+    @Test(dependsOnMethods = "testRegisterClient")
     public void testStatusShouldBeAvailableAfterRegisterClient() throws Exception {
-        ClientRegistrationRequest registration = new ClientRegistrationRequest("UserAdminService");
-
-        ClientConfig clientConfig = configServiceClient.registerClient(registration);
-
-        String path = ApplicationResource.APPLICATION_PATH + "/UserAdminService/status";
+        String path = ApplicationResource.APPLICATION_PATH + "/" + testApplication.artifactId + "/status";
 
         Response response = given()
                 .auth().basic(username, password)
                 .get(path);
 
-        assertTrue(response.body().asString().contains(clientConfig.clientId));
+        assertTrue(response.body().asString().contains(testClientConfig.clientId));
     }
 }

@@ -1,3 +1,5 @@
+/db/*
+
 *.class
 *.log
 dependency-reduced-pom.xml
@@ -15,9 +17,6 @@ target/
 /.project
 /.classpath
 
-configservice-sdk/.classpath
-configservice-sdk/.project
-configservice-sdk/.settings/
 configservice/.classpath
 configservice/.project
 configservice/.settings/
