@@ -9,79 +9,34 @@ import javax.ws.rs.core.NoContentException;
 import java.net.HttpURLConnection;
 import java.rmi.UnexpectedException;
 
-import static org.testng.Assert.fail;
-
 public class ClientResponseErrorHandlerTest {
-
-    @Test
-    public void testBadRequest() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_BAD_REQUEST, "", "");
-            fail("Method didn't throw as expected");
-        } catch (BadRequestException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = BadRequestException.class)
+    public void testBadRequest() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_BAD_REQUEST, "", "");
     }
 
-    @Test
-    public void testNotFound() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_NOT_FOUND, "", "");
-            fail("Method didn't throw as expected");
-        } catch (NotFoundException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = NotFoundException.class)
+    public void testNotFound() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_NOT_FOUND, "", "");
     }
 
-    @Test
-    public void testInternalError() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_INTERNAL_ERROR, "", "");
-            fail("Method didn't throw as expected");
-        } catch (InternalServerErrorException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = InternalServerErrorException.class)
+    public void testInternalError() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_INTERNAL_ERROR, "", "");
     }
 
-    @Test
-    public void testNoContent() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_NO_CONTENT, "", "");
-            fail("Method didn't throw as expected");
-        } catch (NoContentException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = NoContentException.class)
+    public void testNoContent() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_NO_CONTENT, "", "");
     }
 
-    @Test
-    public void testPreconditionFailed() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_PRECON_FAILED, "", "");
-            fail("Method didn't throw as expected");
-        } catch (IllegalStateException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testPreconditionFailed() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_PRECON_FAILED, "", "");
     }
 
-    @Test
-    public void testUnhandledCode() {
-        try {
-            ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_BAD_GATEWAY, "", "");
-            fail("Method didn't throw as expected");
-        } catch (UnexpectedException e) {
-            // Everything went as expected.
-        } catch (Exception e) {
-            fail("Method threw another method than expected");
-        }
+    @Test(expectedExceptions = UnexpectedException.class)
+    public void testUnhandledCode() throws UnexpectedException, NoContentException {
+        ClientResponseErrorHandler.handle(HttpURLConnection.HTTP_BAD_GATEWAY, "", "");
     }
 }

@@ -10,12 +10,18 @@ import no.cantara.jau.serviceconfig.ApplicationResource;
 import no.cantara.jau.serviceconfig.Main;
 import no.cantara.jau.serviceconfig.ServiceConfigResource;
 import no.cantara.jau.serviceconfig.client.ConfigServiceClient;
-import no.cantara.jau.serviceconfig.dto.*;
+import no.cantara.jau.serviceconfig.dto.Application;
+import no.cantara.jau.serviceconfig.dto.CheckForUpdateRequest;
+import no.cantara.jau.serviceconfig.dto.ClientConfig;
+import no.cantara.jau.serviceconfig.dto.ClientRegistrationRequest;
+import no.cantara.jau.serviceconfig.dto.DownloadItem;
+import no.cantara.jau.serviceconfig.dto.MavenMetadata;
+import no.cantara.jau.serviceconfig.dto.NexusUrlBuilder;
+import no.cantara.jau.serviceconfig.dto.ServiceConfig;
 import no.cantara.jau.serviceconfig.dto.event.EventExtractionConfig;
 import no.cantara.jau.serviceconfig.dto.event.EventExtractionTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,25 +31,30 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.mockito.Mockito.*;
-import static org.testng.Assert.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
 public class ClientConfigResourceTest {
     private static final Logger log = LoggerFactory.getLogger(ClientConfigResourceTest.class);
-    private Main main;
+    private static final ObjectMapper mapper = new ObjectMapper();
     private final String username = "read";
     private final String password= "baretillesing";
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private Main main;
     private ConfigServiceClient configServiceClient;
     private Application testApplication;
     private ClientConfig testClientConfig;
 
     @BeforeClass
     public void startServer() throws Exception {
-
         MapDbTestSupport.cleanAllData();
 
         new Thread(() -> {
@@ -60,7 +71,6 @@ public class ClientConfigResourceTest {
 
     private void addTestData() throws Exception {
         testApplication = createApplication("ClientConfigResourceTestApplication");
-
         createServiceConfig("first", testApplication);
     }
 
@@ -88,8 +98,7 @@ public class ClientConfigResourceTest {
         EventExtractionTag tag = new EventExtractionTag("testtag", "\\bheihei\\b", "logs/blabla.logg");
         extractionConfig.addEventExtractionTag(tag);
 
-        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version + "-"
-        + identifier);
+        ServiceConfig serviceConfig = new ServiceConfig(metadata.artifactId + "_" + metadata.version + "-" + identifier);
         serviceConfig.addDownloadItem(downloadItem);
         serviceConfig.addEventExtractionConfig(extractionConfig);
         serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
@@ -121,7 +130,6 @@ public class ClientConfigResourceTest {
 
     @Test
     public void testRegisterClient() throws Exception {
-
         ClientRegistrationRequest registration = new ClientRegistrationRequest(testApplication.artifactId);
         registration.envInfo.putAll(System.getenv());
         registration.clientName = "client123";
@@ -134,40 +142,23 @@ public class ClientConfigResourceTest {
         assertFalse(testClientConfig.clientId.equalsIgnoreCase(clientId2));
     }
 
-    @Test
+    @Test(expectedExceptions = NotFoundException.class)
     public void testRegisterClientUnknownArtifactId() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UnknownArtifactId");
         registration.envInfo.putAll(System.getenv());
-
-        try {
-            ClientConfig clientConfig = configServiceClient.registerClient(registration);
-            fail("Should not get this far.");
-        } catch (NotFoundException e) {
-            assertNotNull(e);
-        } catch (Exception e) {
-            fail("Should not get another exception.");
-        }
+        configServiceClient.registerClient(registration);
     }
 
-    @Test
+    @Test(expectedExceptions = NotFoundException.class)
     public void testRegisterClientWithoutServiceConfigShouldReturnNotFound() throws Exception {
         Application applicationWithoutServiceConfig = createApplication("NewArtifactId");
-
         ClientRegistrationRequest request = new ClientRegistrationRequest(applicationWithoutServiceConfig.artifactId);
-        try {
-            ClientConfig clientConfig = configServiceClient.registerClient(request);
-            fail("Should not get this far.");
-        } catch (NotFoundException e) {
-            assertNotNull(e);
-        } catch (Exception e) {
-            fail("Should not get another exception.");
-        }
+        configServiceClient.registerClient(request);
     }
 
     @Test
     public void testBrokenJsonShouldReturnBadRequest() throws Exception {
         javax.ws.rs.core.Response response = new ClientConfigResource(null).registerClient("{broken json");
-
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -183,7 +174,6 @@ public class ClientConfigResourceTest {
         String jsonRequest = mapper.writeValueAsString(clientRegistrationRequest);
 
         javax.ws.rs.core.Response response = clientConfigResource.registerClient(jsonRequest);
-
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -202,26 +192,24 @@ public class ClientConfigResourceTest {
         List<EventExtractionConfig> tags = configServiceClient.getEventExtractionConfigs();
 
         log.info(tags.toString());
-        Assert.assertEquals(tags.size(), 1);
-        Assert.assertEquals(tags.get(0).groupName, "jau");
-        Assert.assertEquals(tags.get(0).tags.get(0).filePath, "logs/blabla.logg");
+        assertEquals(tags.size(), 1);
+        assertEquals(tags.get(0).groupName, "jau");
+        assertEquals(tags.get(0).tags.get(0).filePath, "logs/blabla.logg");
     }
 
     @Test
     public void testCheckForUpdateBrokenJson() {
         javax.ws.rs.core.Response response = new ClientConfigResource(null).checkForUpdate("", "{broken json");
-
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void testCheckForUpdateUnregisteredClient() {
         ClientService clientService = mock(ClientService.class);
-        String clientId = "";
         when(clientService.checkForUpdatedClientConfig(anyString(), any(CheckForUpdateRequest.class))).thenReturn(null);
 
+        String clientId = "";
         javax.ws.rs.core.Response response = new ClientConfigResource(clientService).checkForUpdate(clientId, "{}");
-
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.PRECONDITION_FAILED.getStatusCode());
     }
 
@@ -243,11 +231,7 @@ public class ClientConfigResourceTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonRequest = mapper.writeValueAsString(checkForUpdateRequest);
 
-
-
         javax.ws.rs.core.Response response = new ClientConfigResource(clientService).checkForUpdate(clientId, jsonRequest);
-
-
         assertEquals(response.getStatus(), javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode());
     }
 
@@ -258,7 +242,7 @@ public class ClientConfigResourceTest {
         ClientRegistrationRequest registration = new ClientRegistrationRequest(testApplication.artifactId);
         ClientConfig clientConfig = configServiceClient.registerClient(registration);
 
-        Assert.assertNotNull(clientConfig.clientId);
+        assertNotNull(clientConfig.clientId);
 
         clientConfig.serviceConfig = serviceConfig;
 
@@ -283,7 +267,6 @@ public class ClientConfigResourceTest {
         Response response = given()
                 .auth().basic(username, password)
                 .get(path);
-
         assertTrue(response.body().asString().contains(testClientConfig.clientId));
     }
 }
