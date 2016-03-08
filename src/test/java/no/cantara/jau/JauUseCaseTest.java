@@ -17,8 +17,10 @@ import java.util.Properties;
 
 import static org.testng.Assert.*;
 
+/**
+ * Verify endpoints used by JAU client.
+ */
 public class JauUseCaseTest {
-
     private TestServer testServer;
     private ConfigServiceClient configServiceClient;
     private ConfigServiceAdminClient configServiceAdminClient;

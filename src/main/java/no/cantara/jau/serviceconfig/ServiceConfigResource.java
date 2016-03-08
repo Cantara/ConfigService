@@ -16,6 +16,7 @@ import java.util.Map;
 
 /**
  * CRUD, http endpoint for ServiceConfig
+ * TODO rename to ApplicationConfig, ensure API (json) is unchanged.
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */

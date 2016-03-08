@@ -9,6 +9,7 @@ import javax.ws.rs.core.NoContentException;
 import java.net.HttpURLConnection;
 import java.rmi.UnexpectedException;
 
+//should be moved to ConfigService-SDK
 public class ClientResponseErrorHandlerTest {
     @Test(expectedExceptions = BadRequestException.class)
     public void testBadRequest() throws UnexpectedException, NoContentException {

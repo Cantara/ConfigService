@@ -19,8 +19,10 @@ import java.util.Properties;
 
 import static org.testng.Assert.*;
 
+/**
+ * Verify endpoints used by when applications contact ConfigService directly (no JAU).
+ */
 public class ConfigureApplicationOnStartupTest {
-
     private ConfigServiceClient configServiceClient;
     private Application testApplication;
     private ServiceConfig currentServiceConfig;
@@ -73,5 +75,4 @@ public class ConfigureApplicationOnStartupTest {
         // Test restart
         applicationConfigurator.configureApplication(testApplication.artifactId, configurationStoreDirectory.getAbsolutePath());
     }
-
 }
