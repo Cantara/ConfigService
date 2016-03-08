@@ -162,4 +162,8 @@ public class Main {
         return webappPort;
         //        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
+
+    public boolean isStarted() {
+        return server.isStarted();
+    }
 }
