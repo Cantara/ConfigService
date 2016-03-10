@@ -1,16 +1,15 @@
 package no.cantara.cs.testsupport;
 
 import com.jayway.restassured.RestAssured;
-import no.cantara.cs.client.ClientConfigResource;
 import no.cantara.cs.Main;
+import no.cantara.cs.client.ClientConfigResource;
 import no.cantara.cs.client.ConfigServiceClient;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Map;
+
+import static java.util.Arrays.stream;
 
 public class TestServer {
 
@@ -29,18 +28,11 @@ public class TestServer {
     }
 
     public void cleanAllData() throws Exception {
-        String dbPath = "./db/serviceconfig.db";
-        File mapDbPathFile = new File(dbPath);
-        log.debug("Cleaning data in MapDB {}", mapDbPathFile.getAbsolutePath());
-        mapDbPathFile.getParentFile().mkdirs();
-        DB db = DBMaker.newFileDB(mapDbPathFile).make();
-
-        db.getAll().entrySet().stream()
-                .filter(e -> e.getValue() instanceof Map)
-                .map(e -> (Map) e.getValue())
-                .forEach(Map::clear);
-        db.commit();
-        db.close();
+        File mapDbFolder = new File("./db");
+        stream(mapDbFolder.listFiles((dir, name) -> name.startsWith("serviceConfig.db"))).forEach(f -> {
+            log.info("Deleting mapdb file: " + f.getAbsolutePath());
+            f.delete();
+        });
     }
 
     public void start() throws InterruptedException {
