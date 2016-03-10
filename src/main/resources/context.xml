@@ -18,7 +18,7 @@
         </constretto:stores>
     </constretto:configuration>
 
-    <context:component-scan base-package="no.cantara.jau">
+    <context:component-scan base-package="no.cantara.cs">
         <!--<context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>-->
     </context:component-scan>
 

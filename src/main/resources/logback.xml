@@ -28,7 +28,7 @@
 
 
     <logger name="org.springframework.jdbc.core" level="WARN" />
-    <logger name="no.cantara.jau" level="TRACE" />
+    <logger name="no.cantara.cs" level="TRACE" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
