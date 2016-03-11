@@ -13,6 +13,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.util.Properties;
 
@@ -93,6 +94,13 @@ public class RegisterClientTest {
     public void testRegisterClientWithoutConfigShouldReturnNotFound() throws Exception {
         Application applicationWithoutConfig = configServiceAdminClient.registerApplication("NewArtifactId");
         ClientRegistrationRequest request = new ClientRegistrationRequest(applicationWithoutConfig.artifactId);
+        configServiceClient.registerClient(request);
+    }
+
+    @Test(dependsOnMethods = "testRegisterClient", expectedExceptions = BadRequestException.class)
+    public void testRegisterClientWithExistingClientIdShouldFail() throws Exception {
+        ClientRegistrationRequest request = new ClientRegistrationRequest(application.artifactId);
+        request.clientId = clientConfig.clientId;
         configServiceClient.registerClient(request);
     }
 

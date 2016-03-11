@@ -50,8 +50,9 @@ public class ClientConfigResource {
         ClientConfig clientConfig;
         try {
             clientConfig = clientService.registerClient(registration);
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Not enough information to register client.").build();
+        } catch (ClientAlreadyRegisteredException e) {
+            log.warn("RegisterClient called with already registered clientId: " + registration.clientId);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
         if (clientConfig == null) {
             log.debug("Returning 404, not found");

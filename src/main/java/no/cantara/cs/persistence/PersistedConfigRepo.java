@@ -1,5 +1,6 @@
 package no.cantara.cs.persistence;
 
+import no.cantara.cs.client.ClientAlreadyRegisteredException;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Config;
 import org.mapdb.DB;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -24,7 +26,8 @@ public class PersistedConfigRepo implements ConfigDao {
     private final Map<String, Config> configs;
     private final Map<String, String> applicationIdToConfigIdMapping;
     private final Map<String, String> clientIdToConfigIdMapping;
-    
+    private final Set<String> registeredClientIds;
+
     private DB db;
 
     @Autowired
@@ -36,9 +39,10 @@ public class PersistedConfigRepo implements ConfigDao {
     	db = DBMaker.newFileDB(mapDbPathFile).make();
     	
         this.idToApplication = db.getHashMap("idToApplication");
-        this.configs = db.getHashMap("serviceConfigs");
+        this.configs = db.getHashMap("configs");
         this.applicationIdToConfigIdMapping = db.getHashMap("applicationIdToConfigIdMapping");
         this.clientIdToConfigIdMapping = db.getHashMap("clientIdToConfigIdMapping");
+        this.registeredClientIds = db.getHashSet("registeredClientIds");
     }
 
     @Override
@@ -95,6 +99,10 @@ public class PersistedConfigRepo implements ConfigDao {
 
     @Override
     public void registerClient(String clientId, String configId) {
+        if (registeredClientIds.contains(clientId)) {
+            throw new ClientAlreadyRegisteredException(clientId);
+        }
+        registeredClientIds.add(clientId);
         clientIdToConfigIdMapping.put(clientId, configId);
         db.commit();
     }

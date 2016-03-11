@@ -73,8 +73,7 @@ public class JauUseCaseTest {
         Config newConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto(newConfigIdentifier, application));
 
         // Register that client should use new config
-        ClientConfig updatedClientConfig = new ClientConfig(this.currentClientConfig.clientId, newConfig);
-        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(this.currentClientConfig.clientId, updatedClientConfig);
+        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(this.currentClientConfig.clientId, newConfig.getId());
 
         assertNotNull(updateClientConfigResponse);
         assertEquals(updateClientConfigResponse.getId(), newConfig.getId());

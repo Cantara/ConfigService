@@ -32,17 +32,29 @@ public class ClientService {
     }
 
     /**
-     * @return null if request is valid, but no ServiceConfig can be found or a new ClientConfig containing the ServiceConfig and a ClientId.
+     * @return null if request is valid, but no Config can be found or a new ClientConfig containing the Config and a ClientId.
      * @throws IllegalArgumentException if request does not contain enough information
      */
     public ClientConfig registerClient(ClientRegistrationRequest registration) {
-        Config config = dao.findByArtifactId(registration.artifactId);
-        if (config == null) {
-            log.warn("No ServiceConfig was found for artifactId={}", registration.artifactId);
-            return null;
+        ClientConfig clientConfig;
+
+        if (registration.clientId != null) {
+            Config config = dao.findByClientId(registration.clientId);
+            if (config == null) {
+                log.warn("No Config was found for clientId={}", registration.clientId);
+                return null;
+            }
+            clientConfig = new ClientConfig(registration.clientId, config);
+            dao.registerClient(clientConfig.clientId, config.getId());
+        } else {
+            Config config = dao.findByArtifactId(registration.artifactId);
+            if (config == null) {
+                log.warn("No Config was found for artifactId={}", registration.artifactId);
+                return null;
+            }
+            clientConfig = new ClientConfig(UUID.randomUUID().toString(), config);
+            dao.registerClient(clientConfig.clientId, config.getId());
         }
-        ClientConfig clientConfig = new ClientConfig(UUID.randomUUID().toString(), config);
-        dao.registerClient(clientConfig.clientId, clientConfig.config.getId());
 
         statusDao.saveStatus(clientConfig.clientId, new ClientStatus(registration));
 

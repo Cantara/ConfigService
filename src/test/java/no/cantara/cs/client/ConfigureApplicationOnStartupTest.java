@@ -53,8 +53,10 @@ public class ConfigureApplicationOnStartupTest {
 
         File configurationStoreDirectory = new File("target/test-config-directory");
 
-        ApplicationConfigurator applicationConfigurator = new ApplicationConfigurator(configServiceClient);
-        applicationConfigurator.configureApplication(testApplication.artifactId, configurationStoreDirectory.getAbsolutePath());
+        ApplicationConfigurator applicationConfigurator = new ApplicationConfigurator(configServiceClient)
+                .setArtifactId(testApplication.artifactId)
+                .setConfigurationStoreDirectory(configurationStoreDirectory.getAbsolutePath());
+        applicationConfigurator.configureApplication();
 
         assertTrue(applicationStateFile.exists());
 
@@ -70,6 +72,6 @@ public class ConfigureApplicationOnStartupTest {
         }
 
         // Test restart
-        applicationConfigurator.configureApplication(testApplication.artifactId, configurationStoreDirectory.getAbsolutePath());
+        applicationConfigurator.configureApplication();
     }
 }

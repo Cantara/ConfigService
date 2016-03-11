@@ -1,12 +1,11 @@
 package no.cantara.cs.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.cantara.cs.persistence.EventsDao;
-import no.cantara.cs.persistence.ConfigDao;
-import no.cantara.cs.persistence.StatusDao;
-import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.Config;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
+import no.cantara.cs.persistence.ConfigDao;
+import no.cantara.cs.persistence.EventsDao;
+import no.cantara.cs.persistence.StatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +43,8 @@ public class ClientResource {
     @GET
     @Path("/{clientId}/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatusForAll(@PathParam("clientId") String clientId) {
-        log.trace("getStatusForAll");
+    public Response getStatus(@PathParam("clientId") String clientId) {
+        log.trace("getStatus");
         ClientStatus status = statusDao.getStatus(clientId);
 
         return mapResponseToJson(status);
@@ -75,29 +74,13 @@ public class ClientResource {
     }
 
     @PUT
-    @Path("/{clientId}/config/")
+    @Path("/{clientId}/config/{configId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateClientConfig(@PathParam("clientId") String clientId,
-                                                        String clientConfigAsJson) {
-        log.debug("Invoked updateClientConfig clientId={} with json {}", clientId,
-                clientConfigAsJson);
-
-        ClientConfig newClientConfig;
-        try {
-            newClientConfig = mapper.readValue(clientConfigAsJson, ClientConfig.class);
-        } catch (IOException e) {
-            log.error("Error parsing json. {}, json={}", e.getMessage(), clientConfigAsJson);
-            return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
-        }
-
-        String configId = newClientConfig.config.getId();
-
-        if (configDao.findByClientId(clientId) == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Client with id '" +
-                    clientId + "' is not registered.")
-                    .build();
-        }
+                                       @PathParam("configId") String configId) {
+        log.debug("Invoked updateClientConfig clientId={} with configId {}", clientId,
+                configId);
 
         Config oldConfig = configDao.changeConfigForClientToUse(clientId, configId);
 

@@ -80,18 +80,16 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(jsonResponse, Config.class);
     }
 
-    public Config updateClientConfig(String clientId, ClientConfig newClientConfig) throws IOException {
-        String jsonRequest = mapper.writeValueAsString(newClientConfig);
+    public Config updateClientConfig(String clientId, String configId) throws IOException {
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
-                .body(jsonRequest)
                 .log().everything()
                 .expect()
                 .statusCode(200)
                 .log().everything()
                 .when()
-                .put(ClientResource.CLIENT_PATH + "/{clientId}/config", clientId);
+                .put(ClientResource.CLIENT_PATH + "/{clientId}/config/{configId}", clientId, configId);
 
         String jsonResponse = response.body().asString();
         return mapper.readValue(jsonResponse, Config.class);
