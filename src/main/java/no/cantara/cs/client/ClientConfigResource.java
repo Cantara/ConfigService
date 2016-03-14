@@ -51,7 +51,7 @@ public class ClientConfigResource {
         try {
             clientConfig = clientService.registerClient(registration);
         } catch (ClientAlreadyRegisteredException e) {
-            log.warn("RegisterClient called with already registered clientId: " + registration.clientId);
+            log.warn("RegisterClient called with already registered clientId: {}", registration.clientId);
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
         if (clientConfig == null) {

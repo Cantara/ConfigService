@@ -8,8 +8,8 @@ import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.config.ApplicationResource;
 import no.cantara.cs.config.ConfigResource;
 import no.cantara.cs.dto.Application;
-import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.Config;
+import no.cantara.cs.testsupport.dto.ApplicationStatus;
 
 import java.io.IOException;
 import java.util.Map;
@@ -95,8 +95,8 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(jsonResponse, Config.class);
     }
 
-    public void queryApplicationStatus(String artifactId) {
-        given()
+    public ApplicationStatus queryApplicationStatus(String artifactId) throws IOException {
+        Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
                 .log().everything()
@@ -105,6 +105,8 @@ public class ConfigServiceAdminClient {
                 .log().everything()
                 .when()
                 .get(ApplicationResource.APPLICATION_PATH + "/{artifactId}/status", artifactId);
+
+        return mapper.readValue(response.body().asString(), ApplicationStatus.class);
     }
 
     public Map<String, Config> getAllConfigs() throws IOException {

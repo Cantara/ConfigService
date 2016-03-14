@@ -18,6 +18,10 @@ public class ClientStatus {
     public String configLastChanged;
     public String timeOfContact;
 
+    public ClientStatus() {
+        // For Jackson
+    }
+
     public ClientStatus(ClientRegistrationRequest registration) {
         this.artifactId = registration.artifactId;
         this.clientName = registration.clientName;

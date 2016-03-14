@@ -67,36 +67,6 @@ public class JauUseCaseTest {
     }
 
     @Test(dependsOnMethods = "testCheckForUpdateWithUpToDateClientConfig")
-    public void testChangeConfigForSingleClient() throws IOException {
-        // Create a new config
-        String newConfigIdentifier = "for-single-client";
-        Config newConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto(newConfigIdentifier, application));
-
-        // Register that client should use new config
-        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(this.currentClientConfig.clientId, newConfig.getId());
-
-        assertNotNull(updateClientConfigResponse);
-        assertEquals(updateClientConfigResponse.getId(), newConfig.getId());
-        assertTrue(updateClientConfigResponse.getName().contains(newConfigIdentifier));
-    }
-
-    @Test(dependsOnMethods = "testChangeConfigForSingleClient")
-    public void testCheckForUpdateWithNewClientSpecificConfig() throws Exception {
-        String previousLastChanged = configServiceClient.getApplicationState().getProperty("lastChanged");
-
-        // CheckForUpdate should return new config
-        ClientConfig checkForUpdateResponse = configServiceClient.checkForUpdate(this.currentClientConfig.clientId, new CheckForUpdateRequest(previousLastChanged));
-        assertNotNull(checkForUpdateResponse);
-        assertNotEquals(checkForUpdateResponse.config.getId(), currentClientConfig.config.getId());
-
-        // Save state and verify lastChanged is updated
-        configServiceClient.saveApplicationState(checkForUpdateResponse);
-        assertEquals(configServiceClient.getApplicationState().getProperty("lastChanged"), checkForUpdateResponse.config.getLastChanged());
-
-        currentClientConfig = checkForUpdateResponse;
-    }
-
-    @Test(dependsOnMethods = "testCheckForUpdateWithNewClientSpecificConfig")
     public void testCheckForUpdateWhenCurrentConfigHasBeenChanged() throws Exception {
         // Update current config by setting lastChanged
         Config updatedConfig = ConfigBuilder.createConfigDto("UpdatedConfig", application);
