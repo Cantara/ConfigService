@@ -1,12 +1,13 @@
 package no.cantara.cs.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import no.cantara.cs.client.ClientStatus;
-import no.cantara.cs.persistence.StatusDao;
-import no.cantara.cs.persistence.ConfigDao;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.persistence.ConfigDao;
+import no.cantara.cs.persistence.StatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,22 @@ public class ApplicationResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok(createdJson).build();
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllApplications() {
+        log.trace("getAllApplications");
+        List<Application> applications = configDao.getApplications();
+        String jsonResponse;
+        try {
+            jsonResponse = mapper.writeValueAsString(applications);
+        } catch (JsonProcessingException e) {
+            log.warn("Could not convert to Json {}", applications);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(jsonResponse).build();
     }
 
     @GET

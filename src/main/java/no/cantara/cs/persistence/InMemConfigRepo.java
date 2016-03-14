@@ -3,9 +3,7 @@ package no.cantara.cs.persistence;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Config;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This class is a mess. Should be totally redesigned after the public API is stable.
@@ -143,6 +141,10 @@ public void addOrUpdateConfig(String applicationId, Config config) {
         return configs.get(configId);
     }
 
+    @Override
+    public List<Application> getApplications() {
+        return new ArrayList<>(idToApplication.values());
+    }
 
     /*
     private void addTestData() {

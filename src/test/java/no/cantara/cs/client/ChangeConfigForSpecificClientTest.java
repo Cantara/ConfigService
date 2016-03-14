@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import static org.testng.Assert.*;
 
-public class ClientSpecificConfigTest {
+public class ChangeConfigForSpecificClientTest {
 
     private ConfigServiceClient configServiceClient;
     private Application application;
@@ -21,7 +21,6 @@ public class ClientSpecificConfigTest {
 
     private TestServer testServer;
     private ClientConfig currentClientConfig;
-    private ClientConfig preconfiguredClientConfig;
 
     @BeforeClass
     public void startServer() throws Exception {
@@ -75,31 +74,6 @@ public class ClientSpecificConfigTest {
         assertEquals(configServiceClient.getApplicationState().getProperty("lastChanged"), checkForUpdateResponse.config.getLastChanged());
 
         currentClientConfig = checkForUpdateResponse;
-    }
-
-    @Test(dependsOnMethods = "testCheckForUpdateWithNewClientSpecificConfig")
-    public void testRegisterClientWithPreconfiguredConfig() throws Exception {
-        Config config = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("pre-registered-config", application));
-
-        String clientId = "client-with-preconfigured-config-id";
-        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(clientId, config.getId());
-        assertEquals(updateClientConfigResponse.getId(), config.getId());
-
-        ClientRegistrationRequest registration = new ClientRegistrationRequest(application.artifactId);
-        registration.envInfo.putAll(System.getenv());
-        registration.clientName = "client-with-preconfigured-config-name";
-        registration.clientId = clientId;
-
-        preconfiguredClientConfig = configServiceClient.registerClient(registration);
-        assertNotNull(preconfiguredClientConfig);
-        assertEquals(preconfiguredClientConfig.config.getId(), config.getId());
-    }
-
-    @Test(dependsOnMethods = "testRegisterClientWithPreconfiguredConfig")
-    public void testGetApplicationStatusWithClientSpecificConfigs() throws IOException {
-        ApplicationStatus applicationStatus = configServiceAdminClient.queryApplicationStatus(application.artifactId);
-        assertNotNull(applicationStatus.allClientsSnapshot.get(preconfiguredClientConfig.clientId));
-        assertNotNull(applicationStatus.allClientsSnapshot.get(currentClientConfig.clientId));
     }
 
 }

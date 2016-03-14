@@ -13,6 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
@@ -51,6 +52,16 @@ public class ApplicationConfigAdminTest {
 
         config = testServer.getAdminClient().registerConfig(application, configInput);
         assertNotNull(config.getId());
+    }
+
+    @Test(dependsOnMethods = "testRegisterApplication")
+    public void testGetApplications() throws IOException {
+        List<Application> applications = testServer.getAdminClient().getAllApplications();
+        assertNotNull(applications);
+        assertEquals(applications.size(), 1);
+        Application application = applications.iterator().next();
+        assertEquals(application.artifactId, this.application.artifactId);
+        assertEquals(application.id, this.application.id);
     }
 
     @Test(dependsOnMethods = "testCreateConfig")

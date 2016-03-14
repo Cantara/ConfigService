@@ -12,6 +12,7 @@ import no.cantara.cs.dto.Config;
 import no.cantara.cs.testsupport.dto.ApplicationStatus;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -107,6 +108,19 @@ public class ConfigServiceAdminClient {
                 .get(ApplicationResource.APPLICATION_PATH + "/{artifactId}/status", artifactId);
 
         return mapper.readValue(response.body().asString(), ApplicationStatus.class);
+    }
+
+    public List<Application> getAllApplications() throws IOException {
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().everything()
+                .when()
+                .get(ApplicationResource.APPLICATION_PATH);
+        return mapper.readValue(response.body().asString(), new TypeReference<List<Application>>() {});
     }
 
     public Map<String, Config> getAllConfigs() throws IOException {

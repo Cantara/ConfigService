@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
@@ -173,6 +171,11 @@ public class PersistedConfigRepo implements ConfigDao {
     @Override
     public Map<String, Config> getAllConfigs() {
         return configs;
+    }
+
+    @Override
+    public List<Application> getApplications() {
+        return new ArrayList<>(idToApplication.values());
     }
 
     /*

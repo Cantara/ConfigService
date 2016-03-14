@@ -3,6 +3,7 @@ package no.cantara.cs.persistence;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Config;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,4 +34,6 @@ public interface ConfigDao {
     Config changeConfigForClientToUse(String clientId, String configId);
 
     Map<String, Config> getAllConfigs();
+
+    List<Application> getApplications();
 }
