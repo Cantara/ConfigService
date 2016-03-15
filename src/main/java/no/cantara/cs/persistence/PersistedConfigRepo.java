@@ -46,8 +46,13 @@ public class PersistedConfigRepo implements ConfigDao {
 
     @Override
     public Application createApplication(Application newApplication) {
+        if (idToApplication.values().stream().anyMatch(a -> newApplication.artifactId.equals(a.artifactId))) {
+            log.warn("CreateApplication with same artifactId already exists, artifactId: {}", newApplication.artifactId);
+            throw new IllegalArgumentException("Application with same artifactId already exists, artifactId: " + newApplication.artifactId);
+        }
         newApplication.id = UUID.randomUUID().toString();
         idToApplication.put(newApplication.id, newApplication);
+        log.info("created {}", newApplication);
         db.commit();
         return newApplication;
     }

@@ -3,6 +3,7 @@ package no.cantara.cs.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import no.cantara.cs.config.ApplicationResource;
 import no.cantara.cs.config.ConfigResource;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Config;
@@ -13,6 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -44,6 +46,21 @@ public class ApplicationConfigAdminTest {
     @Test
     public void testRegisterApplication() throws IOException {
         application = testServer.getAdminClient().registerApplication("ApplicationConfigAdminTest");
+    }
+
+    @Test(dependsOnMethods = "testRegisterApplication")
+    public void testRegisterApplicationWithDuplicateArtifactIdShouldReturnBadRequest() throws IOException {
+        Application application1 = new Application("ApplicationConfigAdminTest");
+        given()
+                .auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                .contentType(ContentType.JSON)
+                .body(mapper.writeValueAsString(application1))
+                .log().everything()
+                .expect()
+                .statusCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                .log().everything()
+                .when()
+                .post(ApplicationResource.APPLICATION_PATH);
     }
 
     @Test(dependsOnMethods = "testRegisterApplication")

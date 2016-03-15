@@ -53,8 +53,14 @@ public class ApplicationResource {
             log.warn("Invalid json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
             return Response.status(status).build();
         }
-        Application application = configDao.createApplication(new Application(artifactId));
-        log.info("created {}", application);
+
+        Application application;
+        try {
+            application = configDao.createApplication(new Application(artifactId));
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+
 
         String createdJson;
         try {
