@@ -57,8 +57,8 @@ public class RegisterClientWithPreconfiguredConfigTest {
         Config config = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("pre-registered-config", application));
 
         String clientId = "client-with-preconfigured-config-id";
-        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(clientId, config.getId());
-        assertEquals(updateClientConfigResponse.getId(), config.getId());
+        Client updateClientResponse = configServiceAdminClient.putClient(new Client(clientId, config.getId(), true));
+        assertEquals(updateClientResponse.applicationConfigId, config.getId());
 
         ClientRegistrationRequest registration = new ClientRegistrationRequest(application.artifactId);
         registration.envInfo.putAll(System.getenv());

@@ -115,7 +115,7 @@ public class RegisterClientTest {
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .log().ifError()
                 .when()
-                .post(ClientConfigResource.CLIENTCONFIG_PATH);
+                .post(ClientResource.CLIENT_PATH + "/registration");
     }
 
 }

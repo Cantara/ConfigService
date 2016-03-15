@@ -1,7 +1,7 @@
 package no.cantara.cs.persistence;
 
-import no.cantara.cs.client.ClientAlreadyRegisteredException;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.Config;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
@@ -22,9 +25,8 @@ public class PersistedConfigRepo implements ConfigDao {
     private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
     private final Map<String, Application> idToApplication;
     private final Map<String, Config> configs;
+    private final Map<String, Client> clients;
     private final Map<String, String> applicationIdToConfigIdMapping;
-    private final Map<String, String> clientIdToConfigIdMapping;
-    private final Set<String> registeredClientIds;
 
     private DB db;
 
@@ -38,9 +40,8 @@ public class PersistedConfigRepo implements ConfigDao {
     	
         this.idToApplication = db.getHashMap("idToApplication");
         this.configs = db.getHashMap("configs");
+        this.clients = db.getHashMap("clients");
         this.applicationIdToConfigIdMapping = db.getHashMap("applicationIdToConfigIdMapping");
-        this.clientIdToConfigIdMapping = db.getHashMap("clientIdToConfigIdMapping");
-        this.registeredClientIds = db.getHashSet("registeredClientIds");
     }
 
     @Override
@@ -73,7 +74,7 @@ public class PersistedConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config findByArtifactId(String artifactId) {
+    public Config findConfigByArtifactId(String artifactId) {
         Application application = findApplication(artifactId);
         if (application == null) {
             return null;
@@ -96,22 +97,35 @@ public class PersistedConfigRepo implements ConfigDao {
     }
 
     @Override
-    public void registerClient(String clientId, String configId) {
-        if (registeredClientIds.contains(clientId)) {
-            throw new ClientAlreadyRegisteredException(clientId);
+    public Client getClient(String clientId) {
+        return clients.get(clientId);
+    }
+
+    @Override
+    public void saveClient(Client client) {
+        if (client.applicationConfigId == null) {
+            throw new IllegalArgumentException("client.applicationConfigId is required");
         }
-        registeredClientIds.add(clientId);
-        clientIdToConfigIdMapping.put(clientId, configId);
+        // Verify applicationConfig exists
+        Config config = getConfig(client.applicationConfigId);
+        if (config == null) {
+            throw new IllegalArgumentException("No ApplicationConfig was found with id: " + client.applicationConfigId);
+        }
+        clients.put(client.clientId, client);
         db.commit();
     }
 
     @Override
-    public Config findByClientId(String clientId) {
-        String configId = clientIdToConfigIdMapping.get(clientId);
-        if (configId == null) {
+    public Config findConfigByClientId(String clientId) {
+        Client client = getClient(clientId);
+        if (client == null) {
             return null;
         }
-        return configs.get(configId);
+        Config config = configs.get(client.applicationConfigId);
+        if (config == null) {
+            return null;
+        }
+        return config;
     }
 
     @Override
@@ -135,39 +149,6 @@ public class PersistedConfigRepo implements ConfigDao {
         return application.artifactId;
     }
 
-    public void addOrUpdateConfig(String applicationId, Config config) {
-        String configId = config.getId();
-        if (configId == null) {
-            Config persistedConfig = createConfig(applicationId, config);
-            configId = persistedConfig.getId();
-        } else {
-            updateConfig(config);
-        }
-
-        applicationIdToConfigIdMapping.put(applicationId, configId);
-        db.commit();
-    }
-
-    //Should probably be moved to somewhere else.
-    @Deprecated
-    public Config findConfig(String clientId) {
-        String configId = applicationIdToConfigIdMapping.get(clientId);
-        if (configId == null) {
-            return null;
-        }
-        return configs.get(configId);
-    }
-
-    @Override
-    public Config changeConfigForClientToUse(String clientId, String configId) {
-        Config config = configs.get(configId);
-        if (config != null) {
-            clientIdToConfigIdMapping.put(clientId, configId);
-            db.commit();
-        }
-        return config;
-    }
-
     @Override
     public Map<String, Config> getAllConfigs() {
         return configs;
@@ -178,16 +159,4 @@ public class PersistedConfigRepo implements ConfigDao {
         return new ArrayList<>(idToApplication.values());
     }
 
-    /*
-    private void addTestData() {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-
-        Config Config = new ServiceConfig("Service1-1.23");
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-        addOrUpdateConfig("UserAdminService", serviceConfig);
-    }
-    */
 }

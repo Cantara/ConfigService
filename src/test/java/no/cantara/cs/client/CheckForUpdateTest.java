@@ -1,9 +1,8 @@
 package no.cantara.cs.client;
 
 import com.jayway.restassured.http.ContentType;
-import no.cantara.cs.testsupport.TestServer;
-import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.testsupport.TestServer;
 import org.apache.http.HttpStatus;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +45,7 @@ public class CheckForUpdateTest {
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .log().ifError()
                 .when()
-                .post(ClientConfigResource.CLIENTCONFIG_PATH + "/{clientId}", 1);
+                .post(ClientResource.CLIENT_PATH + "/{clientId}/sync", 1);
     }
 
     @Test(expectedExceptions = IllegalStateException.class)

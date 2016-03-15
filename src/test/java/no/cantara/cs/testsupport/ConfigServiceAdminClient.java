@@ -8,6 +8,7 @@ import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.config.ApplicationResource;
 import no.cantara.cs.config.ConfigResource;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.Config;
 import no.cantara.cs.testsupport.dto.ApplicationStatus;
 
@@ -81,7 +82,7 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(jsonResponse, Config.class);
     }
 
-    public Config updateClientConfig(String clientId, String configId) throws IOException {
+    public Client getClient(String clientId) throws IOException {
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -90,10 +91,25 @@ public class ConfigServiceAdminClient {
                 .statusCode(200)
                 .log().everything()
                 .when()
-                .put(ClientResource.CLIENT_PATH + "/{clientId}/config/{configId}", clientId, configId);
+                .get(ClientResource.CLIENT_PATH + "/{clientId}", clientId);
+
+        return mapper.readValue(response.body().asString(), Client.class);
+    }
+
+    public Client putClient(Client client) throws IOException {
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .body(mapper.writeValueAsString(client))
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().everything()
+                .when()
+                .put(ClientResource.CLIENT_PATH + "/{clientId}", client.clientId);
 
         String jsonResponse = response.body().asString();
-        return mapper.readValue(jsonResponse, Config.class);
+        return mapper.readValue(jsonResponse, Client.class);
     }
 
     public ApplicationStatus queryApplicationStatus(String artifactId) throws IOException {

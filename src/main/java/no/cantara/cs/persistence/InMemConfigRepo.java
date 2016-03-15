@@ -1,6 +1,7 @@
 package no.cantara.cs.persistence;
 
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.Config;
 
 import java.util.*;
@@ -14,15 +15,15 @@ import java.util.*;
 public class InMemConfigRepo implements ConfigDao {
     private final Map<String, Application> idToApplication;
     private final Map<String, Config> configs;
+    private final Map<String, Client> clients;
     private final Map<String, String> applicationIdToConfigIdMapping;
-    private final Map<String, String> clientIdToConfigIdMapping;
 
 
     public InMemConfigRepo() {
         this.idToApplication = new HashMap<>();
         this.configs = new HashMap<>();
         this.applicationIdToConfigIdMapping = new HashMap<>();
-        this.clientIdToConfigIdMapping = new HashMap<>();
+        this.clients = new HashMap<>();
         //addTestData();
     }
 
@@ -42,6 +43,16 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
+    public Client getClient(String clientId) {
+        return clients.get(clientId);
+    }
+
+    @Override
+    public void saveClient(Client client) {
+        clients.put(client.clientId, client);
+    }
+
+    @Override
     public Config getConfig(String configId) {
         return configs.get(configId);
     }
@@ -52,7 +63,7 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config findByArtifactId(String artifactId) {
+    public Config findConfigByArtifactId(String artifactId) {
         Application application = findApplication(artifactId);
         if (application == null) {
             return null;
@@ -75,17 +86,16 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public void registerClient(String clientId, String configId) {
-        clientIdToConfigIdMapping.put(clientId, configId);
-    }
-
-    @Override
-    public Config findByClientId(String clientId) {
-        String configId = clientIdToConfigIdMapping.get(clientId);
-        if (configId == null) {
+    public Config findConfigByClientId(String clientId) {
+        Client client = getClient(clientId);
+        if (client == null) {
             return null;
         }
-        return configs.get(configId);
+        Config config = configs.get(client.applicationConfigId);
+        if (config == null) {
+            return null;
+        }
+        return config;
     }
 
     @Override
@@ -108,37 +118,9 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config changeConfigForClientToUse(String clientId, String configId) {
-        //TODO: Implementation
-        return null;
-    }
-
-    @Override
     public Map<String, Config> getAllConfigs() {
         //TODO: Implementation
         return null;
-    }
-
-public void addOrUpdateConfig(String applicationId, Config config) {
-        String configId = config.getId();
-        if (configId == null) {
-            Config persistedConfig = createConfig(applicationId, config);
-            configId = persistedConfig.getId();
-        } else {
-            updateConfig(config);
-        }
-
-        applicationIdToConfigIdMapping.put(applicationId, configId);
-    }
-
-    //Should probably be moved to somewhere else.
-    @Deprecated
-    public Config findConfig(String clientId) {
-        String configId = applicationIdToConfigIdMapping.get(clientId);
-        if (configId == null) {
-            return null;
-        }
-        return configs.get(configId);
     }
 
     @Override
@@ -146,16 +128,4 @@ public void addOrUpdateConfig(String applicationId, Config config) {
         return new ArrayList<>(idToApplication.values());
     }
 
-    /*
-    private void addTestData() {
-        MavenMetadata metadata = new MavenMetadata("net.whydah.identity", "UserAdminService", "2.1-SNAPSHOT");
-        String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "snapshots").build(metadata);
-        DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
-
-        Config Config = new ServiceConfig("Service1-1.23");
-        serviceConfig.addDownloadItem(downloadItem);
-        serviceConfig.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
-        addOrUpdateConfig("UserAdminService", serviceConfig);
-    }
-    */
 }

@@ -2,7 +2,7 @@ package no.cantara.cs.testsupport;
 
 import com.jayway.restassured.RestAssured;
 import no.cantara.cs.Main;
-import no.cantara.cs.client.ClientConfigResource;
+import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class TestServer {
         RestAssured.port = main.getPort();
 
         RestAssured.basePath = Main.CONTEXT_PATH;
-        url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientConfigResource.CLIENTCONFIG_PATH;
+        url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientResource.CLIENT_PATH;
     }
 
     public void stop() {

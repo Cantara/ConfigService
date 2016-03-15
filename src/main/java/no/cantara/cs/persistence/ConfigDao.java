@@ -1,6 +1,7 @@
 package no.cantara.cs.persistence;
 
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.Config;
 
 import java.util.List;
@@ -12,16 +13,15 @@ import java.util.Map;
 public interface ConfigDao {
     Application createApplication(Application newApplication);
 
-
-    void addOrUpdateConfig(String clientId, Config config);
-    Config findConfig(String clientId);
-
     Config createConfig(String applicationId, Config newConfig);
 
-    Config findByArtifactId(String artifactId);
+    Config findConfigByArtifactId(String artifactId);
 
-    void registerClient(String clientId, String configId);
-    Config findByClientId(String clientId);
+    Client getClient(String clientId);
+
+    void saveClient(Client client);
+
+    Config findConfigByClientId(String clientId);
 
     Config getConfig(String configId);
 
@@ -30,8 +30,6 @@ public interface ConfigDao {
     Config updateConfig(Config updatedConfig);
 
     String getArtifactId(Config config);
-
-    Config changeConfigForClientToUse(String clientId, String configId);
 
     Map<String, Config> getAllConfigs();
 

@@ -4,7 +4,6 @@ import no.cantara.cs.dto.*;
 import no.cantara.cs.testsupport.ConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
-import no.cantara.cs.testsupport.dto.ApplicationStatus;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,11 +52,13 @@ public class ChangeConfigForSpecificClientTest {
         Config newConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto(newConfigIdentifier, application));
 
         // Register that client should use new config
-        Config updateClientConfigResponse = configServiceAdminClient.updateClientConfig(this.currentClientConfig.clientId, newConfig.getId());
+        Client client = configServiceAdminClient.getClient(this.currentClientConfig.clientId);
+        client.applicationConfigId = newConfig.getId();
+        Client putClientResponse = configServiceAdminClient.putClient(client);
 
-        assertNotNull(updateClientConfigResponse);
-        assertEquals(updateClientConfigResponse.getId(), newConfig.getId());
-        assertTrue(updateClientConfigResponse.getName().contains(newConfigIdentifier));
+        assertNotNull(putClientResponse);
+        assertEquals(putClientResponse.applicationConfigId, newConfig.getId());
+        assertEquals(putClientResponse.clientId, client.clientId);
     }
 
     @Test(dependsOnMethods = "testChangeConfigForSingleClient")
@@ -68,12 +69,6 @@ public class ChangeConfigForSpecificClientTest {
         ClientConfig checkForUpdateResponse = configServiceClient.checkForUpdate(this.currentClientConfig.clientId, new CheckForUpdateRequest(previousLastChanged));
         assertNotNull(checkForUpdateResponse);
         assertNotEquals(checkForUpdateResponse.config.getId(), currentClientConfig.config.getId());
-
-        // Save state and verify lastChanged is updated
-        configServiceClient.saveApplicationState(checkForUpdateResponse);
-        assertEquals(configServiceClient.getApplicationState().getProperty("lastChanged"), checkForUpdateResponse.config.getLastChanged());
-
-        currentClientConfig = checkForUpdateResponse;
     }
 
 }
