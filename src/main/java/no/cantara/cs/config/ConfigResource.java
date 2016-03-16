@@ -2,6 +2,7 @@ package no.cantara.cs.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.cantara.cs.application.ApplicationResource;
 import no.cantara.cs.persistence.ConfigDao;
 import no.cantara.cs.dto.Config;
 import org.slf4j.Logger;

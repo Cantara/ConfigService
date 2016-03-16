@@ -4,13 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import no.cantara.cs.application.ApplicationResource;
+import no.cantara.cs.application.ApplicationStatus;
 import no.cantara.cs.client.ClientResource;
-import no.cantara.cs.config.ApplicationResource;
 import no.cantara.cs.config.ConfigResource;
-import no.cantara.cs.dto.Application;
-import no.cantara.cs.dto.Client;
-import no.cantara.cs.dto.Config;
-import no.cantara.cs.testsupport.dto.ApplicationStatus;
+import no.cantara.cs.dto.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -112,7 +110,35 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(jsonResponse, Client.class);
     }
 
-    public ApplicationStatus queryApplicationStatus(String artifactId) throws IOException {
+    public ClientStatus getClientStatus(String clientId) throws IOException {
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().everything()
+                .when()
+                .get(ClientResource.CLIENT_PATH + "/{clientId}/status", clientId);
+
+        return mapper.readValue(response.body().asString(), ClientStatus.class);
+    }
+
+    public ClientEnvironment getClientEnvironment(String clientId) throws IOException {
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().everything()
+                .when()
+                .get(ClientResource.CLIENT_PATH + "/{clientId}/env", clientId);
+
+        return mapper.readValue(response.body().asString(), ClientEnvironment.class);
+    }
+
+    public ApplicationStatus getApplicationStatus(String artifactId) throws IOException {
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)

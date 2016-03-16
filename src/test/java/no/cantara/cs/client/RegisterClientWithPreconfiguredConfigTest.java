@@ -1,10 +1,10 @@
 package no.cantara.cs.client;
 
+import no.cantara.cs.application.ApplicationStatus;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.testsupport.ConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
-import no.cantara.cs.testsupport.dto.ApplicationStatus;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -72,8 +72,8 @@ public class RegisterClientWithPreconfiguredConfigTest {
 
     @Test(dependsOnMethods = "testRegisterClientWithPreconfiguredConfig")
     public void testGetApplicationStatus() throws IOException {
-        ApplicationStatus applicationStatus = configServiceAdminClient.queryApplicationStatus(application.artifactId);
-        assertNotNull(applicationStatus.allClientsSnapshot.get(preconfiguredClientConfig.clientId));
+        ApplicationStatus applicationStatus = configServiceAdminClient.getApplicationStatus(application.artifactId);
+        assertNotNull(applicationStatus.allClientHeartbeatData.get(preconfiguredClientConfig.clientId));
     }
 
 }

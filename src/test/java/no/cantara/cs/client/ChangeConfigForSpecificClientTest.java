@@ -22,7 +22,7 @@ public class ChangeConfigForSpecificClientTest {
     private ClientConfig currentClientConfig;
 
     @BeforeClass
-    public void startServer() throws Exception {
+    public void setup() throws Exception {
         testServer = new TestServer();
         testServer.cleanAllData();
         testServer.start();

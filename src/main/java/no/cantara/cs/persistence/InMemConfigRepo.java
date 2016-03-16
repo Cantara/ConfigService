@@ -43,16 +43,6 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Client getClient(String clientId) {
-        return clients.get(clientId);
-    }
-
-    @Override
-    public void saveClient(Client client) {
-        clients.put(client.clientId, client);
-    }
-
-    @Override
     public Config getConfig(String configId) {
         return configs.get(configId);
     }
@@ -83,19 +73,6 @@ public class InMemConfigRepo implements ConfigDao {
             }
         }
         return null;
-    }
-
-    @Override
-    public Config findConfigByClientId(String clientId) {
-        Client client = getClient(clientId);
-        if (client == null) {
-            return null;
-        }
-        Config config = configs.get(client.applicationConfigId);
-        if (config == null) {
-            return null;
-        }
-        return config;
     }
 
     @Override

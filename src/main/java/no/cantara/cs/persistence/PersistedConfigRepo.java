@@ -1,5 +1,7 @@
 package no.cantara.cs.persistence;
 
+import no.cantara.cs.dto.ClientEnvironment;
+import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.Config;
@@ -16,16 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 @Service
-public class PersistedConfigRepo implements ConfigDao {
+public class PersistedConfigRepo implements ConfigDao, ClientDao {
     private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
     private final Map<String, Application> idToApplication;
     private final Map<String, Config> configs;
     private final Map<String, Client> clients;
+    private final Map<String, ClientHeartbeatData> clientHeartbeatDataMap;
+    private final Map<String, ClientEnvironment> clientEnvironmentMap;
     private final Map<String, String> applicationIdToConfigIdMapping;
 
     private DB db;
@@ -42,6 +47,8 @@ public class PersistedConfigRepo implements ConfigDao {
         this.configs = db.getHashMap("configs");
         this.clients = db.getHashMap("clients");
         this.applicationIdToConfigIdMapping = db.getHashMap("applicationIdToConfigIdMapping");
+        this.clientHeartbeatDataMap = db.getHashMap("clientHeartbeatData");
+        this.clientEnvironmentMap = db.getHashMap("clientEnvironment");
     }
 
     @Override
@@ -121,19 +128,6 @@ public class PersistedConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config findConfigByClientId(String clientId) {
-        Client client = getClient(clientId);
-        if (client == null) {
-            return null;
-        }
-        Config config = configs.get(client.applicationConfigId);
-        if (config == null) {
-            return null;
-        }
-        return config;
-    }
-
-    @Override
     public Config updateConfig(Config updatedConfig) {
     	Config config = configs.put(updatedConfig.getId(), updatedConfig);
     	db.commit();
@@ -164,4 +158,30 @@ public class PersistedConfigRepo implements ConfigDao {
         return new ArrayList<>(idToApplication.values());
     }
 
+    @Override
+    public ClientHeartbeatData getClientHeartbeatData(String clientId) {
+        return clientHeartbeatDataMap.get(clientId);
+    }
+
+    @Override
+    public void saveClientHeartbeatData(String clientId, ClientHeartbeatData clientHeartbeatData) {
+        clientHeartbeatDataMap.put(clientId, clientHeartbeatData);
+    }
+
+    @Override
+    public void saveClientEnvironment(String clientId, ClientEnvironment clientEnvironment) {
+        clientEnvironmentMap.put(clientId, clientEnvironment);
+    }
+
+    @Override
+    public ClientEnvironment getClientEnvironment(String clientId) {
+        return clientEnvironmentMap.get(clientId);
+    }
+
+    @Override
+    public Map<String, ClientHeartbeatData> getAllClientHeartbeatData(String artifactId) {
+        return clientHeartbeatDataMap.entrySet().stream()
+                .filter(e -> e.getValue().artifactId.equals(artifactId))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 }

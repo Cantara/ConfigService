@@ -1,9 +1,9 @@
 package no.cantara.cs.client;
 
 import no.cantara.cs.dto.*;
+import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.ConfigDao;
 import no.cantara.cs.persistence.EventsDao;
-import no.cantara.cs.persistence.StatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,14 @@ import java.util.UUID;
 public class ClientService {
     private static final Logger log = LoggerFactory.getLogger(ClientService.class);
     private final ConfigDao dao;
-    private final StatusDao statusDao;
     private final EventsDao eventsDao;
+    private final ClientDao clientDao;
 
     @Autowired
-    public ClientService(ConfigDao dao, StatusDao statusDao, EventsDao eventsDao) {
+    public ClientService(ConfigDao dao, EventsDao eventsDao, ClientDao clientDao) {
         this.dao = dao;
-        this.statusDao = statusDao;
         this.eventsDao = eventsDao;
+        this.clientDao = clientDao;
     }
 
     /**
@@ -38,12 +38,12 @@ public class ClientService {
         Config config;
 
         if (registration.clientId != null) {
-            client = dao.getClient(registration.clientId);
+            client = clientDao.getClient(registration.clientId);
             if (client == null) {
                 log.warn("RegisterClient called with a non-existing clientId: {}", registration.clientId);
                 throw new IllegalArgumentException("No client was found with clientId: " + registration.clientId);
             }
-            if (statusDao.getStatus(client.clientId) != null) {
+            if (clientDao.getClientHeartbeatData(client.clientId) != null) {
                 log.warn("RegisterClient called with already registered clientId: {}", registration.clientId);
                 throw new IllegalArgumentException("Client is already registered, clientId: " + registration.clientId);
             }
@@ -61,19 +61,22 @@ public class ClientService {
             client = new Client(UUID.randomUUID().toString(), config.getId(), true);
         }
 
-        dao.saveClient(client);
-        statusDao.saveStatus(client.clientId, new ClientStatus(registration));
+        clientDao.saveClient(client);
+        clientDao.saveClientHeartbeatData(client.clientId, new ClientHeartbeatData(registration, config));
+        clientDao.saveClientEnvironment(client.clientId, new ClientEnvironment(registration.envInfo));
         return new ClientConfig(client.clientId, config) ;
     }
 
     public ClientConfig checkForUpdatedClientConfig(String clientId, CheckForUpdateRequest checkForUpdateRequest) {
-        Config config = dao.findConfigByClientId(clientId);
+        Config config = findConfigByClientId(clientId);
         if (config == null) {
             log.warn("No ApplicationConfig was found for clientId={}", clientId);
             return null;
         }
         String artifactId = dao.getArtifactId(config);
-        statusDao.saveStatus(clientId, new ClientStatus(checkForUpdateRequest, artifactId));
+        clientDao.saveClientHeartbeatData(clientId, new ClientHeartbeatData(checkForUpdateRequest, config, artifactId));
+        clientDao.saveClientEnvironment(clientId, new ClientEnvironment(checkForUpdateRequest.envInfo));
+
         eventsDao.saveEvents(clientId, checkForUpdateRequest.eventsStore);
 
         ClientConfig clientConfig = new ClientConfig(clientId, null);
@@ -83,6 +86,18 @@ public class ClientService {
             clientConfig.config = config;
         }
         return clientConfig;
+    }
+
+    public Config findConfigByClientId(String clientId) {
+        Client client = clientDao.getClient(clientId);
+        if (client == null) {
+            return null;
+        }
+        Config config = dao.getConfig(client.applicationConfigId);
+        if (config == null) {
+            return null;
+        }
+        return config;
     }
 
 }

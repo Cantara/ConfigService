@@ -3,7 +3,7 @@ package no.cantara.cs.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import no.cantara.cs.config.ApplicationResource;
+import no.cantara.cs.application.ApplicationResource;
 import no.cantara.cs.config.ConfigResource;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.Config;

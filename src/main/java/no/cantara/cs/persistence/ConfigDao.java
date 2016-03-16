@@ -17,12 +17,6 @@ public interface ConfigDao {
 
     Config findConfigByArtifactId(String artifactId);
 
-    Client getClient(String clientId);
-
-    void saveClient(Client client);
-
-    Config findConfigByClientId(String clientId);
-
     Config getConfig(String configId);
 
     Config deleteConfig(String configId);

@@ -3,9 +3,8 @@ package no.cantara.cs.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
-import no.cantara.cs.persistence.ConfigDao;
+import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.EventsDao;
-import no.cantara.cs.persistence.StatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +26,16 @@ public class ClientResource {
     private static final Logger log = LoggerFactory.getLogger(ClientResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final StatusDao statusDao;
     private final EventsDao eventsDao;
-    private final ConfigDao configDao;
+    private final ClientDao clientDao;
     private final ClientService clientService;
 
     @Autowired
-    public ClientResource(ConfigDao configDao,
-                          StatusDao statusDao,
-                          EventsDao eventsDao,
+    public ClientResource(EventsDao eventsDao,
+                          ClientDao clientDao,
                           ClientService clientService) {
-        this.configDao = configDao;
-        this.statusDao = statusDao;
         this.eventsDao = eventsDao;
+        this.clientDao = clientDao;
         this.clientService = clientService;
     }
 
@@ -48,7 +44,10 @@ public class ClientResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClient(@PathParam("clientId") String clientId) {
         log.trace("getClient");
-        Client client = configDao.getClient(clientId);
+        Client client = clientDao.getClient(clientId);
+        if (client == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
 
         return mapResponseToJson(client);
     }
@@ -58,9 +57,29 @@ public class ClientResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getStatus(@PathParam("clientId") String clientId) {
         log.trace("getStatus");
-        ClientStatus status = statusDao.getStatus(clientId);
 
-        return mapResponseToJson(status);
+        Client client = clientDao.getClient(clientId);
+        if (client == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(clientId);
+
+        ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
+        return mapResponseToJson(statusView);
+    }
+
+    @GET
+    @Path("/{clientId}/env")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEnvironment(@PathParam("clientId") String clientId) {
+        log.trace("getStatus");
+
+        ClientEnvironment clientEnvironment = clientDao.getClientEnvironment(clientId);
+        if (clientEnvironment == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return mapResponseToJson(clientEnvironment);
     }
 
     @GET
@@ -77,7 +96,7 @@ public class ClientResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClientConfig(@PathParam("clientId") String clientId) {
         log.trace("Invoked getClientConfig");
-        Config config = configDao.findConfigByClientId(clientId);
+        Config config = clientService.findConfigByClientId(clientId);
 
         if (config == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -109,15 +128,13 @@ public class ClientResource {
         Client updatedClient = new Client(client.clientId, client.applicationConfigId, client.autoUpgrade);
 
         try {
-            this.configDao.saveClient(updatedClient);
+            clientDao.saveClient(updatedClient);
 
             return mapResponseToJson(updatedClient);
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage())
                     .build();
         }
-
-
     }
 
     @POST

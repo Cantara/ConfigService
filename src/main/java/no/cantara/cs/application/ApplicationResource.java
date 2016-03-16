@@ -1,13 +1,13 @@
-package no.cantara.cs.config;
+package no.cantara.cs.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import no.cantara.cs.client.ClientStatus;
+import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.ConfigDao;
-import no.cantara.cs.persistence.StatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-09-12.
@@ -32,12 +28,12 @@ public class ApplicationResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
     private final ConfigDao configDao;
-    private final StatusDao statusDao;
+    private final ClientDao clientDao;
 
     @Autowired
-    public ApplicationResource(ConfigDao configDao, StatusDao statusDao) {
+    public ApplicationResource(ConfigDao configDao, ClientDao clientDao) {
         this.configDao = configDao;
-        this.statusDao = statusDao;
+        this.clientDao = clientDao;
     }
 
     @POST
@@ -94,26 +90,15 @@ public class ApplicationResource {
     public Response getStatusForArtifactInstances(@PathParam("artifactId") String artifactId) {
         log.trace("getStatusForArtifactInstances, artifactId={}", artifactId);
 
-        Map<String, ClientStatus> allStatuses = statusDao.getAllStatuses(artifactId);
-        Map<String, Object> response = new HashMap<>();
-        Instant oneHourAgo = new Date().toInstant().minusSeconds(60 * 60);
+        Map<String, ClientHeartbeatData> allClientHeartbeatData = clientDao.getAllClientHeartbeatData(artifactId);
 
-        List<String> seenInTheLastHour = allStatuses.entrySet().stream()
-                .filter(e -> Instant.parse(e.getValue().timeOfContact).isAfter(oneHourAgo))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        long seenInTheLastHourCount = seenInTheLastHour.size();
+        ApplicationStatus applicationStatus = new ApplicationStatus(allClientHeartbeatData);
 
         String jsonResult;
         try {
-            response.put("numberOfRegisteredClients", allStatuses.size());
-            response.put("seenInTheLastHourCount", seenInTheLastHourCount);
-            response.put("seenInTheLastHour", seenInTheLastHour);
-            response.put("allClientsSnapshot", allStatuses);
-            jsonResult = mapper.writeValueAsString(response);
+            jsonResult = mapper.writeValueAsString(applicationStatus);
         } catch (IOException e) {
-            log.warn("Could not convert to Json {}", allStatuses.toString());
+            log.warn("Could not convert to Json {}", allClientHeartbeatData.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
