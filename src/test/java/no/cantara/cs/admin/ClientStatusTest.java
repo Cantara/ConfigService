@@ -3,7 +3,7 @@ package no.cantara.cs.admin;
 import com.jayway.restassured.http.ContentType;
 import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.dto.*;
-import no.cantara.cs.testsupport.ConfigBuilder;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
@@ -32,7 +32,7 @@ public class ClientStatusTest {
 
         ConfigServiceAdminClient configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
         application = configServiceAdminClient.registerApplication("ClientStatusTest-ArtifactId");
-        configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("arbitrary-config", application));
+        configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
     }
 
     @AfterClass

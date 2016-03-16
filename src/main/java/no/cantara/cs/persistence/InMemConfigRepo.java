@@ -1,8 +1,8 @@
 package no.cantara.cs.persistence;
 
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.Client;
-import no.cantara.cs.dto.Config;
 
 import java.util.*;
 
@@ -12,9 +12,9 @@ import java.util.*;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 //Add @Service and remove @Service from PersistedConfigRepo to activate.
-public class InMemConfigRepo implements ConfigDao {
+public class InMemConfigRepo implements ApplicationConfigDao {
     private final Map<String, Application> idToApplication;
-    private final Map<String, Config> configs;
+    private final Map<String, ApplicationConfig> configs;
     private final Map<String, Client> clients;
     private final Map<String, String> applicationIdToConfigIdMapping;
 
@@ -35,7 +35,7 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config createConfig(String applicationId, Config newConfig) {
+    public ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig) {
         newConfig.setId(UUID.randomUUID().toString());
         configs.put(newConfig.getId(), newConfig);
         applicationIdToConfigIdMapping.put(applicationId, newConfig.getId());
@@ -43,17 +43,17 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config getConfig(String configId) {
+    public ApplicationConfig getApplicationConfig(String configId) {
         return configs.get(configId);
     }
 
     @Override
-    public Config deleteConfig(String configId) {
+    public ApplicationConfig deleteApplicationConfig(String configId) {
         return configs.remove(configId);
     }
 
     @Override
-    public Config findConfigByArtifactId(String artifactId) {
+    public ApplicationConfig findApplicationConfigByArtifactId(String artifactId) {
         Application application = findApplication(artifactId);
         if (application == null) {
             return null;
@@ -76,12 +76,12 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Config updateConfig(Config updatedConfig) {
+    public ApplicationConfig updateApplicationConfig(ApplicationConfig updatedConfig) {
         return configs.put(updatedConfig.getId(), updatedConfig);
     }
 
     @Override
-    public String getArtifactId(Config config) {
+    public String getArtifactId(ApplicationConfig config) {
         String configId = config.getId();
         String applicationId = applicationIdToConfigIdMapping.entrySet()
                 .stream()
@@ -95,7 +95,7 @@ public class InMemConfigRepo implements ConfigDao {
     }
 
     @Override
-    public Map<String, Config> getAllConfigs() {
+    public Map<String, ApplicationConfig> getAllConfigs() {
         //TODO: Implementation
         return null;
     }

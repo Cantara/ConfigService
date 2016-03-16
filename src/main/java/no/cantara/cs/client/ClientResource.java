@@ -96,7 +96,7 @@ public class ClientResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClientConfig(@PathParam("clientId") String clientId) {
         log.trace("Invoked getClientConfig");
-        Config config = clientService.findConfigByClientId(clientId);
+        ApplicationConfig config = clientService.findApplicationConfigByClientId(clientId);
 
         if (config == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

@@ -1,7 +1,7 @@
 package no.cantara.cs.client;
 
 import no.cantara.cs.dto.*;
-import no.cantara.cs.testsupport.ConfigBuilder;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
@@ -30,7 +30,7 @@ public class ChangeConfigForSpecificClientTest {
 
         configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
         application = configServiceAdminClient.registerApplication(getClass().getSimpleName());
-        configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("default-config", application));
+        configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("default-config", application));
 
         // Register client
         currentClientConfig = configServiceClient.registerClient(new ClientRegistrationRequest(application.artifactId));
@@ -49,7 +49,7 @@ public class ChangeConfigForSpecificClientTest {
     public void testChangeConfigForSingleClient() throws IOException {
         // Create a new config
         String newConfigIdentifier = "for-single-client";
-        Config newConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto(newConfigIdentifier, application));
+        ApplicationConfig newConfig = configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto(newConfigIdentifier, application));
 
         // Register that client should use new config
         Client client = configServiceAdminClient.getClient(this.currentClientConfig.clientId);

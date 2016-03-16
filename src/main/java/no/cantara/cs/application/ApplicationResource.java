@@ -7,7 +7,7 @@ import com.jayway.jsonpath.JsonPath;
 import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.persistence.ClientDao;
-import no.cantara.cs.persistence.ConfigDao;
+import no.cantara.cs.persistence.ApplicationConfigDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +27,12 @@ public class ApplicationResource {
     public static final String APPLICATION_PATH = "/application";
     private static final Logger log = LoggerFactory.getLogger(ApplicationResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-    private final ConfigDao configDao;
+    private final ApplicationConfigDao applicationConfigDao;
     private final ClientDao clientDao;
 
     @Autowired
-    public ApplicationResource(ConfigDao configDao, ClientDao clientDao) {
-        this.configDao = configDao;
+    public ApplicationResource(ApplicationConfigDao applicationConfigDao, ClientDao clientDao) {
+        this.applicationConfigDao = applicationConfigDao;
         this.clientDao = clientDao;
     }
 
@@ -52,7 +52,7 @@ public class ApplicationResource {
 
         Application application;
         try {
-            application = configDao.createApplication(new Application(artifactId));
+            application = applicationConfigDao.createApplication(new Application(artifactId));
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
@@ -73,7 +73,7 @@ public class ApplicationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllApplications() {
         log.trace("getAllApplications");
-        List<Application> applications = configDao.getApplications();
+        List<Application> applications = applicationConfigDao.getApplications();
         String jsonResponse;
         try {
             jsonResponse = mapper.writeValueAsString(applications);

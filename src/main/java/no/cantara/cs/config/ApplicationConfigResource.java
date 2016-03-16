@@ -3,8 +3,8 @@ package no.cantara.cs.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.cs.application.ApplicationResource;
-import no.cantara.cs.persistence.ConfigDao;
-import no.cantara.cs.dto.Config;
+import no.cantara.cs.dto.ApplicationConfig;
+import no.cantara.cs.persistence.ApplicationConfigDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,22 +16,22 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * CRUD, http endpoint for ServiceConfig
+ * CRUD, http endpoint for ApplicationConfig
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
-@Path(ConfigResource.CONFIG_PATH)
-public class ConfigResource {
+@Path(ApplicationConfigResource.CONFIG_PATH)
+public class ApplicationConfigResource {
     public static final String CONFIG_PATH = ApplicationResource.APPLICATION_PATH + "/{applicationId}/config";
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigResource.class);
+    private static final Logger log = LoggerFactory.getLogger(ApplicationConfigResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final ConfigDao configDao;
+    private final ApplicationConfigDao applicationConfigDao;
 
     @Autowired
-    public ConfigResource(ConfigDao configDao) {
-        this.configDao = configDao;
+    public ApplicationConfigResource(ApplicationConfigDao applicationConfigDao) {
+        this.applicationConfigDao = applicationConfigDao;
     }
 
     @POST
@@ -41,9 +41,9 @@ public class ConfigResource {
     public Response createConfig(@PathParam("applicationId") String applicationId, String json) {
     	log.debug("Invoked createConfig with json {} and applicationId {}", json, applicationId);
 
-        Config newConfig;
+        ApplicationConfig newConfig;
         try {
-            newConfig = mapper.readValue(json, Config.class);
+            newConfig = mapper.readValue(json, ApplicationConfig.class);
         } catch (IOException e) {
             Response.Status status = Response.Status.BAD_REQUEST;
             log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
@@ -51,7 +51,7 @@ public class ConfigResource {
         }
 
         try {
-            Config persistedConfig = configDao.createConfig(applicationId, newConfig);
+            ApplicationConfig persistedConfig = applicationConfigDao.createApplicationConfig(applicationId, newConfig);
             log.info("created {}", persistedConfig);
             String jsonResult = mapper.writeValueAsString(persistedConfig);
             return Response.ok(jsonResult).build();
@@ -68,18 +68,18 @@ public class ConfigResource {
     public Response updateConfig(@PathParam("configId") String configId, String json) {
     	log.debug("Invoked updateConfig with json {}", json);
 
-        Config updatedConfig;
+        ApplicationConfig updatedConfig;
         try {
-            updatedConfig = mapper.readValue(json, Config.class);
+            updatedConfig = mapper.readValue(json, ApplicationConfig.class);
         } catch (IOException e) {
             Response.Status status = Response.Status.BAD_REQUEST;
             log.warn("Could not parse json. Returning {} {}, json={}", status.getStatusCode(), status.getReasonPhrase(), json);
             return Response.status(status).build();
         }
 
-        Config persistedUpdatedConfig = configDao.updateConfig(updatedConfig);
+        ApplicationConfig persistedUpdatedConfig = applicationConfigDao.updateApplicationConfig(updatedConfig);
         if (persistedUpdatedConfig == null) {
-            log.warn("Could not update Config with json={}", json);
+            log.warn("Could not update ApplicationConfig with json={}", json);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -99,7 +99,7 @@ public class ConfigResource {
     public Response getAllConfigs() {
         log.trace("invoked getAllConfigs");
 
-        Map<String, Config> allConfigs = configDao.getAllConfigs();
+        Map<String, ApplicationConfig> allConfigs = applicationConfigDao.getAllConfigs();
 
         String jsonResult;
         try {
@@ -118,9 +118,9 @@ public class ConfigResource {
     public Response getConfig(@PathParam("configId") String configId) {
         log.trace("getConfig with configId={}", configId);
 
-        Config config = configDao.getConfig(configId);
+        ApplicationConfig config = applicationConfigDao.getApplicationConfig(configId);
         if (config == null) {
-            log.warn("Could not find Config with id={}", configId);
+            log.warn("Could not find ApplicationConfig with id={}", configId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -140,9 +140,9 @@ public class ConfigResource {
     public Response deleteConfig(@PathParam("configId") String configId) {
         log.debug("deleteConfig with configId={}", configId);
 
-        Config Config = configDao.deleteConfig(configId);
-        if (Config == null) {
-            log.warn("Could not find and therefore not delete Config with id={}", configId);
+        ApplicationConfig config = applicationConfigDao.deleteApplicationConfig(configId);
+        if (config == null) {
+            log.warn("Could not find and therefore not delete ApplicationConfig with id={}", configId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.NO_CONTENT).build();

@@ -2,7 +2,7 @@ package no.cantara.cs.client;
 
 import no.cantara.cs.dto.*;
 import no.cantara.cs.persistence.ClientDao;
-import no.cantara.cs.persistence.ConfigDao;
+import no.cantara.cs.persistence.ApplicationConfigDao;
 import no.cantara.cs.persistence.EventsDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,12 @@ import java.util.UUID;
 @Service
 public class ClientService {
     private static final Logger log = LoggerFactory.getLogger(ClientService.class);
-    private final ConfigDao dao;
+    private final ApplicationConfigDao dao;
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
 
     @Autowired
-    public ClientService(ConfigDao dao, EventsDao eventsDao, ClientDao clientDao) {
+    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao) {
         this.dao = dao;
         this.eventsDao = eventsDao;
         this.clientDao = clientDao;
@@ -35,7 +35,7 @@ public class ClientService {
     public ClientConfig registerClient(ClientRegistrationRequest registration) {
 
         Client client;
-        Config config;
+        ApplicationConfig config;
 
         if (registration.clientId != null) {
             client = clientDao.getClient(registration.clientId);
@@ -47,15 +47,15 @@ public class ClientService {
                 log.warn("RegisterClient called with already registered clientId: {}", registration.clientId);
                 throw new IllegalArgumentException("Client is already registered, clientId: " + registration.clientId);
             }
-            config = dao.getConfig(client.applicationConfigId);
+            config = dao.getApplicationConfig(client.applicationConfigId);
             if (config == null) {
-                log.warn("No Config was found for clientId={}", registration.clientId);
+                log.warn("No ApplicationConfig was found for clientId={}", registration.clientId);
                 return null;
             }
         } else {
-            config = dao.findConfigByArtifactId(registration.artifactId);
+            config = dao.findApplicationConfigByArtifactId(registration.artifactId);
             if (config == null) {
-                log.warn("No Config was found for artifactId={}", registration.artifactId);
+                log.warn("No ApplicationConfig was found for artifactId={}", registration.artifactId);
                 return null;
             }
             client = new Client(UUID.randomUUID().toString(), config.getId(), true);
@@ -68,7 +68,7 @@ public class ClientService {
     }
 
     public ClientConfig checkForUpdatedClientConfig(String clientId, CheckForUpdateRequest checkForUpdateRequest) {
-        Config config = findConfigByClientId(clientId);
+        ApplicationConfig config = findApplicationConfigByClientId(clientId);
         if (config == null) {
             log.warn("No ApplicationConfig was found for clientId={}", clientId);
             return null;
@@ -88,12 +88,12 @@ public class ClientService {
         return clientConfig;
     }
 
-    public Config findConfigByClientId(String clientId) {
+    public ApplicationConfig findApplicationConfigByClientId(String clientId) {
         Client client = clientDao.getClient(clientId);
         if (client == null) {
             return null;
         }
-        Config config = dao.getConfig(client.applicationConfigId);
+        ApplicationConfig config = dao.getApplicationConfig(client.applicationConfigId);
         if (config == null) {
             return null;
         }

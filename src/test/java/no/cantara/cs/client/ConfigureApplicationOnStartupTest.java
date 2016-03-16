@@ -1,11 +1,11 @@
 package no.cantara.cs.client;
 
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
-import no.cantara.cs.testsupport.ConfigBuilder;
-import no.cantara.cs.testsupport.TestServer;
 import no.cantara.cs.dto.Application;
-import no.cantara.cs.dto.Config;
+import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.NamedPropertiesStore;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.ConfigServiceAdminClient;
+import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -23,7 +23,7 @@ import static org.testng.Assert.*;
 public class ConfigureApplicationOnStartupTest {
     private ConfigServiceClient configServiceClient;
     private Application testApplication;
-    private Config currentConfig;
+    private ApplicationConfig currentConfig;
     private TestServer testServer;
 
     @BeforeClass
@@ -35,7 +35,7 @@ public class ConfigureApplicationOnStartupTest {
 
         ConfigServiceAdminClient configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
         testApplication = configServiceAdminClient.registerApplication("ClientConfigResourceTestApplication");
-        currentConfig = configServiceAdminClient.registerConfig(testApplication, ConfigBuilder.createConfigDto("first", testApplication));
+        currentConfig = configServiceAdminClient.createApplicationConfig(testApplication, ApplicationConfigBuilder.createConfigDto("first", testApplication));
     }
 
     @AfterClass

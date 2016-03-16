@@ -2,7 +2,7 @@ package no.cantara.cs.client;
 
 import no.cantara.cs.application.ApplicationStatus;
 import no.cantara.cs.dto.*;
-import no.cantara.cs.testsupport.ConfigBuilder;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
@@ -54,7 +54,7 @@ public class RegisterClientWithPreconfiguredConfigTest {
 
     @Test(dependsOnMethods = "findApplicationIdByArtifactId")
     public void testRegisterClientWithPreconfiguredConfig() throws Exception {
-        Config config = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("pre-registered-config", application));
+        ApplicationConfig config = configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("pre-registered-config", application));
 
         String clientId = "client-with-preconfigured-config-id";
         Client updateClientResponse = configServiceAdminClient.putClient(new Client(clientId, config.getId(), true));

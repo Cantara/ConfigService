@@ -2,8 +2,8 @@ package no.cantara.cs.client;
 
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.EventExtractionConfig;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
-import no.cantara.cs.testsupport.ConfigBuilder;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,7 +36,7 @@ public class JauUseCaseTest {
 
         application = configServiceAdminClient.registerApplication("jau-use-case-test");
 
-        configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("JauUseCaseTest", application));
+        configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("JauUseCaseTest", application));
     }
 
     @AfterClass
@@ -69,12 +69,12 @@ public class JauUseCaseTest {
     @Test(dependsOnMethods = "testCheckForUpdateWithUpToDateClientConfig")
     public void testCheckForUpdateWhenCurrentConfigHasBeenChanged() throws Exception {
         // Update current config by setting lastChanged
-        Config updatedConfig = ConfigBuilder.createConfigDto("UpdatedConfig", application);
+        ApplicationConfig updatedConfig = ApplicationConfigBuilder.createConfigDto("UpdatedConfig", application);
         updatedConfig.getConfigurationStores().iterator().next().properties.put("new-property", "new-value");
         updatedConfig.setId(currentClientConfig.config.getId());
         assertNotEquals(currentClientConfig.config.getLastChanged(), updatedConfig.getLastChanged());
 
-        Config updateConfigResponse = configServiceAdminClient.updateConfig(application.id, updatedConfig);
+        ApplicationConfig updateConfigResponse = configServiceAdminClient.updateConfig(application.id, updatedConfig);
         assertEquals(updateConfigResponse.getId(), currentClientConfig.config.getId());
         assertNotEquals(updateConfigResponse.getLastChanged(), currentClientConfig.config.getLastChanged());
 
@@ -93,7 +93,7 @@ public class JauUseCaseTest {
     // Not supported yet
     @Test(enabled = false, dependsOnMethods = "testCheckForUpdateWithNewClientSpecificConfig")
     public void testCheckForUpdateWithNewDefaultConfig() throws Exception {
-        Config newDefaultConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("NewDefaultConfigTest", application));
+        ApplicationConfig newDefaultConfig = configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("NewDefaultConfigTest", application));
 
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest(currentClientConfig.config.getLastChanged());
         ClientConfig checkForUpdateResponse = configServiceClient.checkForUpdate(currentClientConfig.clientId, checkForUpdateRequest);

@@ -6,9 +6,9 @@ import no.cantara.cs.dto.event.EventExtractionTag;
 
 import java.util.HashMap;
 
-public class ConfigBuilder {
+public class ApplicationConfigBuilder {
 
-    public static Config createConfigDto(String name, Application application) {
+    public static ApplicationConfig createConfigDto(String name, Application application) {
         MavenMetadata metadata = new MavenMetadata("net.whydah.identity", application.artifactId, "2.0.1.Final");
         String url = new NexusUrlBuilder("http://mvnrepo.cantara.no", "releases").build(metadata);
         DownloadItem downloadItem = new DownloadItem(url, null, null, metadata);
@@ -16,7 +16,7 @@ public class ConfigBuilder {
         EventExtractionTag tag = new EventExtractionTag("testtag", "\\bheihei\\b", "logs/blabla.logg");
         extractionConfig.addEventExtractionTag(tag);
 
-        Config config = new Config(name);
+        ApplicationConfig config = new ApplicationConfig(name);
         config.addDownloadItem(downloadItem);
         config.addEventExtractionConfig(extractionConfig);
         config.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());

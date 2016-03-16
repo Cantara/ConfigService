@@ -1,10 +1,6 @@
 package no.cantara.cs.persistence;
 
-import no.cantara.cs.dto.ClientEnvironment;
-import no.cantara.cs.dto.ClientHeartbeatData;
-import no.cantara.cs.dto.Application;
-import no.cantara.cs.dto.Client;
-import no.cantara.cs.dto.Config;
+import no.cantara.cs.dto.*;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;
@@ -24,10 +20,10 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 @Service
-public class PersistedConfigRepo implements ConfigDao, ClientDao {
+public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
     private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
     private final Map<String, Application> idToApplication;
-    private final Map<String, Config> configs;
+    private final Map<String, ApplicationConfig> configs;
     private final Map<String, Client> clients;
     private final Map<String, ClientHeartbeatData> clientHeartbeatDataMap;
     private final Map<String, ClientEnvironment> clientEnvironmentMap;
@@ -65,7 +61,7 @@ public class PersistedConfigRepo implements ConfigDao, ClientDao {
     }
 
     @Override
-    public Config createConfig(String applicationId, Config newConfig) {
+    public ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig) {
         newConfig.setId(UUID.randomUUID().toString());
         configs.put(newConfig.getId(), newConfig);
         applicationIdToConfigIdMapping.put(applicationId, newConfig.getId());
@@ -74,19 +70,19 @@ public class PersistedConfigRepo implements ConfigDao, ClientDao {
     }
 
     @Override
-    public Config getConfig(String configId) {
+    public ApplicationConfig getApplicationConfig(String configId) {
         return configs.get(configId);
     }
 
     @Override
-    public Config deleteConfig(String configId) {
-    	Config config = configs.remove(configId);
+    public ApplicationConfig deleteApplicationConfig(String configId) {
+    	ApplicationConfig config = configs.remove(configId);
     	db.commit();
         return config;
     }
 
     @Override
-    public Config findConfigByArtifactId(String artifactId) {
+    public ApplicationConfig findApplicationConfigByArtifactId(String artifactId) {
         Application application = findApplication(artifactId);
         if (application == null) {
             return null;
@@ -118,24 +114,24 @@ public class PersistedConfigRepo implements ConfigDao, ClientDao {
         if (client.applicationConfigId == null) {
             throw new IllegalArgumentException("client.applicationConfigId is required");
         }
-        // Verify applicationConfig exists
-        Config config = getConfig(client.applicationConfigId);
+        // Verify applicationApplicationConfig exists
+        ApplicationConfig config = getApplicationConfig(client.applicationConfigId);
         if (config == null) {
-            throw new IllegalArgumentException("No ApplicationConfig was found with id: " + client.applicationConfigId);
+            throw new IllegalArgumentException("No ApplicationApplicationConfig was found with id: " + client.applicationConfigId);
         }
         clients.put(client.clientId, client);
         db.commit();
     }
 
     @Override
-    public Config updateConfig(Config updatedConfig) {
-    	Config config = configs.put(updatedConfig.getId(), updatedConfig);
+    public ApplicationConfig updateApplicationConfig(ApplicationConfig updatedConfig) {
+    	ApplicationConfig config = configs.put(updatedConfig.getId(), updatedConfig);
     	db.commit();
         return config;
     }
 
     @Override
-    public String getArtifactId(Config config) {
+    public String getArtifactId(ApplicationConfig config) {
         String configId = config.getId();
         String applicationId = applicationIdToConfigIdMapping.entrySet()
                 .stream()
@@ -149,7 +145,7 @@ public class PersistedConfigRepo implements ConfigDao, ClientDao {
     }
 
     @Override
-    public Map<String, Config> getAllConfigs() {
+    public Map<String, ApplicationConfig> getAllConfigs() {
         return configs;
     }
 

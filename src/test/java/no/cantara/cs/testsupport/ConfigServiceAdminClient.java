@@ -7,7 +7,7 @@ import com.jayway.restassured.response.Response;
 import no.cantara.cs.application.ApplicationResource;
 import no.cantara.cs.application.ApplicationStatus;
 import no.cantara.cs.client.ClientResource;
-import no.cantara.cs.config.ConfigResource;
+import no.cantara.cs.config.ApplicationConfigResource;
 import no.cantara.cs.dto.*;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(createApplicationResponse.body().asString(), Application.class);
     }
 
-    public Config registerConfig(Application application, Config config) throws IOException {
+    public ApplicationConfig createApplicationConfig(Application application, ApplicationConfig config) throws IOException {
 
         String jsonRequest = mapper.writeValueAsString(config);
         Response response = given()
@@ -56,13 +56,13 @@ public class ConfigServiceAdminClient {
                 .statusCode(200)
                 .log().everything()
                 .when()
-                .post(ConfigResource.CONFIG_PATH, application.id);
+                .post(ApplicationConfigResource.CONFIG_PATH, application.id);
 
         String jsonResponse = response.body().asString();
-        return mapper.readValue(jsonResponse, Config.class);
+        return mapper.readValue(jsonResponse, ApplicationConfig.class);
     }
 
-    public Config updateConfig(String applicationId, Config config) throws IOException {
+    public ApplicationConfig updateConfig(String applicationId, ApplicationConfig config) throws IOException {
 
         String jsonRequest = mapper.writeValueAsString(config);
         Response response = given()
@@ -74,10 +74,10 @@ public class ConfigServiceAdminClient {
                 .statusCode(200)
                 .log().everything()
                 .when()
-                .put(ConfigResource.CONFIG_PATH + "/{configId}", applicationId, config.getId());
+                .put(ApplicationConfigResource.CONFIG_PATH + "/{configId}", applicationId, config.getId());
 
         String jsonResponse = response.body().asString();
-        return mapper.readValue(jsonResponse, Config.class);
+        return mapper.readValue(jsonResponse, ApplicationConfig.class);
     }
 
     public Client getClient(String clientId) throws IOException {
@@ -165,7 +165,7 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(response.body().asString(), new TypeReference<List<Application>>() {});
     }
 
-    public Map<String, Config> getAllConfigs() throws IOException {
+    public Map<String, ApplicationConfig> getAllConfigs() throws IOException {
         Response response = given()
                 .auth().basic(username, password)
                 .contentType(ContentType.JSON)
@@ -174,8 +174,8 @@ public class ConfigServiceAdminClient {
                 .statusCode(200)
                 .log().everything()
                 .when()
-                .get(ConfigResource.CONFIG_PATH, "applicationId-is-not-used-by-the-server");
-        return mapper.readValue(response.body().asString(), new TypeReference<Map<String, Config>>() {});
+                .get(ApplicationConfigResource.CONFIG_PATH, "applicationId-is-not-used-by-the-server");
+        return mapper.readValue(response.body().asString(), new TypeReference<Map<String, ApplicationConfig>>() {});
     }
 
 }

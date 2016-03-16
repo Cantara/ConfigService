@@ -2,10 +2,10 @@ package no.cantara.cs.client;
 
 import com.jayway.restassured.http.ContentType;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
-import no.cantara.cs.dto.Config;
-import no.cantara.cs.testsupport.ConfigBuilder;
+import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.apache.http.HttpStatus;
@@ -28,7 +28,7 @@ public class RegisterClientTest {
     private ConfigServiceAdminClient configServiceAdminClient;
 
     private TestServer testServer;
-    private Config defaultConfig;
+    private ApplicationConfig defaultConfig;
 
     @BeforeClass
     public void startServer() throws Exception {
@@ -39,7 +39,7 @@ public class RegisterClientTest {
 
         configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
         application = configServiceAdminClient.registerApplication("RegisterClientTest");
-        defaultConfig = configServiceAdminClient.registerConfig(application, ConfigBuilder.createConfigDto("default-config", application));
+        defaultConfig = configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("default-config", application));
     }
 
     @AfterClass
