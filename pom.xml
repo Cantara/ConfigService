@@ -55,7 +55,7 @@
         <dependency>
             <groupId>no.cantara.jau</groupId>
             <artifactId>configservice-sdk</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <version>0.10-alpha-1</version>
         </dependency>
 
         <dependency>
