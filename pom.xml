@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>configservice</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8-alpha-1</version>
     <packaging>jar</packaging>
     <name>ConfigService Server</name>
 
@@ -24,7 +24,7 @@
    <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/ConfigService.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/ConfigService.git</connection>
-     <tag>HEAD</tag>
+     <tag>configservice-0.8-alpha-1</tag>
   </scm>
 
     <properties>
