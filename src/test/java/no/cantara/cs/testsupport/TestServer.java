@@ -29,10 +29,12 @@ public class TestServer {
 
     public void cleanAllData() throws Exception {
         File mapDbFolder = new File("./db");
-        stream(mapDbFolder.listFiles((dir, name) -> name.startsWith("serviceConfig.db"))).forEach(f -> {
-            log.info("Deleting mapdb file: " + f.getAbsolutePath());
-            f.delete();
-        });
+        if (mapDbFolder.exists()) {
+            stream(mapDbFolder.listFiles((dir, name) -> name.startsWith("serviceConfig.db"))).forEach(f -> {
+                log.info("Deleting mapdb file: " + f.getAbsolutePath());
+                f.delete();
+            });
+        }
     }
 
     public void start() throws InterruptedException {
