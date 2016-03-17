@@ -4,7 +4,7 @@ import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.EventExtractionConfig;
 import no.cantara.cs.dto.event.EventExtractionTag;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class ApplicationConfigBuilder {
 
@@ -21,7 +21,7 @@ public class ApplicationConfigBuilder {
         config.addEventExtractionConfig(extractionConfig);
         config.setStartServiceScript("java -DIAM_MODE=DEV -jar " + downloadItem.filename());
 
-        HashMap<String, String> propertiesMap = new HashMap<>();
+        LinkedHashMap<String, String> propertiesMap = new LinkedHashMap<>();
         propertiesMap.put("a", "1");
         propertiesMap.put("b", "2");
         config.addPropertiesStore(new NamedPropertiesStore(propertiesMap, "named_properties_store.properties"));
