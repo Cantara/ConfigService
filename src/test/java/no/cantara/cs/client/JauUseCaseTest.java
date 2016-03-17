@@ -9,7 +9,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
 import java.util.List;
 
@@ -61,9 +60,10 @@ public class JauUseCaseTest {
         assertEquals(tags.get(0).tags.get(0).filePath, "logs/blabla.logg");
     }
 
-    @Test(dependsOnMethods = "startupAndRegisterClient", expectedExceptions = NoContentException.class)
+    @Test(dependsOnMethods = "startupAndRegisterClient")
     public void testCheckForUpdateWithUpToDateClientConfig() throws Exception {
-        configServiceClient.checkForUpdate(currentClientConfig.clientId, new CheckForUpdateRequest(currentClientConfig.config.getLastChanged()));
+        ClientConfig clientConfig = configServiceClient.checkForUpdate(currentClientConfig.clientId, new CheckForUpdateRequest(currentClientConfig.config.getLastChanged()));
+        assertNull(clientConfig);
     }
 
     @Test(dependsOnMethods = "testCheckForUpdateWithUpToDateClientConfig")
