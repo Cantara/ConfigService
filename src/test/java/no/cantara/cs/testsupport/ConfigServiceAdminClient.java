@@ -94,6 +94,20 @@ public class ConfigServiceAdminClient {
         return mapper.readValue(response.body().asString(), Client.class);
     }
 
+    public List<Client> getAllClients() throws IOException {
+        Response response = given()
+                .auth().basic(username, password)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().everything()
+                .when()
+                .get(ClientResource.CLIENT_PATH);
+
+        return mapper.readValue(response.body().asString(), new TypeReference<List<Client>>() {});
+    }
+
     public Client putClient(Client client) throws IOException {
         Response response = given()
                 .auth().basic(username, password)

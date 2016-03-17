@@ -4,6 +4,7 @@ import no.cantara.cs.dto.ClientEnvironment;
 import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Client;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ClientDao {
@@ -21,4 +22,6 @@ public interface ClientDao {
     ClientEnvironment getClientEnvironment(String clientId);
 
     Map<String,ClientHeartbeatData> getAllClientHeartbeatData(String artifactId);
+
+    List<Client> getAllClients();
 }

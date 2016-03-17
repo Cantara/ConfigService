@@ -180,4 +180,9 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
                 .filter(e -> e.getValue().artifactId.equals(artifactId))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
+    @Override
+    public List<Client> getAllClients() {
+        return clients.values().stream().collect(Collectors.toList());
+    }
 }

@@ -13,6 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Http endpoint for ClientStatus
@@ -37,6 +38,15 @@ public class ClientResource {
         this.eventsDao = eventsDao;
         this.clientDao = clientDao;
         this.clientService = clientService;
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClients() {
+        log.trace("getAllClients");
+        List<Client> allClients = clientDao.getAllClients();
+        return mapResponseToJson(allClients);
     }
 
     @GET
