@@ -1,5 +1,6 @@
 package no.cantara.cs;
 
+import no.cantara.cs.health.HealthResource;
 import no.cantara.cs.util.Configuration;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -122,6 +123,13 @@ public class Main {
         constraintMapping.setPathSpec("/*");
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
         securityHandler.addConstraintMapping(constraintMapping);
+
+        // Allow healthresource to be accessed without authentication
+        ConstraintMapping healthEndpointConstraintMapping = new ConstraintMapping();
+        healthEndpointConstraintMapping.setConstraint(new Constraint(Constraint.NONE, Constraint.ANY_ROLE));
+        healthEndpointConstraintMapping.setPathSpec(HealthResource.HEALTH_PATH);
+        securityHandler.addConstraintMapping(healthEndpointConstraintMapping);
+
         HashLoginService loginService = new HashLoginService("ConfigService");
         String userName = Configuration.getString("login.user");
         String password = Configuration.getString("login.password");

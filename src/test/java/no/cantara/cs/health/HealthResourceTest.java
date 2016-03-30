@@ -32,7 +32,6 @@ public class HealthResourceTest {
     @Test
     public void testHealth() throws IOException {
         given()
-                .auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_OK)
