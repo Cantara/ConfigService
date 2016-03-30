@@ -27,12 +27,14 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private int webappPort;
+    private String mapDbPath;
     private Server server;
     //private String resourceBase;
 
 
-    public Main(Integer webappPort) {
+    public Main(Integer webappPort, String mapDbPath) {
         this.webappPort = webappPort;
+        this.mapDbPath = mapDbPath;
         //log.info("Starting Jetty on port {}", webappPort);
         this.server = new Server(this.webappPort);
 
@@ -48,12 +50,12 @@ public class Main {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        log.debug("Starting ConfigService");
         Integer webappPort = Configuration.getInt("service.port");
+        String mapDbPath = Configuration.getString("mapdb.path");
 
         try {
 
-            final Main main = new Main(webappPort);
+            final Main main = new Main(webappPort, mapDbPath);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
@@ -82,6 +84,7 @@ public class Main {
 
     // https://github.com/psamsotha/jersey-spring-jetty/blob/master/src/main/java/com/underdog/jersey/spring/jetty/JettyServerMain.java
     public void start()  {
+        log.info("Starting ConfigService server, port: {}, mapdb.path: {}", webappPort, mapDbPath);
         //WebAppContext context = new WebAppContext();
         ServletContextHandler context = new ServletContextHandler();
         //log.debug("Start Jetty using resourcebase={}", resourceBase);
@@ -104,7 +107,7 @@ public class Main {
 
         //context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
         context.setInitParameter("contextConfigLocation", "classpath:context.xml");
-
+        context.setInitParameter("mapdb.path", mapDbPath);
 
         server.setHandler(context);
         /*

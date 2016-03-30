@@ -12,7 +12,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class ApplicationStatusTest {
 
@@ -24,7 +26,7 @@ public class ApplicationStatusTest {
 
     @BeforeClass
     public void setup() throws Exception {
-        testServer = new TestServer();
+        testServer = new TestServer(getClass());
         testServer.cleanAllData();
         testServer.start();
 

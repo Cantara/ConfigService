@@ -15,22 +15,29 @@ public class TestServer {
 
     private static final Logger log = LoggerFactory.getLogger(TestServer.class);
 
+    public static final String MAPDB_FOLDER = "./db/test/";
+
+    private static int nextPort = 26451;
+
     private Main main;
     private String url;
-    private int port = 26451;
+    private int port;
+    private String mapDbName;
 
     public static final String USERNAME = "read";
     public static final String PASSWORD = "baretillesing";
 
-    public TestServer withPort(int port) {
-        this.port = port;
-        return this;
+    public TestServer(Class testClass) {
+        port = nextPort++;
+        mapDbName = testClass.getSimpleName() + ".db";
     }
 
     public void cleanAllData() throws Exception {
-        File mapDbFolder = new File("./db");
+        File mapDbFolder = new File(MAPDB_FOLDER);
         if (mapDbFolder.exists()) {
-            stream(mapDbFolder.listFiles((dir, name) -> name.startsWith("serviceConfig.db"))).forEach(f -> {
+            stream(mapDbFolder.listFiles((dir, name) -> {
+                return name.startsWith(mapDbName);
+            })).forEach(f -> {
                 log.info("Deleting mapdb file: " + f.getAbsolutePath());
                 f.delete();
             });
@@ -38,8 +45,9 @@ public class TestServer {
     }
 
     public void start() throws InterruptedException {
+        String mapDbPath = MAPDB_FOLDER + mapDbName;
         new Thread(() -> {
-            main = new Main(port);
+            main = new Main(port, mapDbPath);
             main.start();
         }).start();
         do {

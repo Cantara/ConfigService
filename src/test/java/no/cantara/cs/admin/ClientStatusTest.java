@@ -26,7 +26,7 @@ public class ClientStatusTest {
 
     @BeforeClass
     public void setup() throws Exception {
-        testServer = new TestServer();
+        testServer = new TestServer(getClass());
         testServer.cleanAllData();
         testServer.start();
 

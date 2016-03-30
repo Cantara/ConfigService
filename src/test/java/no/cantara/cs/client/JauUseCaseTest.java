@@ -27,7 +27,7 @@ public class JauUseCaseTest {
 
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer();
+        testServer = new TestServer(getClass());
         testServer.cleanAllData();
         testServer.start();
         configServiceClient = testServer.getConfigServiceClient();

@@ -8,6 +8,7 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                http://constretto.org/schema/constretto http://constretto.org/schema/constretto/constretto-1.2.xsd">
 
+    <context:property-placeholder />
 
     <constretto:configuration>
         <constretto:stores>
