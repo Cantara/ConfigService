@@ -48,7 +48,7 @@ public class ConfigureApplicationOnStartupTest {
 
     @Test
     public void testConfigureApplicationOnStartup() throws Exception {
-        File applicationStateFile = new File(ConfigServiceClient.APPLICATION_STATE_FILENAME);
+        File applicationStateFile = new File(configServiceClient.getApplicationStateFilename());
         assertFalse(applicationStateFile.exists(), "Test precondition is that applicationState is not persisted");
 
         File configurationStoreDirectory = new File("target/test-config-directory");
