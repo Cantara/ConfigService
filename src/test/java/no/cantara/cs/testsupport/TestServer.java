@@ -15,20 +15,17 @@ public class TestServer {
 
     private static final Logger log = LoggerFactory.getLogger(TestServer.class);
 
-    public static final String MAPDB_FOLDER = "./db/test/";
-
-    private static int nextPort = 26451;
-
-    private Main main;
-    private String url;
-    private int port;
-    private String mapDbName;
-
+    public static final String MAPDB_FOLDER = "./db/test";
     public static final String USERNAME = "read";
     public static final String PASSWORD = "baretillesing";
 
+    private Main main;
+    private String url;
+    private String mapDbName;
+    private Class testClass;
+
     public TestServer(Class testClass) {
-        port = nextPort++;
+        this.testClass = testClass;
         mapDbName = testClass.getSimpleName() + ".db";
     }
 
@@ -45,9 +42,9 @@ public class TestServer {
     }
 
     public void start() throws InterruptedException {
-        String mapDbPath = MAPDB_FOLDER + mapDbName;
+        String mapDbPath = MAPDB_FOLDER + "/" + mapDbName;
         new Thread(() -> {
-            main = new Main(port, mapDbPath);
+            main = new Main(mapDbPath);
             main.start();
         }).start();
         do {
@@ -64,7 +61,7 @@ public class TestServer {
     }
 
     public ConfigServiceClient getConfigServiceClient() {
-        return new ConfigServiceClient(url, USERNAME, PASSWORD);
+        return new ConfigServiceClient(url, USERNAME, PASSWORD).withApplicationStateFilename(MAPDB_FOLDER + "/" + testClass.getSimpleName() + ".properties");
     }
 
     public ConfigServiceAdminClient getAdminClient() {
