@@ -1,6 +1,6 @@
 releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
 snapshotRepo=http://mvnrepo.cantara.no/content/repositories/snapshots
-groupId=no/cantara/jau
+groupId=no/cantara/emi
 artifactId=configservice
 version=0.6.1
 
