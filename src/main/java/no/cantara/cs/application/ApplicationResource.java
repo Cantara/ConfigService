@@ -6,6 +6,7 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationStatus;
 import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.ApplicationConfigDao;
 import org.slf4j.Logger;

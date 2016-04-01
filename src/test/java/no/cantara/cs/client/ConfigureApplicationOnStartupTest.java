@@ -4,7 +4,6 @@ import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.NamedPropertiesStore;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +32,7 @@ public class ConfigureApplicationOnStartupTest {
         testServer.start();
         configServiceClient = testServer.getConfigServiceClient();
 
-        ConfigServiceAdminClient configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
+        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
         testApplication = configServiceAdminClient.registerApplication("ClientConfigResourceTestApplication");
         currentConfig = configServiceAdminClient.createApplicationConfig(testApplication, ApplicationConfigBuilder.createConfigDto("first", testApplication));
     }

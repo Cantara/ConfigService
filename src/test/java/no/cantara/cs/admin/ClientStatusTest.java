@@ -2,9 +2,14 @@ package no.cantara.cs.admin;
 
 import com.jayway.restassured.http.ContentType;
 import no.cantara.cs.client.ClientResource;
-import no.cantara.cs.dto.*;
+import no.cantara.cs.client.ConfigServiceAdminClient;
+import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.ClientHeartbeatData;
+import no.cantara.cs.dto.ClientRegistrationRequest;
+import no.cantara.cs.dto.ClientStatus;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +35,7 @@ public class ClientStatusTest {
         testServer.cleanAllData();
         testServer.start();
 
-        ConfigServiceAdminClient configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
+        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
         application = configServiceAdminClient.registerApplication("ClientStatusTest-ArtifactId");
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
     }

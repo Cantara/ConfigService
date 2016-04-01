@@ -1,12 +1,12 @@
 package no.cantara.cs.admin;
 
-import no.cantara.cs.application.ApplicationStatus;
+import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationStatus;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +30,7 @@ public class ApplicationStatusTest {
         testServer.cleanAllData();
         testServer.start();
 
-        ConfigServiceAdminClient configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
+        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
         application = configServiceAdminClient.registerApplication(getClass().getSimpleName());
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
 

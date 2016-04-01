@@ -1,9 +1,12 @@
 package no.cantara.cs.client;
 
-import no.cantara.cs.application.ApplicationStatus;
-import no.cantara.cs.dto.*;
+import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationConfig;
+import no.cantara.cs.dto.ApplicationStatus;
+import no.cantara.cs.dto.Client;
+import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -13,7 +16,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class RegisterClientWithPreconfiguredConfigTest {
 
@@ -32,7 +37,7 @@ public class RegisterClientWithPreconfiguredConfigTest {
         testServer.start();
         configServiceClient = testServer.getConfigServiceClient();
 
-        configServiceAdminClient = new ConfigServiceAdminClient(TestServer.USERNAME, TestServer.PASSWORD);
+        configServiceAdminClient = testServer.getAdminClient();
         artifactId = getClass().getSimpleName();
         configServiceAdminClient.registerApplication(artifactId);
     }

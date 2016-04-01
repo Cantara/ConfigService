@@ -1,9 +1,12 @@
 package no.cantara.cs.client;
 
-import no.cantara.cs.dto.*;
+import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationConfig;
+import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.dto.event.EventExtractionConfig;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.ConfigServiceAdminClient;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -12,7 +15,10 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 /**
  * Verify endpoints used by JAU client.
