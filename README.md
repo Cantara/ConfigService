@@ -2,7 +2,7 @@
 
 The goal of ConfigService is to provide the server-component of a controlled application instance regime, where both software upgrades and corresponding configurations of home-built java applications and services are managed. This should solve the update and configuration pain-point in micro-service architectures and for client installs of homegrown applications.
 
-This component is as of now *work-in*progress*, and soem of the main goals and discussions can be found on our wiki:  https://wiki.cantara.no/display/dev/ConfigService
+This component is as of now *work-in*progress*, and some of the main goals and discussions can be found on our wiki:  https://wiki.cantara.no/display/dev/ConfigService
 
 
 ## Install and use in a Docker container.

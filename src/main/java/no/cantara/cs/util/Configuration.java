@@ -22,4 +22,12 @@ public class Configuration {
 	public static Integer getInt(String key) {
 		return configuration.evaluateToInt(key);
 	}
+
+	public static Integer getInt(String key, int defaultValue) {
+		return configuration.evaluateTo(key, defaultValue);
+	}
+
+	public static boolean getBoolean(String key) {
+		return configuration.evaluateToBoolean(key);
+	}
 }

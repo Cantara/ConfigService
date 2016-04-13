@@ -199,6 +199,8 @@ public class ClientResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
+        clientService.processEvents(clientId, checkForUpdateRequest.eventsStore);
+
         ClientConfig clientConfig = clientService.checkForUpdatedClientConfig(clientId, checkForUpdateRequest);
         if (clientConfig == null) {
             String msg = "No ClientConfig could be found. Not registered? clientId=" + clientId + ", configLastChanged=" + checkForUpdateRequest.configLastChanged;

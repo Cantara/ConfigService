@@ -1,6 +1,8 @@
 package no.cantara.cs.client;
 
+import no.cantara.cs.cloudwatch.CloudWatchLogger;
 import no.cantara.cs.dto.*;
+import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.ApplicationConfigDao;
 import no.cantara.cs.persistence.EventsDao;
@@ -20,12 +22,14 @@ public class ClientService {
     private final ApplicationConfigDao dao;
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
+    private final CloudWatchLogger cloudWatchLogger;
 
     @Autowired
-    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao) {
+    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao, CloudWatchLogger cloudWatchLogger) {
         this.dao = dao;
         this.eventsDao = eventsDao;
         this.clientDao = clientDao;
+        this.cloudWatchLogger = cloudWatchLogger;
     }
 
     /**
@@ -100,4 +104,7 @@ public class ClientService {
         return config;
     }
 
+    public void processEvents(String clientId, ExtractedEventsStore eventsStore) {
+        cloudWatchLogger.log(clientId, eventsStore);
+    }
 }
