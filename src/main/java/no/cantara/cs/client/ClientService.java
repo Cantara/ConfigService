@@ -47,10 +47,7 @@ public class ClientService {
                 log.warn("RegisterClient called with a non-existing clientId: {}", registration.clientId);
                 throw new IllegalArgumentException("No client was found with clientId: " + registration.clientId);
             }
-            if (clientDao.getClientHeartbeatData(client.clientId) != null) {
-                log.warn("RegisterClient called with already registered clientId: {}", registration.clientId);
-                throw new IllegalArgumentException("Client is already registered, clientId: " + registration.clientId);
-            }
+
             config = dao.getApplicationConfig(client.applicationConfigId);
             if (config == null) {
                 log.warn("No ApplicationConfig was found for clientId={}", registration.clientId);
