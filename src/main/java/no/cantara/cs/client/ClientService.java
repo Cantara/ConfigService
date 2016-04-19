@@ -94,11 +94,7 @@ public class ClientService {
         if (client == null) {
             return null;
         }
-        ApplicationConfig config = dao.getApplicationConfig(client.applicationConfigId);
-        if (config == null) {
-            return null;
-        }
-        return config;
+        return dao.getApplicationConfig(client.applicationConfigId);
     }
 
     public void processEvents(String clientId, ExtractedEventsStore eventsStore) {

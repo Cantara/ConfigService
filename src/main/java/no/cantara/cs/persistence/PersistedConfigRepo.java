@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -132,16 +133,16 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 
     @Override
     public String getArtifactId(ApplicationConfig config) {
-        String configId = config.getId();
-        String applicationId = applicationIdToConfigIdMapping.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().equals(configId))
-                .findFirst()
-                .get()
-                .getKey();
-
-        Application application = idToApplication.get(applicationId);
-        return application.artifactId;
+        // Note: this code is a work-around for missing many-to-one mapping from configuration to application.
+        Optional<Map.Entry<String, String>> match = applicationIdToConfigIdMapping.entrySet()
+                                                                                  .stream()
+                                                                                  .filter(entry -> entry.getValue().equals(config.getId()))
+                                                                                  .findFirst();
+        if (match.isPresent()) {
+            Application application = idToApplication.get(match.get().getKey());
+            return application.artifactId;
+        }
+        return null;
     }
 
     @Override

@@ -82,16 +82,15 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 
     @Override
     public String getArtifactId(ApplicationConfig config) {
-        String configId = config.getId();
-        String applicationId = applicationIdToConfigIdMapping.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().equals(configId))
-                .findFirst()
-                .get()
-                .getKey();
-
-        Application application = idToApplication.get(applicationId);
-        return application.artifactId;
+        Optional<Map.Entry<String, String>> match = applicationIdToConfigIdMapping.entrySet()
+                                                                                  .stream()
+                                                                                  .filter(entry -> entry.getValue().equals(config.getId()))
+                                                                                  .findFirst();
+        if (match.isPresent()) {
+            Application application = idToApplication.get(match.get().getKey());
+            return application.artifactId;
+        }
+        return null;
     }
 
     @Override
