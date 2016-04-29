@@ -178,7 +178,7 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
     @Override
     public Map<String, ClientHeartbeatData> getAllClientHeartbeatData(String artifactId) {
         return clientHeartbeatDataMap.entrySet().stream()
-                .filter(e -> e.getValue().artifactId.equals(artifactId))
+                .filter(e -> artifactId.equals(e.getValue().artifactId))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
