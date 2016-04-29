@@ -132,7 +132,9 @@ public class CloudWatchLogger {
         }
 
         void addLogEvent(Date time, String message) {
-            logEvents.add(new InputLogEvent().withMessage(message).withTimestamp(time.getTime()));
+            if (StringUtils.isNotEmpty(message)) {
+                logEvents.add(new InputLogEvent().withMessage(message).withTimestamp(time.getTime()));
+            }
         }
     }
 

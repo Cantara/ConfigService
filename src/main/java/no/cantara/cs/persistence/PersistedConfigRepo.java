@@ -140,7 +140,7 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
                                                                                   .findFirst();
         if (match.isPresent()) {
             Application application = idToApplication.get(match.get().getKey());
-            return application.artifactId;
+            return application == null ? null : application.artifactId;
         }
         return null;
     }
