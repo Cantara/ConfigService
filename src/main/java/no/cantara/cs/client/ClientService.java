@@ -98,6 +98,10 @@ public class ClientService {
     }
 
     public void processEvents(String clientId, ExtractedEventsStore eventsStore) {
-        cloudWatchLogger.log(clientId, eventsStore);
+        try {
+            cloudWatchLogger.log(clientId, eventsStore);
+        } catch (Exception e) {
+            log.error("Failed to log events in CloudWatch", e);
+        }
     }
 }

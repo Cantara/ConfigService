@@ -86,7 +86,7 @@ public class CloudWatchLogger {
      * This method is thread-safe and non-blocking.
      */
     public void log(String clientId, ExtractedEventsStore eventsStore) {
-        if (awsClient == null) {
+        if (awsClient == null || eventsStore == null) {
             return;
         }
 
