@@ -25,7 +25,11 @@ import java.util.logging.LogManager;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09
  */
 public class Main {
+
     public static final String CONTEXT_PATH = "/jau";
+    public static final String ADMIN_ROLE = "admin";
+    public static final String USER_ROLE = "user";
+
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private Integer webappPort;
@@ -114,15 +118,27 @@ public class Main {
     }
 
     private ConstraintSecurityHandler buildSecurityHandler() {
-        Constraint constraint = new Constraint();
-        constraint.setName(Constraint.__BASIC_AUTH);
-        constraint.setRoles(new String[]{"user"});
-        constraint.setAuthenticate(true);
-        ConstraintMapping constraintMapping = new ConstraintMapping();
-        constraintMapping.setConstraint(constraint);
-        constraintMapping.setPathSpec("/*");
+        Constraint userRoleConstraint = new Constraint();
+        userRoleConstraint.setName(Constraint.__BASIC_AUTH);
+        userRoleConstraint.setRoles(new String[]{USER_ROLE, ADMIN_ROLE});
+        userRoleConstraint.setAuthenticate(true);
+
+        Constraint adminRoleConstraint = new Constraint();
+        adminRoleConstraint.setName(Constraint.__BASIC_AUTH);
+        adminRoleConstraint.setRoles(new String[]{ADMIN_ROLE});
+        adminRoleConstraint.setAuthenticate(true);
+
+        ConstraintMapping clientConstraintMapping = new ConstraintMapping();
+        clientConstraintMapping.setConstraint(userRoleConstraint);
+        clientConstraintMapping.setPathSpec("/client/*");
+
+        ConstraintMapping adminRoleConstraintMapping = new ConstraintMapping();
+        adminRoleConstraintMapping.setConstraint(adminRoleConstraint);
+        adminRoleConstraintMapping.setPathSpec("/*");
+
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-        securityHandler.addConstraintMapping(constraintMapping);
+        securityHandler.addConstraintMapping(clientConstraintMapping);
+        securityHandler.addConstraintMapping(adminRoleConstraintMapping);
 
         // Allow healthresource to be accessed without authentication
         ConstraintMapping healthEndpointConstraintMapping = new ConstraintMapping();
@@ -131,10 +147,16 @@ public class Main {
         securityHandler.addConstraintMapping(healthEndpointConstraintMapping);
 
         HashLoginService loginService = new HashLoginService("ConfigService");
-        String userName = Configuration.getString("login.user");
-        String password = Configuration.getString("login.password");
-        log.debug("Main instantiated with basic auth user={}", userName);
-        loginService.putUser(userName, new Password(password), new String[]{"user"});
+
+        String clientUsername = Configuration.getString("login.user");
+        String clientPassword = Configuration.getString("login.password");
+        loginService.putUser(clientUsername, new Password(clientPassword), new String[]{USER_ROLE});
+
+        String adminUsername = Configuration.getString("login.admin.user");
+        String adminPassword = Configuration.getString("login.admin.password");
+        loginService.putUser(adminUsername, new Password(adminPassword), new String[]{ADMIN_ROLE});
+
+        log.debug("Main instantiated with basic auth clientuser={} and adminuser={}", clientUsername, adminUsername);
         securityHandler.setLoginService(loginService);
         return securityHandler;
     }

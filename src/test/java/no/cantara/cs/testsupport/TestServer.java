@@ -19,6 +19,8 @@ public class TestServer {
     public static final String MAPDB_FOLDER = "./db/test";
     public static final String USERNAME = "read";
     public static final String PASSWORD = "baretillesing";
+    public static final String ADMIN_USERNAME = "admin";
+    public static final String ADMIN_PASSWORD = "configservice";
 
     private Main main;
     private String url;
@@ -66,6 +68,6 @@ public class TestServer {
     }
 
     public ConfigServiceAdminClient getAdminClient() {
-        return new ConfigServiceAdminClient("http://localhost:" + main.getPort() + Main.CONTEXT_PATH, TestServer.USERNAME, TestServer.PASSWORD);
+        return new ConfigServiceAdminClient("http://localhost:" + main.getPort() + Main.CONTEXT_PATH, TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD);
     }
 }

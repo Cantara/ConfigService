@@ -1,6 +1,7 @@
 package no.cantara.cs.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.cantara.cs.Main;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.cs.persistence.ClientDao;
@@ -10,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.util.List;
 
@@ -43,8 +46,11 @@ public class ClientResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllClients() {
+    public Response getAllClients(@Context SecurityContext context) {
         log.trace("getAllClients");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         List<Client> allClients = clientDao.getAllClients();
         return mapResponseToJson(allClients);
     }
@@ -52,8 +58,11 @@ public class ClientResource {
     @GET
     @Path("/{clientId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getClient(@PathParam("clientId") String clientId) {
+    public Response getClient(@Context SecurityContext context, @PathParam("clientId") String clientId) {
         log.trace("getClient");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Client client = clientDao.getClient(clientId);
         if (client == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -65,9 +74,11 @@ public class ClientResource {
     @GET
     @Path("/{clientId}/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatus(@PathParam("clientId") String clientId) {
+    public Response getStatus(@Context SecurityContext context, @PathParam("clientId") String clientId) {
         log.trace("getStatus");
-
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Client client = clientDao.getClient(clientId);
         if (client == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -81,9 +92,11 @@ public class ClientResource {
     @GET
     @Path("/{clientId}/env")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEnvironment(@PathParam("clientId") String clientId) {
+    public Response getEnvironment(@Context SecurityContext context, @PathParam("clientId") String clientId) {
         log.trace("getStatus");
-
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         ClientEnvironment clientEnvironment = clientDao.getClientEnvironment(clientId);
         if (clientEnvironment == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -95,8 +108,11 @@ public class ClientResource {
     @GET
     @Path("/{clientId}/events")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getClientEvents(@PathParam("clientId") String clientId) {
+    public Response getClientEvents(@Context SecurityContext context, @PathParam("clientId") String clientId) {
         log.trace("getClientEvents");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         ExtractedEventsStore store = eventsDao.getEvents(clientId);
         return mapResponseToJson(store);
     }
@@ -104,8 +120,11 @@ public class ClientResource {
     @GET
     @Path("/{clientId}/config")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getClientConfig(@PathParam("clientId") String clientId) {
+    public Response getClientConfig(@Context SecurityContext context, @PathParam("clientId") String clientId) {
         log.trace("Invoked getClientConfig");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         ApplicationConfig config = clientService.findApplicationConfigByClientId(clientId);
 
         if (config == null) {
@@ -119,8 +138,11 @@ public class ClientResource {
     @Path("/{clientId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putClient(@PathParam("clientId") String clientId, String jsonRequest) {
+    public Response putClient(@Context SecurityContext context, @PathParam("clientId") String clientId, String jsonRequest) {
         log.debug("Invoked updateClient clientId={} with request {}", clientId, jsonRequest);
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
 
         Client client;
         try {
@@ -235,6 +257,10 @@ public class ClientResource {
         }
 
         return Response.ok(jsonResult).build();
+    }
+
+    private boolean isAdmin(@Context SecurityContext context) {
+        return context.isUserInRole(Main.ADMIN_ROLE);
     }
 
 }

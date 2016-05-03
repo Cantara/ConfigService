@@ -52,7 +52,7 @@ public class ApplicationConfigAdminTest {
     public void testRegisterApplicationWithDuplicateArtifactIdShouldReturnBadRequest() throws IOException {
         Application application1 = new Application("ApplicationConfigAdminTest");
         given()
-                .auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .body(mapper.writeValueAsString(application1))
                 .log().everything()
@@ -85,7 +85,7 @@ public class ApplicationConfigAdminTest {
     public void testGetConfig() throws Exception {
         String path = ApplicationConfigResource.CONFIG_PATH + "/{serviceConfigId}";
         Response response = given()
-                .auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(200)
@@ -105,7 +105,7 @@ public class ApplicationConfigAdminTest {
 
         String path = ApplicationConfigResource.CONFIG_PATH + "/" + config.getId();
         Response response = given().
-                auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .body(putJsonRequest)
                 .log().everything()
@@ -125,7 +125,7 @@ public class ApplicationConfigAdminTest {
     public void testDeleteConfig() throws Exception {
         String path = ApplicationConfigResource.CONFIG_PATH + "/{serviceConfigId}";
         given().
-                auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(204)
@@ -134,7 +134,7 @@ public class ApplicationConfigAdminTest {
                 .delete(path, application.id, config.getId());
 
         given().
-                auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(404)

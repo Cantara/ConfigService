@@ -87,7 +87,7 @@ public class ClientStatusTest {
     @Test
     public void testClientStatusForNonExistingClientIdShouldGiveNotFound() throws Exception {
         given()
-                .auth().basic(TestServer.USERNAME, TestServer.PASSWORD)
+                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()
