@@ -71,6 +71,13 @@ public class ApplicationConfigAdminTest {
         assertNotNull(config.getId());
     }
 
+    @Test(dependsOnMethods = "testCreateConfig")
+    public void testGetApplicationConfig() throws Exception {
+        ApplicationConfig applicationConfig = testServer.getAdminClient().getApplicationConfig(application.id);
+        assertNotNull(applicationConfig);
+        assertEquals(applicationConfig.getId(), config.getId());
+    }
+
     @Test(dependsOnMethods = "testRegisterApplication")
     public void testGetApplications() throws IOException {
         List<Application> applications = testServer.getAdminClient().getAllApplications();
@@ -83,7 +90,7 @@ public class ApplicationConfigAdminTest {
 
     @Test(dependsOnMethods = "testCreateConfig")
     public void testGetConfig() throws Exception {
-        String path = ApplicationConfigResource.CONFIG_PATH + "/{serviceConfigId}";
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
         Response response = given()
                 .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
@@ -103,7 +110,7 @@ public class ApplicationConfigAdminTest {
         config.setName("something new");
         String putJsonRequest = mapper.writeValueAsString(config);
 
-        String path = ApplicationConfigResource.CONFIG_PATH + "/" + config.getId();
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/" + config.getId();
         Response response = given().
                 auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
@@ -123,7 +130,7 @@ public class ApplicationConfigAdminTest {
 
     @Test(dependsOnMethods = "testPutConfig")
     public void testDeleteConfig() throws Exception {
-        String path = ApplicationConfigResource.CONFIG_PATH + "/{serviceConfigId}";
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
         given().
                 auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()

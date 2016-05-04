@@ -16,6 +16,8 @@ public interface ApplicationConfigDao {
 
     ApplicationConfig findApplicationConfigByArtifactId(String artifactId);
 
+    ApplicationConfig findApplicationConfigByApplicationId(String applicationId);
+
     ApplicationConfig getApplicationConfig(String configId);
 
     ApplicationConfig deleteApplicationConfig(String configId);

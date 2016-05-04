@@ -9,7 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -20,9 +27,9 @@ import java.util.Map;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
-@Path(ApplicationConfigResource.CONFIG_PATH)
+@Path(ApplicationResource.APPLICATION_PATH)
 public class ApplicationConfigResource {
-    public static final String CONFIG_PATH = ApplicationResource.APPLICATION_PATH + "/{applicationId}/config";
+    public static final String CONFIG_PATH = "/{applicationId}/config";
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationConfigResource.class);
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -35,7 +42,7 @@ public class ApplicationConfigResource {
     }
 
     @POST
-    @Path("/")
+    @Path(CONFIG_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createConfig(@PathParam("applicationId") String applicationId, String json) {
@@ -62,7 +69,7 @@ public class ApplicationConfigResource {
     }
 
     @PUT
-    @Path("/{configId}")
+    @Path(CONFIG_PATH + "/{configId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateConfig(@PathParam("configId") String configId, String json) {
@@ -94,7 +101,7 @@ public class ApplicationConfigResource {
     }
 
     @GET
-    @Path("/")
+    @Path("/config")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllConfigs() {
         log.trace("invoked getAllConfigs");
@@ -111,9 +118,29 @@ public class ApplicationConfigResource {
         return Response.ok(jsonResult).build();
     }
 
-    // example http://localhost:8086/jau/application/ad4911cf-9e1a-4307-bacc-3de0a2aae679/serviceconfig/fd5cf7d8-4b6e-445b-9fbc-b468fcc44014
     @GET
-    @Path("/{configId}")
+    @Path(CONFIG_PATH)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConfigForApplication(@PathParam("applicationId") String applicationId) {
+        log.trace("invoked getConfigForApplication");
+
+        ApplicationConfig applicationConfig = applicationConfigDao.findApplicationConfigByApplicationId(applicationId);
+        if (applicationConfig == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String jsonResult;
+        try {
+            jsonResult = mapper.writeValueAsString(applicationConfig);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(jsonResult).build();
+    }
+
+    @GET
+    @Path(CONFIG_PATH + "/{configId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfig(@PathParam("configId") String configId) {
         log.trace("getConfig with configId={}", configId);
@@ -135,7 +162,7 @@ public class ApplicationConfigResource {
     }
 
     @DELETE
-    @Path("/{configId}")
+    @Path(CONFIG_PATH + "/{configId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteConfig(@PathParam("configId") String configId) {
         log.debug("deleteConfig with configId={}", configId);

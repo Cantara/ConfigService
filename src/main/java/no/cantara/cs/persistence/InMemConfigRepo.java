@@ -59,7 +59,12 @@ public class InMemConfigRepo implements ApplicationConfigDao {
             return null;
         }
 
-        String configId = applicationIdToConfigIdMapping.get(application.id);
+        return findApplicationConfigByApplicationId(application.id);
+    }
+
+    @Override
+    public ApplicationConfig findApplicationConfigByApplicationId(String applicationId) {
+        String configId = applicationIdToConfigIdMapping.get(applicationId);
         if (configId == null) {
             return null;
         }
