@@ -6,6 +6,12 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Properties;
 
 /**
  * Simple health endpoint for checking the server is running
@@ -14,15 +20,34 @@ import javax.ws.rs.core.Response;
  */
 @Path(HealthResource.HEALTH_PATH)
 public class HealthResource {
-
-    private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
     public static final String HEALTH_PATH = "/health";
+    private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
 
     @GET
-    @Path("/")
     public Response healthCheck() {
         log.trace("healthCheck");
-        return Response.ok().build();
+        String response = String.format("ConfigService OK, version %s, now=%s, running since %s",
+                getVersion(), Instant.now(), getRunningSince());
+        return Response.ok(response).build();
     }
 
+    private String getRunningSince() {
+        long uptimeInMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+        return Instant.now().minus(uptimeInMillis, ChronoUnit.MILLIS).toString();
+    }
+
+    private String getVersion() {
+        Properties mavenProperties = new Properties();
+        String resourcePath = "/META-INF/maven/no.cantara.jau/configservice/pom.properties";
+        URL mavenVersionResource = this.getClass().getResource(resourcePath);
+        if (mavenVersionResource != null) {
+            try {
+                mavenProperties.load(mavenVersionResource.openStream());
+                return mavenProperties.getProperty("version", "missing version info in " + resourcePath);
+            } catch (IOException e) {
+                log.warn("Problem reading version resource from classpath: ", e);
+            }
+        }
+        return "(DEV VERSION)";
+    }
 }

@@ -25,7 +25,6 @@ import java.util.logging.LogManager;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09
  */
 public class Main {
-
     public static final String CONTEXT_PATH = "/jau";
     public static final String ADMIN_ROLE = "admin";
     public static final String USER_ROLE = "user";
@@ -71,7 +70,7 @@ public class Main {
             log.debug("Finished waiting for Thread.currentThread().join()");
             main.stop();
         } catch (RuntimeException e) {
-            log.error("Error during startup. Shutting down UserIdentityBackend.", e);
+            log.error("Error during startup. Shutting down ConfigService.", e);
             System.exit(1);
         }
     }
