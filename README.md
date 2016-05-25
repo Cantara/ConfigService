@@ -70,7 +70,7 @@ sudo docker exec -it configservice3107 bash
 
 ## Example application configuration 
 
-'''
+```
 {
   "name": "hello-world_0.1-SNAPSHOT",
   "lastChanged": "2016-03-09T07:50:18.994Z",
@@ -113,4 +113,4 @@ sudo docker exec -it configservice3107 bash
   ],
   "startServiceScript": "java -jar hello-world-0.1-SNAPSHOT.jar"
 }
-'''
+```
