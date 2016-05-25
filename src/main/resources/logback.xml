@@ -10,7 +10,7 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>logs/serviceconfig.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>logs/UserIdentityBackend-%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>logs/serviceconfig-%d{yyyy-MM-dd}.log</FileNamePattern>
             <maxHistory>5</maxHistory>
         </rollingPolicy>
 
