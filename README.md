@@ -68,3 +68,49 @@ sudo docker exec -it configservice3107 bash
 
 ### Browse active client status
 
+## Example application configuration 
+
+'''
+{
+  "name": "hello-world_0.1-SNAPSHOT",
+  "lastChanged": "2016-03-09T07:50:18.994Z",
+  "downloadItems": [
+    {
+      "url": "repository-url/hello-world-0.1-SNAPSHOT.jar",
+      "username": "basic-auth-username",
+      "password": "basic-auth-password",
+      "metadata": {
+        "groupId": "com.example",
+        "artifactId": "hello-world-service",
+        "version": "0.1-SNAPSHOT",
+        "packaging": "jar",
+        "lastUpdated": null,
+        "buildNumber": null
+      }
+    }
+  ],
+  "configurationStores": [
+    {
+      "fileName": "helloworld_overrides.properties",
+      "properties": {
+        "hello.world.message": "Hello World"
+      }
+    }
+  ],
+  "eventExtractionConfigs" : [ {
+     "groupName" : "hw-agent",
+     "tags" : [ {
+       "tagName" : "jau",
+       "regex" : ".*",
+       "filePath" : "logs/jau.log"
+     }, {
+       "tagName" : "agent",
+       "regex" : ".*",
+       "filePath" : "logs/hwagent.log"
+     } ]
+   } ],
+
+  ],
+  "startServiceScript": "java -jar hello-world-0.1-SNAPSHOT.jar"
+}
+'''
