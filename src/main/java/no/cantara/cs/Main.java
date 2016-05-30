@@ -5,6 +5,7 @@ import no.cantara.cs.util.Configuration;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -98,6 +99,8 @@ public class Main {
         if (webappPort != null) {
             connector.setPort(webappPort);
         }
+        NCSARequestLog requestLog = buildRequestLog();
+        server.setRequestLog(requestLog);
         server.addConnector(connector);
         server.setHandler(context);
 
@@ -114,6 +117,15 @@ public class Main {
         } catch (InterruptedException e) {
             log.error("Jetty server thread when join. Pretend everything is OK.", e);
         }
+    }
+
+    private NCSARequestLog buildRequestLog() {
+        NCSARequestLog requestLog = new NCSARequestLog("logs/jetty-yyyy_mm_dd.request.log");
+        requestLog.setAppend(true);
+        requestLog.setExtended(true);
+        requestLog.setLogTimeZone("GMT");
+
+        return requestLog;
     }
 
     private ConstraintSecurityHandler buildSecurityHandler() {
