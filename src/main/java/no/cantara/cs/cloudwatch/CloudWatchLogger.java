@@ -1,33 +1,25 @@
 package no.cantara.cs.cloudwatch;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogsAsyncClient;
-import com.amazonaws.services.logs.model.CreateLogStreamRequest;
-import com.amazonaws.services.logs.model.DataAlreadyAcceptedException;
-import com.amazonaws.services.logs.model.InputLogEvent;
-import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
-import com.amazonaws.services.logs.model.PutLogEventsRequest;
-import com.amazonaws.services.logs.model.PutLogEventsResult;
-import com.amazonaws.services.logs.model.ResourceNotFoundException;
+import com.amazonaws.services.logs.model.*;
 import com.google.common.collect.Lists;
-
 import no.cantara.cs.dto.event.EventFile;
 import no.cantara.cs.dto.event.EventGroup;
 import no.cantara.cs.dto.event.EventTag;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.cs.util.Configuration;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Forwards log events from ConfigService clients to Amazon CloudWatch.
@@ -48,7 +40,7 @@ import no.cantara.cs.util.Configuration;
 @Service
 public class CloudWatchLogger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CloudWatchLogger.class);
+    private static final Logger log = LoggerFactory.getLogger(CloudWatchLogger.class);
 
     private static final int DEFAULT_MAX_BATCH_SIZE = 512;
     private static final int DEFAULT_INTERNAL_QUEUE_SIZE = 1024;
@@ -72,7 +64,7 @@ public class CloudWatchLogger {
         logRequestQueue = new LinkedBlockingQueue<>(internalQueueSize);
 
         awsClient = new AWSLogsAsyncClient().withRegion(Region.getRegion(Regions.fromName(region)));
-        LOG.info("Created CloudWatch logger for log group {} in AWS region {}", logGroup, region);
+        log.info("Created CloudWatch logger for log group {} in AWS region {}", logGroup, region);
 
         // Start thread which consumes the log request queue.
         Thread workerThread = new Thread(new Worker());
@@ -93,7 +85,7 @@ public class CloudWatchLogger {
         List<LogRequest> logRequests = rebatch(clientId, eventsStore);
         for (LogRequest logRequest : logRequests) {
             if (!logRequestQueue.offer(logRequest)) {
-                LOG.warn("No space available in internal queue, {} logging events from {} was discarded", logRequest.logEvents.size(), clientId);
+                log.warn("No space available in internal queue, {} logging events from {} was discarded", logRequest.logEvents.size(), clientId);
             }
         }
     }
@@ -163,7 +155,7 @@ public class CloudWatchLogger {
                     createLogStreamAndResend(request);
 
                 } catch (Exception e) {
-                    LOG.warn("Failed to send log events to CloudWatch", e);
+                    log.warn("Failed to send log events to CloudWatch", e);
                 }
             }
         }
@@ -171,15 +163,15 @@ public class CloudWatchLogger {
         private void send(LogRequest request) {
             PutLogEventsResult result = awsClient.putLogEvents(new PutLogEventsRequest(logGroup, request.logStream, request.logEvents).withSequenceToken(sequenceToken));
             sequenceToken = result.getNextSequenceToken();
-            LOG.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), logGroup, request.logStream);
+            log.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), logGroup, request.logStream);
         }
 
         private void createLogStreamAndResend(LogRequest request) {
             try {
                 awsClient.createLogStream(new CreateLogStreamRequest(logGroup, request.logStream));
-                LOG.info("Created log stream {}", request.logStream);
+                log.info("Created log stream {}", request.logStream);
             } catch (Exception e) {
-                LOG.warn("Failed to create log stream " + request.logStream + " in log group " + logGroup + ". Make sure log group exists.", e);
+                log.warn("Failed to create log stream " + request.logStream + " in log group " + logGroup + ". Make sure log group exists.", e);
                 return;
             }
             resend(request);
@@ -189,7 +181,7 @@ public class CloudWatchLogger {
             try {
                 send(request);
             } catch (Exception e) {
-                LOG.warn("Failed to re-send log events to log stream " + request.logStream + " in log group " + logGroup, e);
+                log.warn("Failed to re-send log events to log stream " + request.logStream + " in log group " + logGroup, e);
             }
         }
     }
