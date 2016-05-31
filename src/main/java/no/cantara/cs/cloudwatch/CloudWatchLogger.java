@@ -24,13 +24,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Forwards log events from ConfigService clients to Amazon CloudWatch.
  * <p>
- * Assumes that a CloudWatch log group exists, but dynamically creates log streams within that group (one log stream
+ * Assumes that the CloudWatch log groups exist, but dynamically creates log streams within the groups (one log stream
  * per client ID / tag combination).
  * <p>
  * Uses the following configuration properties:
  * <ul>
  *     <li>cloudwatch.region - The AWS region to use, e.g., "eu-west-1".</li>
- *     <li>cloudwatch.logGroup - The name of an existing CloudWatch log group.</li>
  *     <li>cloudwatch.maxBatchSize - The max number of log events to bundle per AWS call. Default value: {@link #DEFAULT_MAX_BATCH_SIZE}. Must not exceed 10,000.</li>
  *     <li>cloudwatch.internalQueueSize - The max number of log requests to buffer internally. Default value: {@link #DEFAULT_INTERNAL_QUEUE_SIZE}.</li>
  * </ul>
@@ -45,7 +44,6 @@ public class CloudWatchLogger {
     private static final int DEFAULT_MAX_BATCH_SIZE = 512;
     private static final int DEFAULT_INTERNAL_QUEUE_SIZE = 1024;
 
-    private String logGroup;
     private int maxBatchSize;
     private LinkedBlockingQueue<LogRequest> logRequestQueue;
     private AWSLogsAsyncClient awsClient;
@@ -58,13 +56,12 @@ public class CloudWatchLogger {
 
     private void init() {
         String region = Configuration.getString("cloudwatch.region");
-        logGroup = Configuration.getString("cloudwatch.logGroup");
         maxBatchSize = Configuration.getInt("cloudwatch.maxBatchSize", DEFAULT_MAX_BATCH_SIZE);
         int internalQueueSize = Configuration.getInt("cloudwatch.internalQueueSize", DEFAULT_INTERNAL_QUEUE_SIZE);
         logRequestQueue = new LinkedBlockingQueue<>(internalQueueSize);
 
         awsClient = new AWSLogsAsyncClient().withRegion(Region.getRegion(Regions.fromName(region)));
-        log.info("Created CloudWatch logger for log group {} in AWS region {}", logGroup, region);
+        log.info("Created CloudWatch logger for AWS region {}", region);
 
         // Start thread which consumes the log request queue.
         Thread workerThread = new Thread(new Worker());
@@ -92,22 +89,23 @@ public class CloudWatchLogger {
 
     private List<LogRequest> rebatch(String clientId, ExtractedEventsStore eventsStore) {
         List<LogRequest> result = new ArrayList<>();
-        for (EventGroup eventGroup : eventsStore.getEventGroups().values()) {
-            for (EventFile eventFile : eventGroup.getFiles().values()) {
+        for (Map.Entry<String, EventGroup> eventGroupEntry : eventsStore.getEventGroups().entrySet()) {
+            String groupName = eventGroupEntry.getKey();
+            for (EventFile eventFile : eventGroupEntry.getValue().getFiles().values()) {
                 for (Map.Entry<String, EventTag> entry : eventFile.getTags().entrySet()) {
-                    result.addAll(rebatchTag(clientId, entry.getKey(), entry.getValue()));
+                    result.addAll(rebatchTag(clientId, groupName, entry.getKey(), entry.getValue()));
                 }
             }
         }
         return result;
     }
 
-    private List<LogRequest> rebatchTag(String clientId, String tagName, EventTag eventTag) {
+    private List<LogRequest> rebatchTag(String clientId, String groupName, String tagName, EventTag eventTag) {
         List<LogRequest> result = new ArrayList<>();
         Date now = new Date();
 
         for (List<String> partition : Lists.partition(eventTag.getEvents(), maxBatchSize)) {
-            LogRequest logRequest = new LogRequest(clientId + "-" + tagName);
+            LogRequest logRequest = new LogRequest(groupName, clientId + "-" + tagName);
             partition.forEach(line -> logRequest.addLogEvent(now, line));
             result.add(logRequest);
         }
@@ -116,10 +114,12 @@ public class CloudWatchLogger {
     }
 
     private static class LogRequest {
+        private final String logGroup;
         private final String logStream;
         private final List<InputLogEvent> logEvents = new ArrayList<>();
 
-        LogRequest(String logStream) {
+        LogRequest(String logGroup, String logStream) {
+            this.logGroup = logGroup;
             this.logStream = logStream;
         }
 
@@ -161,17 +161,17 @@ public class CloudWatchLogger {
         }
 
         private void send(LogRequest request) {
-            PutLogEventsResult result = awsClient.putLogEvents(new PutLogEventsRequest(logGroup, request.logStream, request.logEvents).withSequenceToken(sequenceToken));
+            PutLogEventsResult result = awsClient.putLogEvents(new PutLogEventsRequest(request.logGroup, request.logStream, request.logEvents).withSequenceToken(sequenceToken));
             sequenceToken = result.getNextSequenceToken();
-            log.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), logGroup, request.logStream);
+            log.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), request.logGroup, request.logStream);
         }
 
         private void createLogStreamAndResend(LogRequest request) {
             try {
-                awsClient.createLogStream(new CreateLogStreamRequest(logGroup, request.logStream));
+                awsClient.createLogStream(new CreateLogStreamRequest(request.logGroup, request.logStream));
                 log.info("Created log stream {}", request.logStream);
             } catch (Exception e) {
-                log.warn("Failed to create log stream " + request.logStream + " in log group " + logGroup + ". Make sure log group exists.", e);
+                log.warn("Failed to create log stream " + request.logStream + " in log group " + request.logGroup + ". Make sure log group exists.", e);
                 return;
             }
             resend(request);
@@ -181,7 +181,7 @@ public class CloudWatchLogger {
             try {
                 send(request);
             } catch (Exception e) {
-                log.warn("Failed to re-send log events to log stream " + request.logStream + " in log group " + logGroup, e);
+                log.warn("Failed to re-send log events to log stream " + request.logStream + " in log group " + request.logGroup, e);
             }
         }
     }
