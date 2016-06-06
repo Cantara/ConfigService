@@ -174,13 +174,6 @@
             </exclusions>
         </dependency>
 
-        <!-- deprecated, guava is not necessary. -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>19.0</version>
-        </dependency>
-
         <!-- spring use Commons logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -200,11 +193,6 @@
         </dependency>
 
         <!-- Logging to AWS CloudWatch -->
-        <!--<dependency>-->
-            <!--<groupId>com.amazonaws</groupId>-->
-            <!--<artifactId>aws-java-sdk-core</artifactId>-->
-            <!--<version>${aws.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-logs</artifactId>

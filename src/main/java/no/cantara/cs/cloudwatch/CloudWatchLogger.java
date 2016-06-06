@@ -4,7 +4,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogsAsyncClient;
 import com.amazonaws.services.logs.model.*;
-import com.google.common.collect.Lists;
 import no.cantara.cs.dto.event.EventFile;
 import no.cantara.cs.dto.event.EventGroup;
 import no.cantara.cs.dto.event.EventTag;
@@ -106,13 +105,21 @@ public class CloudWatchLogger {
         List<LogRequest> result = new ArrayList<>();
         Date now = new Date();
 
-        for (List<String> partition : Lists.partition(eventTag.getEvents(), maxBatchSize)) {
+        for (List<String> partition : partitionList(eventTag.getEvents(), maxBatchSize)) {
             LogRequest logRequest = new LogRequest(groupName, clientId + "-" + tagName);
             partition.forEach(line -> logRequest.addLogEvent(now, line));
             result.add(logRequest);
         }
 
         return result;
+    }
+
+    static List<List<String>> partitionList(List<String> list, int size) {
+        List<List<String>> partitions = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            partitions.add(new ArrayList<> (list.subList(i, Math.min(list.size(), i + size))));
+        }
+        return partitions;
     }
 
     private static class LogRequest {
