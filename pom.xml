@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.cantara.jau</groupId>
     <artifactId>configservice</artifactId>
-    <version>0.8-beta-5-SNAPSHOT</version>
+    <version>0.8-beta-5</version>
     <packaging>jar</packaging>
     <name>ConfigService Server</name>
 
@@ -25,7 +25,8 @@
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/ConfigService.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/ConfigService.git</connection>
-    </scm>
+      <tag>configservice-0.8-beta-5</tag>
+  </scm>
 
     <properties>
         <service.name>ConfigService</service.name>
