@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -114,13 +116,11 @@ public class CloudWatchLogger {
     }
 
     private static class LogRequest {
-        private final String logGroup;
-        private final String logStream;
+        private final Destination destination;
         private final List<InputLogEvent> logEvents = new ArrayList<>();
 
         LogRequest(String logGroup, String logStream) {
-            this.logGroup = logGroup;
-            this.logStream = logStream;
+            destination = new Destination(logGroup, logStream);
         }
 
         void addLogEvent(Date time, String message) {
@@ -130,9 +130,37 @@ public class CloudWatchLogger {
         }
     }
 
+    private static class Destination {
+        private final String logGroup;
+        private final String logStream;
+
+        Destination(String logGroup, String logStream) {
+            this.logGroup = logGroup;
+            this.logStream = logStream;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Destination that = (Destination) o;
+            return Objects.equals(logGroup, that.logGroup) &&
+                   Objects.equals(logStream, that.logStream);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(logGroup, logStream);
+        }
+    }
+
     private class Worker implements Runnable {
 
-        private String sequenceToken;
+        private final Map<Destination, String> sequenceTokens = new LinkedHashMap<>();
 
         @Override
         public void run() {
@@ -145,10 +173,10 @@ public class CloudWatchLogger {
                     send(request);
 
                 } catch (DataAlreadyAcceptedException e) {
-                    sequenceToken = e.getExpectedSequenceToken();
+                    sequenceTokens.put(request.destination, e.getExpectedSequenceToken());
 
                 } catch (InvalidSequenceTokenException e) {
-                    sequenceToken = e.getExpectedSequenceToken();
+                    sequenceTokens.put(request.destination, e.getExpectedSequenceToken());
                     resend(request);
 
                 } catch (ResourceNotFoundException e) {
@@ -161,17 +189,19 @@ public class CloudWatchLogger {
         }
 
         private void send(LogRequest request) {
-            PutLogEventsResult result = awsClient.putLogEvents(new PutLogEventsRequest(request.logGroup, request.logStream, request.logEvents).withSequenceToken(sequenceToken));
-            sequenceToken = result.getNextSequenceToken();
-            log.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), request.logGroup, request.logStream);
+            String sequenceToken = sequenceTokens.get(request.destination);
+            PutLogEventsResult result = awsClient.putLogEvents(new PutLogEventsRequest(request.destination.logGroup, request.destination.logStream, request.logEvents).withSequenceToken(sequenceToken));
+            sequenceTokens.put(request.destination, result.getNextSequenceToken());
+            log.debug("Sent {} log events to CloudWatch {}/{}", request.logEvents.size(), request.destination.logGroup, request.destination.logStream);
         }
 
         private void createLogStreamAndResend(LogRequest request) {
             try {
-                awsClient.createLogStream(new CreateLogStreamRequest(request.logGroup, request.logStream));
-                log.info("Created log stream {}", request.logStream);
+                awsClient.createLogStream(new CreateLogStreamRequest(request.destination.logGroup, request.destination.logStream));
+                sequenceTokens.remove(request.destination);
+                log.info("Created log stream {}", request.destination.logStream);
             } catch (Exception e) {
-                log.warn("Failed to create log stream " + request.logStream + " in log group " + request.logGroup + ". Make sure log group exists.", e);
+                log.warn("Failed to create log stream " + request.destination.logStream + " in log group " + request.destination.logGroup + ". Make sure log group exists.", e);
                 return;
             }
             resend(request);
@@ -181,7 +211,7 @@ public class CloudWatchLogger {
             try {
                 send(request);
             } catch (Exception e) {
-                log.warn("Failed to re-send log events to log stream " + request.logStream + " in log group " + request.logGroup, e);
+                log.warn("Failed to re-send log events to log stream " + request.destination.logStream + " in log group " + request.destination.logGroup, e);
             }
         }
     }
