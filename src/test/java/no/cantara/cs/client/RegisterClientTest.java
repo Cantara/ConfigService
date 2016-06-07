@@ -12,7 +12,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.NotFoundException;
+import java.net.HttpURLConnection;
 import java.util.Properties;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -81,18 +81,28 @@ public class RegisterClientTest {
         assertFalse(clientConfig.clientId.equalsIgnoreCase(clientId2));
     }
 
-    @Test(expectedExceptions = NotFoundException.class)
+    @Test
     public void testRegisterClientUnknownArtifactId() throws Exception {
         ClientRegistrationRequest registration = new ClientRegistrationRequest("UnknownArtifactId");
         registration.envInfo.putAll(System.getenv());
-        configServiceClient.registerClient(registration);
+        try {
+            configServiceClient.registerClient(registration);
+            fail("Expected registerClient to fail with unknown artifact");
+        } catch (HttpException e) {
+            assertEquals(e.getStatusCode(), HttpURLConnection.HTTP_NOT_FOUND);
+        }
     }
 
-    @Test(expectedExceptions = NotFoundException.class)
+    @Test
     public void testRegisterClientWithoutConfigShouldReturnNotFound() throws Exception {
         Application applicationWithoutConfig = configServiceAdminClient.registerApplication("NewArtifactId");
         ClientRegistrationRequest request = new ClientRegistrationRequest(applicationWithoutConfig.artifactId);
-        configServiceClient.registerClient(request);
+        try {
+            configServiceClient.registerClient(request);
+            fail("Expected registerClient to fail without config");
+        } catch (HttpException e) {
+            assertEquals(e.getStatusCode(), HttpURLConnection.HTTP_NOT_FOUND);
+        }
     }
 
     @Test(dependsOnMethods = "testRegisterClient")

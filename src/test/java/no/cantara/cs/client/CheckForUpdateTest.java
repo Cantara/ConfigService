@@ -11,6 +11,8 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class CheckForUpdateTest {
 
@@ -48,9 +50,14 @@ public class CheckForUpdateTest {
                 .post(ClientResource.CLIENT_PATH + "/{clientId}/sync", 1);
     }
 
-    @Test(expectedExceptions = IllegalStateException.class)
+    @Test
     public void testCheckForUpdateUnregisteredClient() throws IOException {
-        configServiceClient.checkForUpdate("non-existing-client-id", new CheckForUpdateRequest(""));
+        try {
+            configServiceClient.checkForUpdate("non-existing-client-id", new CheckForUpdateRequest(""));
+            fail();
+        } catch (HttpException e) {
+            assertEquals(e.getStatusCode(), HttpStatus.SC_PRECONDITION_FAILED);
+        }
     }
 
 }
