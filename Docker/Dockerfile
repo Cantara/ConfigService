@@ -1,4 +1,4 @@
-FROM cantara/zulu
+FROM cantara/debian-sid-zulu-jdk8
 MAINTAINER Erik Drolshammer <erik-dev@fjas.no>
 
 ENV USER=configservice
