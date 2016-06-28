@@ -116,6 +116,10 @@ Example file: myApplicationConfig.json
 
 ### Update a specific client
 
+```
+curl -u admin:conservice  -i -X PUT -H "Content-Type:application/json"   -d '{"clientId":"bed9e97b-2090-4fe0-bfac-ab44252151e6","applicationConfigId":"0e139a12-57c0-4a48-8999-7f32c63ff9ad","autoUpgrade":true}'  https://whydahdev.cantara.no/jau//client/bed9e97b-2090-4fe0-bfac-ab44252151e6/config
+```
+
 ### Rollback a specific client
 
 ### Update all clients of an application
