@@ -65,8 +65,17 @@ sudo docker exec -it configservice3107 bash
 
 ### Update all clients of an application
 
+### Browse clients 
 
-### Browse active client status
+```
+curl -u admin:conservice  https://whydahdev.cantara.no/jau/client/
+```
+
+### Browse active client status for an application
+
+```
+curl -u admin:conservice  https://whydahdev.cantara.no/jau/application/cantara-demo/status
+```
 
 ## Example application configuration 
 
