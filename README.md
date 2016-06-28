@@ -70,6 +70,44 @@ curl -u admin:conservice -vX POST https://whydahdev.cantara.no/jau/application/0
 
 ```
 
+Example file: myApplicationConfig.json
+```
+{
+	"id": "f9e14326-b9df-46ba-826f-afad3392cf54",
+	"name": "whydah-dropwizard-demo-1.0",
+	"lastChanged": "2016-06-27T22:05:18.994Z",
+	"downloadItems": [{
+		"url": "http://mvnrepo.cantara.no/service/local/repositories/releases/content/no/cantara/dropwizard-hello-world-application/1.0/dropwizard-hello-world-application-1.0.jar",
+		"username": null,
+		"password": null,
+		"metadata": {
+			"groupId": "no.cantara",
+			"artifactId": "dropwizard-hello-world-application",
+			"version": "1.0",
+			"packaging": "jar",
+			"lastUpdated": null,
+			"buildNumber": null
+		}
+	}],
+	"configurationStores": [{
+		"fileName": "hello-world.yml",
+		"properties": {
+			"version": "0.8-beta-5-SNAPSHOT"
+		}
+	}],
+	"eventExtractionConfigs": [{
+		"groupName": "jau",
+		"tags": [{
+			"tagName": "jau",
+			"regex": ".*",
+			"filePath": "logs/jau.log"
+		}]
+	}],
+	"startServiceScript": "java -jar dropwizard-hello-world-application-1.0.jar"
+}
+```
+
+
 ### Update a specific client
 
 ### Rollback a specific client
