@@ -122,6 +122,11 @@ curl -u admin:conservice  -i -X PUT -H "Content-Type:application/json"   -d '{"c
 
 ### Rollback a specific client
 
+```
+curl -u admin:conservice  -i -X PUT -H "Content-Type:application/json"   -d '{"clientId":"bed9e97b-2090-4fe0-bfac-ab44252151e6","applicationConfigId":"b2435492-e011-4d15-b2a3-815395608fa7","autoUpgrade":true}'  https://whydahdev.cantara.no/jau/client/bed9e97b-2090-4fe0-bfac-ab44252151e6```
+```
+
+
 ### Update all clients of an application
 
 ### Browse clients 
