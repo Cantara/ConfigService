@@ -4,6 +4,12 @@ The goal of ConfigService is to provide the server-component of a controlled app
 
 This component is as of now *work-in*progress*, and some of the main goals and discussions can be found on our wiki:  https://wiki.cantara.no/display/JAU/Java-Auto-Update+and+ConfigService+Home
 
+## Install and use Standalone
+
+
+Scripts and procedures can be found on our wiki: 
+https://wiki.cantara.no/display/JAU/Installation+and+getting+started+with+ConfigService
+
 
 ## Install and use in a Docker container.
 
