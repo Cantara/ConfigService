@@ -58,10 +58,17 @@ sudo docker exec -it configservice3107 bash
 ### Add a new application
 
 ```
-curl -u admin:conservice -vX POST https://whydahdev.cantara.no/jau/application  -d @myApplication.json --header "Content-Type: application/json"
+curl -u admin:conservice  -i -X POST -H "Content-Type:application/json"   -d '{ "artifactId": "myApplication" }'  https://whydahdev.cantara.no/jau/application
+
+# Return  {"id":"0e139a12-57c0-4a48-8999-7f32c63ff9ad","artifactId":"myApplication"}
 ```
 
 ### Add a new application configuration
+
+```
+curl -u admin:conservice -vX POST https://whydahdev.cantara.no/jau/application/0e139a12-57c0-4a48-8999-7f32c63ff9ad/config  -d @myApplicationConfig.json --header "Content-Type: application/json"
+
+```
 
 ### Update a specific client
 
