@@ -55,9 +55,13 @@ sudo docker exec -it configservice3107 bash
 
 ## How to use ConfigService.
 
-### Add a new software version
+### Add a new application
 
-### Add a new software configuration
+```
+curl -u admin:conservice -vX POST https://whydahdev.cantara.no/jau/application  -d @myApplication.json --header "Content-Type: application/json"
+```
+
+### Add a new application configuration
 
 ### Update a specific client
 
