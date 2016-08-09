@@ -1,7 +1,15 @@
-# A CRON job is running on this user.
+#A CRON job _MAY_ be running on this user.
+The CRON is not enabled when creating a new container. If you wish a setup which automatically runs update scripts, run the script enable-automatic-updates.sh
+
 It automatically updates the Java application if a new SNAPSHOT version is available. As such, it is only
 doing anything if this is a test environment with the application running a SNAPSHOT version.
 THE CRON JOB WILL NOT DO ANYTHING IN A PRODUCTION SETTING!
 
+If you wish to check if the CRON is enabled in this container, please run:
+crontab -u configservice -l
+
+The command lists all CRON jobs for user configservice.
+
 This is what it does:
 * *  *   *   *     /home/$USER/update-service.sh >> /var/log/cron.log 2>&1 && /home/$USER/stop-service.sh >> /var/log/cron.log 2>&1
+

@@ -27,6 +27,7 @@ RUN wget https://raw.githubusercontent.com/Cantara/devops/master/pull_deploy/lin
 ## Configure application
 #COPY application_scripts/* $HOME/
 COPY CRON $HOME/
+ADD enable-automatic-updates.sh $HOME/
 RUN chmod 755 $HOME/*.sh
 
 ##Directories to persist for data volumes
@@ -39,7 +40,6 @@ ADD crontab /etc/cron.d/configservice
 RUN chmod 0644 /etc/cron.d/configservice
 RUN touch /var/log/cron.log
 RUN chown $USER /var/log/cron.log
-RUN crontab -u $USER /etc/cron.d/configservice
 
 ##Configure logrotate
 COPY logrotate_config/logrotate.conf /etc/logrotate.conf
