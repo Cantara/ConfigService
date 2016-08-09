@@ -2,7 +2,9 @@ package no.cantara.cs.persistence;
 
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationConfig;
+import no.cantara.cs.dto.ApplicationStatus;
 import no.cantara.cs.dto.Client;
+import no.cantara.cs.dto.ClientHeartbeatData;
 
 import java.util.*;
 
@@ -45,11 +47,6 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     @Override
     public ApplicationConfig getApplicationConfig(String configId) {
         return configs.get(configId);
-    }
-
-    @Override
-    public ApplicationConfig deleteApplicationConfig(String configId) {
-        return configs.remove(configId);
     }
 
     @Override
@@ -108,5 +105,36 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     public List<Application> getApplications() {
         return new ArrayList<>(idToApplication.values());
     }
+
+   
+    @Override
+	public ApplicationConfig deleteApplicationConfig(String configId) {
+    	ApplicationConfig config = configs.remove(configId);
+		String artifactId = getArtifactId(config);
+		Application app = findApplication(artifactId);
+		if(app!=null){
+			idToApplication.remove(app.id);
+			applicationIdToConfigIdMapping.remove(app.id);
+		}
+		return config;
+	}
+
+	@Override
+	public boolean canDeleteApplicationConfig(String configId) {
+		return true;
+	}
+
+	@Override
+	public boolean canDeleteApplication(String applicationId) {
+		return true;
+	}
+
+	@Override
+	public Application deleteApplication(String applicationId) {
+		Application app = idToApplication.remove(applicationId);
+		String configId =applicationIdToConfigIdMapping.remove(applicationId);
+		configs.remove(configId);
+		return app;
+	}
 
 }

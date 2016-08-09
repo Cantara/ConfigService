@@ -29,4 +29,10 @@ public interface ApplicationConfigDao {
     Map<String, ApplicationConfig> getAllConfigs();
 
     List<Application> getApplications();
+
+	Application deleteApplication(String applicationId);
+
+	boolean canDeleteApplicationConfig(String configId);
+
+	boolean canDeleteApplication(String applicationId);
 }
