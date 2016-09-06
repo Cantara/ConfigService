@@ -78,7 +78,8 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     }
 
     @Override
-    public ApplicationConfig updateApplicationConfig(ApplicationConfig updatedConfig) {
+    public ApplicationConfig updateApplicationConfig(String configId, ApplicationConfig updatedConfig) {
+    	updatedConfig.setId(configId);
         return configs.put(updatedConfig.getId(), updatedConfig);
     }
 

@@ -88,7 +88,7 @@ public class ApplicationConfigResource {
 			return Response.status(status).build();
 		}
 
-		ApplicationConfig persistedUpdatedConfig = applicationConfigDao.updateApplicationConfig(updatedConfig);
+		ApplicationConfig persistedUpdatedConfig = applicationConfigDao.updateApplicationConfig(configId, updatedConfig);
 		if (persistedUpdatedConfig == null) {
 			log.warn("Could not update ApplicationConfig with json={}", json);
 			return Response.status(Response.Status.NOT_FOUND).build();

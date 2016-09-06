@@ -22,7 +22,7 @@ public interface ApplicationConfigDao {
 
     ApplicationConfig deleteApplicationConfig(String configId);
 
-    ApplicationConfig updateApplicationConfig(ApplicationConfig updatedConfig);
+    ApplicationConfig updateApplicationConfig(String configId, ApplicationConfig updatedConfig);
 
     String getArtifactId(ApplicationConfig config);
 

@@ -183,8 +183,9 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	}
 
 	@Override
-	public ApplicationConfig updateApplicationConfig(ApplicationConfig updatedConfig) {
-		ApplicationConfig config = configs.put(updatedConfig.getId(), updatedConfig);
+	public ApplicationConfig updateApplicationConfig(String configId, ApplicationConfig updatedConfig) {
+		updatedConfig.setId(configId);
+		ApplicationConfig config = configs.put(configId, updatedConfig);
 		db.commit();
 		return config;
 	}
