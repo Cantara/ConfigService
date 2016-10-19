@@ -1,19 +1,6 @@
 package no.cantara.cs.cloudwatch;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.logs.AWSLogsAsyncClient;
-import com.amazonaws.services.logs.model.*;
-import no.cantara.cs.dto.event.EventFile;
-import no.cantara.cs.dto.event.EventGroup;
-import no.cantara.cs.dto.event.EventTag;
-import no.cantara.cs.dto.event.ExtractedEventsStore;
-import no.cantara.cs.util.Configuration;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -21,6 +8,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.logs.AWSLogsAsyncClient;
+import com.amazonaws.services.logs.model.CreateLogStreamRequest;
+import com.amazonaws.services.logs.model.DataAlreadyAcceptedException;
+import com.amazonaws.services.logs.model.InputLogEvent;
+import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
+import com.amazonaws.services.logs.model.PutLogEventsRequest;
+import com.amazonaws.services.logs.model.PutLogEventsResult;
+import com.amazonaws.services.logs.model.ResourceNotFoundException;
+
+import no.cantara.cs.dto.event.EventFile;
+import no.cantara.cs.dto.event.EventGroup;
+import no.cantara.cs.dto.event.EventTag;
+import no.cantara.cs.dto.event.ExtractedEventsStore;
+import no.cantara.cs.util.Configuration;
 
 /**
  * Forwards log events from ConfigService clients to Amazon CloudWatch.
@@ -30,9 +39,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * <p>
  * Uses the following configuration properties:
  * <ul>
- *     <li>cloudwatch.region - The AWS region to use, e.g., "eu-west-1".</li>
- *     <li>cloudwatch.maxBatchSize - The max number of log events to bundle per AWS call. Default value: {@link #DEFAULT_MAX_BATCH_SIZE}. Must not exceed 10,000.</li>
- *     <li>cloudwatch.internalQueueSize - The max number of log requests to buffer internally. Default value: {@link #DEFAULT_INTERNAL_QUEUE_SIZE}.</li>
+ * <li>cloudwatch.region - The AWS region to use, e.g., "eu-west-1".</li>
+ * <li>cloudwatch.maxBatchSize - The max number of log events to bundle per AWS call. Default value: {@link #DEFAULT_MAX_BATCH_SIZE}. Must not exceed 10,000.</li>
+ * <li>cloudwatch.internalQueueSize - The max number of log requests to buffer internally. Default value: {@link #DEFAULT_INTERNAL_QUEUE_SIZE}.</li>
  * </ul>
  *
  * @author Sindre Mehus
@@ -94,35 +103,54 @@ public class CloudWatchLogger {
             String groupName = eventGroupEntry.getKey();
             for (EventFile eventFile : eventGroupEntry.getValue().getFiles().values()) {
                 for (Map.Entry<String, EventTag> entry : eventFile.getTags().entrySet()) {
-                    result.addAll(rebatchTag(clientId, groupName, entry.getKey(), entry.getValue()));
+                    result.addAll(rebatchTag(clientId, groupName, entry.getKey(), entry.getValue(), maxBatchSize));
                 }
             }
         }
         return result;
     }
 
-    private List<LogRequest> rebatchTag(String clientId, String groupName, String tagName, EventTag eventTag) {
+    static List<LogRequest> rebatchTag(String clientId, String groupName, String tagName, EventTag eventTag, int maxBatchSize) {
         List<LogRequest> result = new ArrayList<>();
-        Date now = new Date();
 
-        for (List<String> partition : partitionList(eventTag.getEvents(), maxBatchSize)) {
-            LogRequest logRequest = new LogRequest(groupName, clientId + "-" + tagName);
-            partition.forEach(line -> logRequest.addLogEvent(now, line));
-            result.add(logRequest);
+        if (eventTag.getEvents().isEmpty()) {
+            return result;
+        }
+
+        // AWS CloudWatch limits:
+        //
+        // The maximum batch size is 1,048,576 bytes. This size is calculated as the sum of all event messages in UTF-8, plus 26 bytes for each log event.
+        // The maximum size for a single log event is 262,144 bytes.
+        final int MAX_BATCH_SIZE_BYTES = 1_048_576;
+        final int MAX_EVENT_SIZE_BYTES = 262_144;
+
+        LogRequest logRequest = new LogRequest(groupName, clientId + "-" + tagName);
+        result.add(logRequest);
+
+        Date now = new Date();
+        int batchSize = 0;
+        for (String line : eventTag.getEvents()) {
+            int eventSize = 26 + line.getBytes(StandardCharsets.UTF_8).length;
+
+            // Truncate lines that are bigger than 256 KB
+            if (eventSize > MAX_EVENT_SIZE_BYTES) {
+                line = line.substring(0, Math.min(line.length(), 100_000)) + "...";
+                eventSize = 26 + line.getBytes(StandardCharsets.UTF_8).length;
+            }
+
+            if (batchSize + eventSize > MAX_BATCH_SIZE_BYTES || logRequest.logEvents.size() == maxBatchSize) {
+                logRequest = new LogRequest(groupName, clientId + "-" + tagName);
+                result.add(logRequest);
+                batchSize = 0;
+            }
+            logRequest.addLogEvent(now, line);
+            batchSize += eventSize;
         }
 
         return result;
     }
 
-    static List<List<String>> partitionList(List<String> list, int size) {
-        List<List<String>> partitions = new ArrayList<>();
-        for (int i = 0; i < list.size(); i += size) {
-            partitions.add(new ArrayList<> (list.subList(i, Math.min(list.size(), i + size))));
-        }
-        return partitions;
-    }
-
-    private static class LogRequest {
+    static class LogRequest {
         private final Destination destination;
         private final List<InputLogEvent> logEvents = new ArrayList<>();
 
@@ -134,6 +162,10 @@ public class CloudWatchLogger {
             if (StringUtils.isNotEmpty(message)) {
                 logEvents.add(new InputLogEvent().withMessage(message).withTimestamp(time.getTime()));
             }
+        }
+
+        List<InputLogEvent> getLogEvents() {
+            return logEvents;
         }
     }
 
