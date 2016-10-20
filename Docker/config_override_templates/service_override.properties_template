@@ -5,4 +5,4 @@ artifactId=configservice
 version=0.8-beta-5
 
 APP=${artifactId}.jar
-JAVA_PARAMS="-Dlogback.configurationFile=./config_override/logback_override.xml -Xms128m -Xmx1024m"
+JAVA_PARAMS="-Dlogback.configurationFile=./config_override/logback.xml -Xms128m -Xmx1024m"
