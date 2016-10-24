@@ -1,6 +1,7 @@
 package no.cantara.cs.client;
 
 import no.cantara.cs.cloudwatch.CloudWatchLogger;
+import no.cantara.cs.cloudwatch.CloudWatchMetricsPublisher;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.cs.persistence.ClientDao;
@@ -23,13 +24,16 @@ public class ClientService {
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
     private final CloudWatchLogger cloudWatchLogger;
+    private final CloudWatchMetricsPublisher cloudWatchMetricsPublisher;
 
     @Autowired
-    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao, CloudWatchLogger cloudWatchLogger) {
+    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao,
+                         CloudWatchLogger cloudWatchLogger, CloudWatchMetricsPublisher cloudWatchMetricsPublisher) {
         this.dao = dao;
         this.eventsDao = eventsDao;
         this.clientDao = clientDao;
         this.cloudWatchLogger = cloudWatchLogger;
+        this.cloudWatchMetricsPublisher = cloudWatchMetricsPublisher;
     }
 
     /**
@@ -102,6 +106,11 @@ public class ClientService {
             cloudWatchLogger.log(clientId, eventsStore);
         } catch (Exception e) {
             log.error("Failed to log events in CloudWatch", e);
+        }
+        try {
+            cloudWatchMetricsPublisher.registerHeartbeat(clientId);
+        } catch (Exception e) {
+            log.error("Failed to register heartbeat in CloudWatch", e);
         }
     }
 }

@@ -39,9 +39,10 @@ import no.cantara.cs.util.Configuration;
  * <p>
  * Uses the following configuration properties:
  * <ul>
+ * <li>cloudwatch.logging.enabled - Whether CloudWatch logging is enabled.</li>
  * <li>cloudwatch.region - The AWS region to use, e.g., "eu-west-1".</li>
- * <li>cloudwatch.maxBatchSize - The max number of log events to bundle per AWS call. Default value: {@link #DEFAULT_MAX_BATCH_SIZE}. Must not exceed 10,000.</li>
- * <li>cloudwatch.internalQueueSize - The max number of log requests to buffer internally. Default value: {@link #DEFAULT_INTERNAL_QUEUE_SIZE}.</li>
+ * <li>cloudwatch.logging.maxBatchSize - The max number of log events to bundle per AWS call. Default value: {@link #DEFAULT_MAX_BATCH_SIZE}. Must not exceed 10,000.</li>
+ * <li>cloudwatch.logging.internalQueueSize - The max number of log requests to buffer internally. Default value: {@link #DEFAULT_INTERNAL_QUEUE_SIZE}.</li>
  * </ul>
  *
  * @author Sindre Mehus
@@ -59,15 +60,15 @@ public class CloudWatchLogger {
     private AWSLogsAsyncClient awsClient;
 
     public CloudWatchLogger() {
-        if (Configuration.getBoolean("cloudwatch.enabled")) {
+        if (Configuration.getBoolean("cloudwatch.logging.enabled")) {
             init();
         }
     }
 
     private void init() {
         String region = Configuration.getString("cloudwatch.region");
-        maxBatchSize = Configuration.getInt("cloudwatch.maxBatchSize", DEFAULT_MAX_BATCH_SIZE);
-        int internalQueueSize = Configuration.getInt("cloudwatch.internalQueueSize", DEFAULT_INTERNAL_QUEUE_SIZE);
+        maxBatchSize = Configuration.getInt("cloudwatch.logging.maxBatchSize", DEFAULT_MAX_BATCH_SIZE);
+        int internalQueueSize = Configuration.getInt("cloudwatch.logging.internalQueueSize", DEFAULT_INTERNAL_QUEUE_SIZE);
         logRequestQueue = new LinkedBlockingQueue<>(internalQueueSize);
 
         awsClient = new AWSLogsAsyncClient().withRegion(Region.getRegion(Regions.fromName(region)));
