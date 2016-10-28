@@ -189,7 +189,7 @@ public class ApplicationConfigResource {
 	public Response deleteApplication(@PathParam("applicationId") String applicationId) {
 		log.debug("delete application ={}", applicationId);
 
-		if(applicationConfigDao.canDeleteApplicationConfig(applicationId)){
+		if(applicationConfigDao.canDeleteApplication(applicationId)){
 			Application app = applicationConfigDao.deleteApplication(applicationId);
 			if (app == null) {
 				log.warn("Could not find and therefore not delete ApplicationConfig with id={}", app);

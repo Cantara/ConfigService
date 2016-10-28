@@ -84,7 +84,7 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 			idToApplication.remove(app.id);
 			applicationIdToConfigIdMapping.remove(app.id);
 		}
-		for(Client client : new ArrayList<Client>(getAllClients())){
+		for(Client client : new ArrayList<>(getAllClients())){
 			if(client.applicationConfigId.equals(configId)){
 				clientHeartbeatDataMap.remove(client.clientId);
 				clientEnvironmentMap.remove(client.clientId);
@@ -123,7 +123,7 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		Application app = idToApplication.remove(applicationId);
 		String configId =applicationIdToConfigIdMapping.remove(applicationId);
 		configs.remove(configId);
-		for(Client client : new ArrayList<Client>(getAllClients())){
+		for (Client client : new ArrayList<>(getAllClients())){
 			if(client.applicationConfigId.equals(configId)){
 				clientHeartbeatDataMap.remove(client.clientId);
 				clientEnvironmentMap.remove(client.clientId);
