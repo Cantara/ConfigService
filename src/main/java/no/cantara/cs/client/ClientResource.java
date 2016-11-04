@@ -44,7 +44,6 @@ public class ClientResource {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClients(@Context SecurityContext context) {
         log.trace("getAllClients");

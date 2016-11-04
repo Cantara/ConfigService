@@ -38,7 +38,6 @@ public class ApplicationResource {
     }
 
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createApplication(String json) {
@@ -70,7 +69,6 @@ public class ApplicationResource {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllApplications() {
         log.trace("getAllApplications");
