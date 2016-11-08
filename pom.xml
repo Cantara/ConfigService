@@ -34,7 +34,7 @@
         <jetty.version>9.3.2.v20150730</jetty.version>
         <spring.version>4.2.5.RELEASE</spring.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <aws.version>1.10.77</aws.version>
+        <aws.version>1.11.18</aws.version>
     </properties>
 
     <repositories>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>no.cantara.jau</groupId>
             <artifactId>configservice-sdk</artifactId>
-            <version>0.12.2</version>
+            <version>0.12.3</version>
         </dependency>
 
         <dependency>
