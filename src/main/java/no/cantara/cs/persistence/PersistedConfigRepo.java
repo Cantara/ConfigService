@@ -107,7 +107,10 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		ApplicationConfig config = configs.get(configId);
 		String artifactId = getArtifactId(config);
 		if(artifactId!=null){
-			return canDeleteApplication(findApplication(artifactId).id);
+			Application app = findApplication(artifactId);
+			if (app != null) {
+				return canDeleteApplication(app.id);
+			}
 		}
 		return true;
 	}
@@ -129,7 +132,9 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	public Application deleteApplication(String applicationId) {
 		Application app = idToApplication.remove(applicationId);
 		String configId =applicationIdToConfigIdMapping.remove(applicationId);
-		configs.remove(configId);
+		if (configId != null) {
+			configs.remove(configId);
+		}
 		for (Client client : new ArrayList<>(getAllClients())){
 			if(client.applicationConfigId.equals(configId)){
 				clientHeartbeatDataMap.remove(client.clientId);
