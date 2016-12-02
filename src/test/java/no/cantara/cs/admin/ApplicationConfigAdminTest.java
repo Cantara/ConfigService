@@ -164,5 +164,21 @@ public class ApplicationConfigAdminTest {
                 .get(path);
     }
 
+    @Test
+    public void testRemoveApplication() throws IOException {
+        Application app = testServer.getAdminClient().registerApplication("AppToBeDeleted");
+        assertNotNull(app);
+
+        String path = ApplicationResource.APPLICATION_PATH;
+        given()
+                .pathParam("appId",app.id)
+                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .log().everything()
+                .expect()
+                .statusCode(204)
+                .log().ifError()
+                .when()
+                .delete(path+"/{appId}");
+    }
 
 }
