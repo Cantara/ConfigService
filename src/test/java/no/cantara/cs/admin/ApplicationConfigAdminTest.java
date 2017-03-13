@@ -25,7 +25,6 @@ import static org.testng.Assert.assertNotNull;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
 public class ApplicationConfigAdminTest {
-
     private static final ObjectMapper mapper = new ObjectMapper();
     private Application application;
     private ApplicationConfig config;
@@ -95,7 +94,7 @@ public class ApplicationConfigAdminTest {
                 .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
-                .statusCode(200)
+                .statusCode(HttpURLConnection.HTTP_OK)
                 .log().ifError()
                 .when()
                 .get(path, application.id, config.getId());
@@ -117,7 +116,7 @@ public class ApplicationConfigAdminTest {
                 .body(putJsonRequest)
                 .log().everything()
                 .expect()
-                .statusCode(200)
+                .statusCode(HttpURLConnection.HTTP_OK)
                 .log().ifError()
                 .when()
                 .put(path, application.id);
@@ -135,7 +134,7 @@ public class ApplicationConfigAdminTest {
                 auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
-                .statusCode(204)
+                .statusCode(HttpURLConnection.HTTP_NO_CONTENT)
                 .log().ifError()
                 .when()
                 .delete(path, application.id, config.getId());
@@ -144,7 +143,7 @@ public class ApplicationConfigAdminTest {
                 auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
-                .statusCode(404)
+                .statusCode(HttpURLConnection.HTTP_NOT_FOUND)
                 .log().ifError()
                 .when()
                 .delete(path, application.id, config.getId());
@@ -158,7 +157,7 @@ public class ApplicationConfigAdminTest {
                 .queryParam("clientid", "clientid1")
                 .log().everything()
                 .expect()
-                .statusCode(401)
+                .statusCode(HttpURLConnection.HTTP_UNAUTHORIZED)
                 .log().ifError()
                 .when()
                 .get(path);
@@ -175,10 +174,9 @@ public class ApplicationConfigAdminTest {
                 .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
-                .statusCode(204)
+                .statusCode(HttpURLConnection.HTTP_NO_CONTENT)
                 .log().ifError()
                 .when()
                 .delete(path+"/{appId}");
     }
-
 }
