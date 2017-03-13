@@ -77,6 +77,14 @@ public class CloudWatchMetricsPublisher {
         }
     }
 
+    static <T> List<List<T>> partitionList(List<T> list, int size) {
+        List<List<T>> partitions = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            partitions.add(list.subList(i, Math.min(list.size(), i + size)));
+        }
+        return partitions;
+    }
+
     private class Worker implements Runnable {
 
         @Override
@@ -92,9 +100,9 @@ public class CloudWatchMetricsPublisher {
                                                                                                .withValue(entry.getValue().doubleValue())).collect(Collectors.toList()));
                 heartbeats.clear();
 
-                if (!metricData.isEmpty()) {
-                    awsClient.putMetricData(new PutMetricDataRequest().withNamespace(namespace).withMetricData(metricData));
-                }
+                    for (List<MetricDatum> chunk :partitionList(metricData, 20)) {
+                        awsClient.putMetricData(new PutMetricDataRequest().withNamespace(namespace).withMetricData(chunk));
+                    }
 
             } catch (Throwable e) {
                 log.error("Failed to publish CloudWatch metrics: {}", e.toString());
