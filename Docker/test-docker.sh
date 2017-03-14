@@ -12,7 +12,13 @@ docker build -t $IMAGE_NAME .
 
 docker create --name $IMAGE_NAME-data $IMAGE_NAME
 
-docker run -d --name $IMAGE_NAME --volumes-from $IMAGE_NAME_DATA $IMAGE_NAME
+docker run -d --name $IMAGE_NAME \
+    --volumes-from $IMAGE_NAME_DATA \
+    -e AWS_CLOUDWATCH_LOGGING_ENABLED="false" \
+    -e AWS_LOG_GROUP="\/my\/log" \
+    -e AWS_ACCESS_KEY_ID="xxx" \
+    -e AWS_SECRET_ACCESS_KEY="xxx" \
+    $IMAGE_NAME
 
 echo "Starting instance. Do 'docker exec -it $IMAGE_NAME bash' to get shell"
 
