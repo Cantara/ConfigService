@@ -25,7 +25,6 @@
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/ConfigService.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/ConfigService.git</connection>
-      <tag>HEAD</tag>
   </scm>
 
     <properties>
@@ -57,7 +56,7 @@
         <dependency>
             <groupId>no.cantara.jau</groupId>
             <artifactId>configservice-sdk</artifactId>
-            <version>0.12.3</version>
+            <version>0.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>

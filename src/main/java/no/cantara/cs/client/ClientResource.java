@@ -1,6 +1,7 @@
 package no.cantara.cs.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.cantara.cs.config.ConstrettoConfig;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
@@ -25,10 +26,12 @@ public class ClientResource {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private final ClientService clientService;
+    private final boolean clientSecretValidationEnabled;
 
     @Autowired
     public ClientResource(ClientService clientService) {
         this.clientService = clientService;
+        this.clientSecretValidationEnabled = ConstrettoConfig.getBoolean("client.secret.validation.enabled");
     }
 
     @POST
@@ -72,17 +75,25 @@ public class ClientResource {
     @Path("/{clientId}/sync")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sync(@PathParam("clientId") String clientId, String json) {
+    public Response sync(@PathParam("clientId") String clientId, String checkForUpdateRequestJson) {
         log.trace("checkForUpdate with clientId={}", clientId);
+
         CheckForUpdateRequest checkForUpdateRequest;
         try {
-            checkForUpdateRequest = mapper.readValue(json, CheckForUpdateRequest.class);
+            checkForUpdateRequest = fromJson(checkForUpdateRequestJson);
         } catch (IOException e) {
-            log.error("Error parsing json. {}, json={}", e.getMessage(), json);
+            log.error("Error parsing json. {}, json={}", e.getMessage(), checkForUpdateRequestJson);
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
         }
 
+        if (clientSecretValidationEnabled && !clientService.validateClientSecret(checkForUpdateRequest)) {
+            log.warn("Invalid clientSecret={} for clientId={}. Returning {}",
+                    checkForUpdateRequest.clientSecret, checkForUpdateRequest.clientId, Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid or mismatching client id and/or secret.").build();
+        }
+
         clientService.processEvents(clientId, checkForUpdateRequest.eventsStore);
+
 
         ClientConfig clientConfig = clientService.checkForUpdatedClientConfig(clientId, checkForUpdateRequest);
         if (clientConfig == null) {
@@ -106,5 +117,9 @@ public class ClientResource {
         log.info("New ClientConfig found. clientId={}, configLastChangedServer={}, configLastChangedFromClient={}",
                 clientId, clientConfig.config.getLastChanged(), checkForUpdateRequest.configLastChanged);
         return Response.ok(jsonResult).build();
+    }
+
+    static CheckForUpdateRequest fromJson(String checkForUpdateRequestJson) throws IOException {
+        return mapper.readValue(checkForUpdateRequestJson, CheckForUpdateRequest.class);
     }
 }

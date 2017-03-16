@@ -60,4 +60,53 @@ public class CheckForUpdateTest {
         }
     }
 
+    @Test
+    public void testCheckForUpdateRequestParsingBackwardCompatible() throws Exception {
+        /*
+        CheckForUpdateRequest request = new CheckForUpdateRequest("configLastChanged");
+        Map<String, String> envInfo = new HashMap<>();
+        envInfo.put("envKey1", "envValue1");
+        envInfo.put("envKey2", "envValue2");
+        request.envInfo = envInfo;
+        request.tags = "tagA, tabB, tagC";
+        request.clientName = "clientName123";
+        //request.eventsStore = new ExtractedEventsStore();
+        //request.eventsStore.addEvents(Collections.singletonList(new Event(43, "this is a log statement")));
+
+        String jsonResult = new ObjectMapper().writeValueAsString(request);
+        */
+        String configLastChanged1 = "configLastChanged";
+        String json1 = "{\n" +
+                "  \"configLastChanged\": \"" + configLastChanged1 + "\",\n" +
+                "  \"envInfo\": {\n" +
+                "    \"envKey1\": \"envValue1\",\n" +
+                "    \"envKey2\": \"envValue2\"\n" +
+                "  },\n" +
+                "  \"tags\": \"tagA, tabB, tagC\",\n" +
+                "  \"clientName\": \"clientName123\",\n" +
+                "  \"eventsStore\": null\n" +
+                "}";
+        CheckForUpdateRequest checkForUpdateRequest = ClientResource.fromJson(json1);
+        assertEquals(checkForUpdateRequest.configLastChanged, configLastChanged1);
+
+        String clientId2 = "clientId2";
+        String clientSecret2 = "clientSecret2";
+        String configLastChanged2 = "configLastChanged2";
+        String json2 = "{\n" +
+                "  \"clientId\": \"" + clientId2 + "\",\n" +
+                "  \"clientSecret\": \"" + clientSecret2 + "\",\n" +
+                "  \"configLastChanged\": \"" + configLastChanged2 + "\",\n" +
+                "  \"envInfo\": {\n" +
+                "    \"envKey1\": \"envValue1\",\n" +
+                "    \"envKey2\": \"envValue2\"\n" +
+                "  },\n" +
+                "  \"tags\": \"tagA, tabB, tagC\",\n" +
+                "  \"clientName\": \"clientName123\",\n" +
+                "  \"eventsStore\": null\n" +
+                "}";
+        CheckForUpdateRequest checkForUpdateRequest2 = ClientResource.fromJson(json2);
+        assertEquals(checkForUpdateRequest2.clientId, clientId2);
+        assertEquals(checkForUpdateRequest2.clientSecret, clientSecret2);
+        assertEquals(checkForUpdateRequest2.configLastChanged, configLastChanged2);
+    }
 }

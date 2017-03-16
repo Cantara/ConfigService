@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -37,11 +38,11 @@ public class ClientService {
     }
 
     /**
-     * @return null if request is valid, but no Config can be found or a new ClientConfig containing the Config and a ClientId.
+     * @return null if request is valid, but no Config can be found,
+     *      else return a new ClientConfig containing the ApplicationConfig and a ClientId.
      * @throws IllegalArgumentException if request does not contain enough information
      */
     public ClientConfig registerClient(ClientRegistrationRequest registration) {
-
         Client client;
         ApplicationConfig config;
 
@@ -69,7 +70,7 @@ public class ClientService {
         clientDao.saveClient(client);
         clientDao.saveClientHeartbeatData(client.clientId, new ClientHeartbeatData(registration, config));
         clientDao.saveClientEnvironment(client.clientId, new ClientEnvironment(registration.envInfo));
-        return new ClientConfig(client.clientId, config) ;
+        return new ClientConfig(client.clientId, client.clientSecret, config) ;
     }
 
     public ClientConfig checkForUpdatedClientConfig(String clientId, CheckForUpdateRequest checkForUpdateRequest) {
@@ -112,5 +113,13 @@ public class ClientService {
         } catch (Exception e) {
             log.error("Failed to register heartbeat in CloudWatch", e);
         }
+    }
+
+    boolean validateClientSecret(CheckForUpdateRequest checkForUpdateRequest) {
+        Client client = clientDao.getClient(checkForUpdateRequest.clientId);
+        if (client.clientSecret == null || client.clientSecret.isEmpty()) {
+            return false;
+        }
+        return Objects.equals(client.clientSecret, checkForUpdateRequest.clientSecret);
     }
 }
