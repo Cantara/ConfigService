@@ -47,12 +47,11 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		this.clientHeartbeatDataMap = db.getHashMap("clientHeartbeatData");
 		this.clientEnvironmentMap = db.getHashMap("clientEnvironment");
 
-		log.info("{} applications", idToApplication.size());
-		log.info("{} configs", configs.size());
-		log.info("{} clients", clients.size());
-		log.info("{} client heartbeat data", clientHeartbeatDataMap.size());
-		log.info("{} client environments", clientEnvironmentMap.size());
-		log.info("{} application to config mappings", applicationIdToConfigIdMapping.size());
+		StringBuilder dbInfo = new StringBuilder().append("MapDB entries:");
+		for (String mapName : db.getAll().keySet()) {
+			dbInfo.append("\n").append(db.getHashMap(mapName).size()).append(" ").append(mapName);
+		}
+		log.info(dbInfo.toString());
 	}
 
 	@Override

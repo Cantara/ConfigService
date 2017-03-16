@@ -111,7 +111,8 @@ public class Main {
             System.exit(2);
         }
         webappPort = connector.getLocalPort();
-        log.info("ConfigService started on http://localhost:{}{}, mapdb.path: {}", webappPort, CONTEXT_PATH, mapDbPath);
+        log.info("ConfigService started on http://localhost:{}{}{}, mapdb.path: {}",
+                webappPort, CONTEXT_PATH, HealthResource.HEALTH_PATH, mapDbPath);
         try {
             server.join();
         } catch (InterruptedException e) {
