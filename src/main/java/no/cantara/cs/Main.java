@@ -1,7 +1,7 @@
 package no.cantara.cs;
 
+import no.cantara.cs.config.ConstrettoConfig;
 import no.cantara.cs.health.HealthResource;
-import no.cantara.cs.util.Configuration;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
@@ -53,8 +53,8 @@ public class Main {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        Integer webappPort = Configuration.getInt("service.port");
-        String mapDbPath = Configuration.getString("mapdb.path");
+        Integer webappPort = ConstrettoConfig.getInt("service.port");
+        String mapDbPath = ConstrettoConfig.getString("mapdb.path");
 
         try {
 
@@ -159,12 +159,12 @@ public class Main {
 
         HashLoginService loginService = new HashLoginService("ConfigService");
 
-        String clientUsername = Configuration.getString("login.user");
-        String clientPassword = Configuration.getString("login.password");
+        String clientUsername = ConstrettoConfig.getString("login.user");
+        String clientPassword = ConstrettoConfig.getString("login.password");
         loginService.putUser(clientUsername, new Password(clientPassword), new String[]{USER_ROLE});
 
-        String adminUsername = Configuration.getString("login.admin.user");
-        String adminPassword = Configuration.getString("login.admin.password");
+        String adminUsername = ConstrettoConfig.getString("login.admin.user");
+        String adminPassword = ConstrettoConfig.getString("login.admin.password");
         loginService.putUser(adminUsername, new Password(adminPassword), new String[]{ADMIN_ROLE});
 
         log.debug("Main instantiated with basic auth clientuser={} and adminuser={}", clientUsername, adminUsername);

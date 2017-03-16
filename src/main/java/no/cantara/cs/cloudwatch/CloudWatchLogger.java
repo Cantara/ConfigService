@@ -1,35 +1,22 @@
 package no.cantara.cs.cloudwatch;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
-
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.logs.AWSLogsAsyncClient;
+import com.amazonaws.services.logs.model.*;
+import no.cantara.cs.config.ConstrettoConfig;
+import no.cantara.cs.dto.event.EventFile;
+import no.cantara.cs.dto.event.EventGroup;
+import no.cantara.cs.dto.event.EventTag;
+import no.cantara.cs.dto.event.ExtractedEventsStore;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.logs.AWSLogsAsyncClient;
-import com.amazonaws.services.logs.model.CreateLogStreamRequest;
-import com.amazonaws.services.logs.model.DataAlreadyAcceptedException;
-import com.amazonaws.services.logs.model.InputLogEvent;
-import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
-import com.amazonaws.services.logs.model.PutLogEventsRequest;
-import com.amazonaws.services.logs.model.PutLogEventsResult;
-import com.amazonaws.services.logs.model.ResourceNotFoundException;
-
-import no.cantara.cs.dto.event.EventFile;
-import no.cantara.cs.dto.event.EventGroup;
-import no.cantara.cs.dto.event.EventTag;
-import no.cantara.cs.dto.event.ExtractedEventsStore;
-import no.cantara.cs.util.Configuration;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Forwards log events from ConfigService clients to Amazon CloudWatch.
@@ -60,15 +47,15 @@ public class CloudWatchLogger {
     private AWSLogsAsyncClient awsClient;
 
     public CloudWatchLogger() {
-        if (Configuration.getBoolean("cloudwatch.logging.enabled")) {
+        if (ConstrettoConfig.getBoolean("cloudwatch.logging.enabled")) {
             init();
         }
     }
 
     private void init() {
-        String region = Configuration.getString("cloudwatch.region");
-        maxBatchSize = Configuration.getInt("cloudwatch.logging.maxBatchSize", DEFAULT_MAX_BATCH_SIZE);
-        int internalQueueSize = Configuration.getInt("cloudwatch.logging.internalQueueSize", DEFAULT_INTERNAL_QUEUE_SIZE);
+        String region = ConstrettoConfig.getString("cloudwatch.region");
+        maxBatchSize = ConstrettoConfig.getInt("cloudwatch.logging.maxBatchSize", DEFAULT_MAX_BATCH_SIZE);
+        int internalQueueSize = ConstrettoConfig.getInt("cloudwatch.logging.internalQueueSize", DEFAULT_INTERNAL_QUEUE_SIZE);
         logRequestQueue = new LinkedBlockingQueue<>(internalQueueSize);
 
         awsClient = new AWSLogsAsyncClient().withRegion(Region.getRegion(Regions.fromName(region)));

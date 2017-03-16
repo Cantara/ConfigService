@@ -1,11 +1,10 @@
-package no.cantara.cs.util;
+package no.cantara.cs.config;
 
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 
-public class Configuration {
-	
+public class ConstrettoConfig {
 	private static final ConstrettoConfiguration configuration = new ConstrettoBuilder()
             .createPropertiesStore()
             .addResource(Resource.create("classpath:application.properties"))
@@ -13,7 +12,7 @@ public class Configuration {
             .done()
             .getConfiguration();
 	
-	private Configuration() {}
+	private ConstrettoConfig() {}
 	
 	public static String getString(String key) {
 		return configuration.evaluateToString(key);

@@ -1,18 +1,5 @@
 package no.cantara.cs.cloudwatch;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
@@ -21,8 +8,19 @@ import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import no.cantara.cs.config.ConstrettoConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import no.cantara.cs.util.Configuration;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Publishes custom metrics to Amazon CloudWatch.
@@ -49,15 +47,15 @@ public class CloudWatchMetricsPublisher {
     private String namespace;
 
     public CloudWatchMetricsPublisher() {
-        if (Configuration.getBoolean("cloudwatch.metrics.enabled")) {
+        if (ConstrettoConfig.getBoolean("cloudwatch.metrics.enabled")) {
             init();
         }
     }
 
     private void init() {
-        String region = Configuration.getString("cloudwatch.region");
-        int intervalSeconds = Configuration.getInt("cloudwatch.metrics.intervalSeconds");
-        namespace = Configuration.getString("cloudwatch.metrics.namespace");
+        String region = ConstrettoConfig.getString("cloudwatch.region");
+        int intervalSeconds = ConstrettoConfig.getInt("cloudwatch.metrics.intervalSeconds");
+        namespace = ConstrettoConfig.getString("cloudwatch.metrics.namespace");
 
         awsClient = new AmazonCloudWatchClient().withRegion(Region.getRegion(Regions.fromName(region)));
         log.info("Created CloudWatch metrics publisher for AWS region {}, using namespace {}", region, namespace);
