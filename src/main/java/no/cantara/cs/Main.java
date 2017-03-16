@@ -129,36 +129,23 @@ public class Main {
     }
 
     private ConstraintSecurityHandler buildSecurityHandler() {
-        Constraint userRoleConstraint = new Constraint();
-        userRoleConstraint.setName(Constraint.__BASIC_AUTH);
-        userRoleConstraint.setRoles(new String[]{USER_ROLE, ADMIN_ROLE});
-        userRoleConstraint.setAuthenticate(true);
-
-        Constraint adminRoleConstraint = new Constraint();
-        adminRoleConstraint.setName(Constraint.__BASIC_AUTH);
-        adminRoleConstraint.setRoles(new String[]{ADMIN_ROLE});
-        adminRoleConstraint.setAuthenticate(true);
-
-        ConstraintMapping clientConstraintMapping = new ConstraintMapping();
-        clientConstraintMapping.setConstraint(userRoleConstraint);
-        clientConstraintMapping.setPathSpec("/client/*");
-
-        ConstraintMapping adminRoleConstraintMapping = new ConstraintMapping();
-        adminRoleConstraintMapping.setConstraint(adminRoleConstraint);
-        adminRoleConstraintMapping.setPathSpec("/*");
-
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-        securityHandler.addConstraintMapping(clientConstraintMapping);
-        securityHandler.addConstraintMapping(adminRoleConstraintMapping);
 
-        // Allow healthresource to be accessed without authentication
+        // health - no authentication
         ConstraintMapping healthEndpointConstraintMapping = new ConstraintMapping();
         healthEndpointConstraintMapping.setConstraint(new Constraint(Constraint.NONE, Constraint.ANY_ROLE));
         healthEndpointConstraintMapping.setPathSpec(HealthResource.HEALTH_PATH);
         securityHandler.addConstraintMapping(healthEndpointConstraintMapping);
 
-        HashLoginService loginService = new HashLoginService("ConfigService");
+        //Note specific isAdmin checks in ClientResource for administration APIs for client resource
+        securityHandler.addConstraintMapping(buildConstraintMapping("/client/*", new String[]{USER_ROLE, ADMIN_ROLE}));
 
+        //all other paths require admin authentication
+        securityHandler.addConstraintMapping(buildConstraintMapping("/*", new String[]{ADMIN_ROLE}));
+
+
+        //set up users and roles
+        HashLoginService loginService = new HashLoginService("ConfigService");
         String clientUsername = ConstrettoConfig.getString("login.user");
         String clientPassword = ConstrettoConfig.getString("login.password");
         loginService.putUser(clientUsername, new Password(clientPassword), new String[]{USER_ROLE});
@@ -166,10 +153,20 @@ public class Main {
         String adminUsername = ConstrettoConfig.getString("login.admin.user");
         String adminPassword = ConstrettoConfig.getString("login.admin.password");
         loginService.putUser(adminUsername, new Password(adminPassword), new String[]{ADMIN_ROLE});
+        securityHandler.setLoginService(loginService);
 
         log.debug("Main instantiated with basic auth clientuser={} and adminuser={}", clientUsername, adminUsername);
-        securityHandler.setLoginService(loginService);
         return securityHandler;
+    }
+    private ConstraintMapping buildConstraintMapping(String pathSpec, String[] roles) {
+        ConstraintMapping constraintMapping = new ConstraintMapping();
+        constraintMapping.setPathSpec(pathSpec);
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__BASIC_AUTH);
+        constraint.setRoles(roles);
+        constraint.setAuthenticate(true);
+        constraintMapping.setConstraint(constraint);
+        return constraintMapping;
     }
 
 
