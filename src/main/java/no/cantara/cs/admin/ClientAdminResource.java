@@ -41,6 +41,8 @@ public class ClientAdminResource {
         this.clientService = clientService;
     }
 
+
+    //TODO no test?
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClients(@Context SecurityContext context) {
@@ -53,6 +55,7 @@ public class ClientAdminResource {
         return mapResponseToJson(allClients);
     }
 
+    //ChangeConfigForSpecificClientTest.testChangeConfigForSingleClient
     @GET
     @Path("/{clientId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,6 +73,7 @@ public class ClientAdminResource {
         return mapResponseToJson(client);
     }
 
+    //ClientAdminResourceStatusTest
     @GET
     @Path("/{clientId}/status")
     @Produces(MediaType.APPLICATION_JSON)
@@ -89,6 +93,7 @@ public class ClientAdminResource {
         return mapResponseToJson(statusView);
     }
 
+    ////ClientAdminResourceEnvTest
     @GET
     @Path("/{clientId}/env")
     @Produces(MediaType.APPLICATION_JSON)
@@ -106,6 +111,7 @@ public class ClientAdminResource {
         return mapResponseToJson(clientEnvironment);
     }
 
+    //TODO no test?
     @GET
     @Path("/{clientId}/events")
     @Produces(MediaType.APPLICATION_JSON)
@@ -119,11 +125,12 @@ public class ClientAdminResource {
         return mapResponseToJson(store);
     }
 
+    //TODO no test?
     @GET
     @Path("/{clientId}/config")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getClientConfig(@Context SecurityContext context, @PathParam("clientId") String clientId) {
-        log.trace("Invoked getClientConfig");
+    public Response getApplicationConfigForClient(@Context SecurityContext context, @PathParam("clientId") String clientId) {
+        log.trace("Invoked getApplicationConfigForClient");
         if (!isAdmin(context)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -136,6 +143,7 @@ public class ClientAdminResource {
         return mapResponseToJson(config);
     }
 
+    //ChangeConfigForSpecificClientTest.testChangeConfigForSingleClient, RegisterClientWithPreconfiguredConfigTest.testRegisterClientWithPreconfiguredConfig
     @PUT
     @Path("/{clientId}")
     @Produces(MediaType.APPLICATION_JSON)

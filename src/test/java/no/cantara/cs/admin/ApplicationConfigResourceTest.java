@@ -127,8 +127,7 @@ public class ApplicationConfigResourceTest {
     }
 
 
-
-    //ED: No such path, so perhaps misleading to return HTTP_UNAUTHORIZED?
+    //TODO: Hvis ikke autentisering, skal svar HTTP_UNAUTHORIZED for alle paths som ikke er åpne.
     @Test
     public void testFindConfigUnAuthorized() throws Exception {
         //GET
