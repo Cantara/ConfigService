@@ -1,7 +1,9 @@
-package no.cantara.cs.client;
+package no.cantara.cs.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.cantara.cs.Main;
+import no.cantara.cs.client.ClientResource;
+import no.cantara.cs.client.ClientService;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.cs.persistence.ClientDao;

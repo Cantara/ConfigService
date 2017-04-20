@@ -1,14 +1,14 @@
-package no.cantara.cs.application;
+package no.cantara.cs.admin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationStatus;
-import no.cantara.cs.persistence.ClientDao;
+import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.persistence.ApplicationConfigDao;
+import no.cantara.cs.persistence.ClientDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,8 +86,8 @@ public class ApplicationResource {
     @GET
     @Path("/{artifactId}/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatusForArtifactInstances(@PathParam("artifactId") String artifactId) {
-        log.trace("getStatusForArtifactInstances, artifactId={}", artifactId);
+    public Response getApplicationStatus(@PathParam("artifactId") String artifactId) {
+        log.trace("getApplicationStatus, artifactId={}", artifactId);
 
         Map<String, ClientHeartbeatData> allClientHeartbeatData = clientDao.getAllClientHeartbeatData(artifactId);
 

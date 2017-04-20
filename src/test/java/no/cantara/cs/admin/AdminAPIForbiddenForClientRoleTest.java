@@ -1,9 +1,10 @@
-package no.cantara.cs.client;
+package no.cantara.cs.admin;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import no.cantara.cs.application.ApplicationResource;
+import no.cantara.cs.client.ClientResource;
+import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.Client;
 import no.cantara.cs.testsupport.TestServer;

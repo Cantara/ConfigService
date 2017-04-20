@@ -1,4 +1,4 @@
-package no.cantara.cs.application;
+package no.cantara.cs.admin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,6 @@ public class ApplicationConfigResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ApplicationConfigResource.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
-
 	private final ApplicationConfigDao applicationConfigDao;
 
 	@Autowired
@@ -38,8 +37,8 @@ public class ApplicationConfigResource {
 	@Path(CONFIG_PATH)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createConfig(@PathParam("applicationId") String applicationId, String json) {
-		log.debug("Invoked createConfig with json {} and applicationId {}", json, applicationId);
+	public Response createApplicationConfig(@PathParam("applicationId") String applicationId, String json) {
+		log.debug("Invoked createApplicationConfig with json {} and applicationId {}", json, applicationId);
 
 		ApplicationConfig newConfig;
 		try {
@@ -62,11 +61,11 @@ public class ApplicationConfigResource {
 	}
 
 	@PUT
-	@Path(CONFIG_PATH + "/{configId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConfig(@PathParam("configId") String configId, String json) {
-		log.debug("Invoked updateConfig with json {}", json);
+	public Response updateApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId, String json) {
+		log.debug("Invoked updateApplicationConfig with json {}", json);
 
 		ApplicationConfig updatedConfig;
 		try {
@@ -77,7 +76,7 @@ public class ApplicationConfigResource {
 			return Response.status(status).build();
 		}
 
-		ApplicationConfig persistedUpdatedConfig = applicationConfigDao.updateApplicationConfig(configId, updatedConfig);
+		ApplicationConfig persistedUpdatedConfig = applicationConfigDao.updateApplicationConfig(applicationConfigId, updatedConfig);
 		if (persistedUpdatedConfig == null) {
 			log.warn("Could not update ApplicationConfig with json={}", json);
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -96,8 +95,8 @@ public class ApplicationConfigResource {
 	@GET
 	@Path("/config")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAllConfigs() {
-		log.trace("invoked getAllConfigs");
+	public Response getAllApplicationConfigs() {
+		log.trace("invoked getAllApplicationConfigs");
 
 		Map<String, ApplicationConfig> allConfigs = applicationConfigDao.getAllConfigs();
 
@@ -114,8 +113,8 @@ public class ApplicationConfigResource {
 	@GET
 	@Path(CONFIG_PATH)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConfigForApplication(@PathParam("applicationId") String applicationId) {
-		log.trace("invoked getConfigForApplication");
+	public Response getApplicationConfigForApplication(@PathParam("applicationId") String applicationId) {
+		log.trace("invoked getApplicationConfigForApplication");
 
 		ApplicationConfig applicationConfig = applicationConfigDao.findApplicationConfigByApplicationId(applicationId);
 		if (applicationConfig == null) {
@@ -133,14 +132,14 @@ public class ApplicationConfigResource {
 	}
 
 	@GET
-	@Path(CONFIG_PATH + "/{configId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConfig(@PathParam("configId") String configId) {
-		log.trace("getConfig with configId={}", configId);
+	public Response getApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
+		log.trace("getApplicationConfig with configId={}", applicationConfigId);
 
-		ApplicationConfig config = applicationConfigDao.getApplicationConfig(configId);
+		ApplicationConfig config = applicationConfigDao.getApplicationConfig(applicationConfigId);
 		if (config == null) {
-			log.warn("Could not find ApplicationConfig with id={}", configId);
+			log.warn("Could not find ApplicationConfig with id={}", applicationConfigId);
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 
@@ -155,15 +154,15 @@ public class ApplicationConfigResource {
 	}
 
 	@DELETE
-	@Path(CONFIG_PATH + "/{configId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteConfig(@PathParam("configId") String configId) {
-		log.debug("deleteConfig with configId={}", configId);
+	public Response deleteApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
+		log.debug("deleteApplicationConfig with applicationConfigId={}", applicationConfigId);
 
-		if(applicationConfigDao.canDeleteApplicationConfig(configId)){
-			ApplicationConfig config = applicationConfigDao.deleteApplicationConfig(configId);
+		if(applicationConfigDao.canDeleteApplicationConfig(applicationConfigId)){
+			ApplicationConfig config = applicationConfigDao.deleteApplicationConfig(applicationConfigId);
 			if (config == null) {
-				log.warn("Could not find and therefore not delete ApplicationConfig with id={}", configId);
+				log.warn("Could not find and therefore not delete ApplicationConfig with id={}", applicationConfigId);
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
 		} else {
@@ -171,14 +170,15 @@ public class ApplicationConfigResource {
 		}
 		return Response.status(Response.Status.NO_CONTENT).build();
 	}
-	
+
+	//TODO Review, does not look good...
 	@DELETE
 	@Path("/{applicationId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteApplication(@PathParam("applicationId") String applicationId) {
 		log.debug("delete application ={}", applicationId);
 
-		if(applicationConfigDao.canDeleteApplication(applicationId)){
+		if (applicationConfigDao.canDeleteApplication(applicationId)){
 			Application app = applicationConfigDao.deleteApplication(applicationId);
 			if (app == null) {
 				log.warn("Could not find and therefore not delete ApplicationConfig with id={}", app);

@@ -4,8 +4,8 @@ import no.cantara.cs.cloudwatch.CloudWatchLogger;
 import no.cantara.cs.cloudwatch.CloudWatchMetricsPublisher;
 import no.cantara.cs.dto.*;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
-import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.ApplicationConfigDao;
+import no.cantara.cs.persistence.ClientDao;
 import no.cantara.cs.persistence.EventsDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +20,16 @@ import java.util.UUID;
 @Service
 public class ClientService {
     private static final Logger log = LoggerFactory.getLogger(ClientService.class);
-    private final ApplicationConfigDao dao;
+    private final ApplicationConfigDao applicationConfigDao;
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
     private final CloudWatchLogger cloudWatchLogger;
     private final CloudWatchMetricsPublisher cloudWatchMetricsPublisher;
 
     @Autowired
-    public ClientService(ApplicationConfigDao dao, EventsDao eventsDao, ClientDao clientDao,
+    public ClientService(ApplicationConfigDao applicationConfigDao, EventsDao eventsDao, ClientDao clientDao,
                          CloudWatchLogger cloudWatchLogger, CloudWatchMetricsPublisher cloudWatchMetricsPublisher) {
-        this.dao = dao;
+        this.applicationConfigDao = applicationConfigDao;
         this.eventsDao = eventsDao;
         this.clientDao = clientDao;
         this.cloudWatchLogger = cloudWatchLogger;
@@ -41,7 +41,6 @@ public class ClientService {
      * @throws IllegalArgumentException if request does not contain enough information
      */
     public ClientConfig registerClient(ClientRegistrationRequest registration) {
-
         Client client;
         ApplicationConfig config;
 
@@ -52,13 +51,13 @@ public class ClientService {
                 throw new IllegalArgumentException("No client was found with clientId: " + registration.clientId);
             }
 
-            config = dao.getApplicationConfig(client.applicationConfigId);
+            config = applicationConfigDao.getApplicationConfig(client.applicationConfigId);
             if (config == null) {
                 log.warn("No ApplicationConfig was found for clientId={}", registration.clientId);
                 return null;
             }
         } else {
-            config = dao.findApplicationConfigByArtifactId(registration.artifactId);
+            config = applicationConfigDao.findApplicationConfigByArtifactId(registration.artifactId);
             if (config == null) {
                 log.warn("No ApplicationConfig was found for artifactId={}", registration.artifactId);
                 return null;
@@ -78,7 +77,7 @@ public class ClientService {
             log.warn("No ApplicationConfig was found for clientId={}", clientId);
             return null;
         }
-        String artifactId = dao.getArtifactId(config);
+        String artifactId = applicationConfigDao.getArtifactId(config);
         clientDao.saveClientHeartbeatData(clientId, new ClientHeartbeatData(checkForUpdateRequest, config, artifactId));
         clientDao.saveClientEnvironment(clientId, new ClientEnvironment(checkForUpdateRequest.envInfo));
 
@@ -98,7 +97,7 @@ public class ClientService {
         if (client == null) {
             return null;
         }
-        return dao.getApplicationConfig(client.applicationConfigId);
+        return applicationConfigDao.getApplicationConfig(client.applicationConfigId);
     }
 
     public void processEvents(String clientId, ExtractedEventsStore eventsStore) {
