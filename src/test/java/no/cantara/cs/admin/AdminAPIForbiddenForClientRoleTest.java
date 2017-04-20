@@ -7,6 +7,7 @@ import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.Client;
+import no.cantara.cs.testsupport.TestConstants;
 import no.cantara.cs.testsupport.TestServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -24,8 +25,8 @@ import static com.jayway.restassured.RestAssured.given;
  * @author Asbjørn Willersrud
  */
 public class AdminAPIForbiddenForClientRoleTest {
-    private ConfigServiceClient configServiceClient;
     private TestServer testServer;
+    private ConfigServiceClient configServiceClient;
 
     @BeforeClass
     public void startServer() throws Exception {
@@ -46,21 +47,7 @@ public class AdminAPIForbiddenForClientRoleTest {
 
     @Test
     public void testGetAdminPathsForbidden() {
-        String[] paths = new String[]{
-                ApplicationResource.APPLICATION_PATH,
-                ApplicationResource.APPLICATION_PATH + "/config",
-                ApplicationResource.APPLICATION_PATH + "/app1/status",
-                ApplicationResource.APPLICATION_PATH + "/app1/config",
-                ApplicationResource.APPLICATION_PATH + "/app1/config/appconfig1",
-
-                ClientResource.CLIENT_PATH,
-                ClientResource.CLIENT_PATH + "/1",
-                ClientResource.CLIENT_PATH + "/1/env",
-                ClientResource.CLIENT_PATH + "/1/status",
-                ClientResource.CLIENT_PATH + "/1/config",
-                ClientResource.CLIENT_PATH + "/1/events"
-        };
-        for (String path : paths) {
+        for (String path : TestConstants.ADMIN_PATHS) {
             expectForbiddenWhen().get(path);
         }
     }

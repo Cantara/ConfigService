@@ -127,21 +127,6 @@ public class ApplicationConfigResourceTest {
     }
 
 
-    //TODO: Hvis ikke autentisering, skal svar HTTP_UNAUTHORIZED for alle paths som ikke er åpne.
-    @Test
-    public void testFindConfigUnAuthorized() throws Exception {
-        //GET
-        String path = "/config/query";
-        given()
-                .queryParam("clientid", "clientid1")
-                .log().everything()
-                .expect()
-                .statusCode(HttpURLConnection.HTTP_UNAUTHORIZED)
-                .log().ifError()
-                .when()
-                .get(path);
-    }
-
     //See comment in ApplicationConfigResource
     @Test
     public void testRemoveApplication() throws IOException {
