@@ -1,73 +1,21 @@
 package no.cantara.cs.testsupport;
 
-import com.jayway.restassured.RestAssured;
-import no.cantara.cs.Main;
-import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
+public interface TestServer {
+    String USERNAME = "read";
+    String PASSWORD = "baretillesing";
+    String ADMIN_USERNAME = "admin";
+    String ADMIN_PASSWORD = "configservice";
 
-import static java.util.Arrays.stream;
+    void cleanAllData() throws Exception;
 
-public class TestServer {
+    void start() throws InterruptedException;
 
-    private static final Logger log = LoggerFactory.getLogger(TestServer.class);
+    void stop();
 
-    public static final String MAPDB_FOLDER = "./db/test";
-    public static final String USERNAME = "read";
-    public static final String PASSWORD = "baretillesing";
-    public static final String ADMIN_USERNAME = "admin";
-    public static final String ADMIN_PASSWORD = "configservice";
+    ConfigServiceClient getConfigServiceClient();
 
-    private Main main;
-    private String url;
-    private String mapDbName;
-    private Class testClass;
-
-    public TestServer(Class testClass) {
-        this.testClass = testClass;
-        mapDbName = testClass.getSimpleName() + ".db";
-    }
-
-    public void cleanAllData() throws Exception {
-        File mapDbFolder = new File(MAPDB_FOLDER);
-        if (mapDbFolder.exists()) {
-            stream(mapDbFolder.listFiles((dir, name) -> {
-                return name.startsWith(mapDbName);
-            })).forEach(f -> {
-                log.info("Deleting mapdb file: " + f.getAbsolutePath());
-                f.delete();
-            });
-        }
-    }
-
-    public void start() throws InterruptedException {
-        String mapDbPath = MAPDB_FOLDER + "/" + mapDbName;
-        new Thread(() -> {
-            main = new Main(mapDbPath);
-            main.start();
-        }).start();
-        do {
-            Thread.sleep(10);
-        } while (main == null || !main.isStarted());
-        RestAssured.port = main.getPort();
-
-        RestAssured.basePath = Main.CONTEXT_PATH;
-        url = "http://localhost:" + main.getPort() + Main.CONTEXT_PATH + ClientResource.CLIENT_PATH;
-    }
-
-    public void stop() {
-        main.stop();
-    }
-
-    public ConfigServiceClient getConfigServiceClient() {
-        return new ConfigServiceClient(url, USERNAME, PASSWORD).withApplicationStateFilename(MAPDB_FOLDER + "/" + testClass.getSimpleName() + ".properties");
-    }
-
-    public ConfigServiceAdminClient getAdminClient() {
-        return new ConfigServiceAdminClient("http://localhost:" + main.getPort() + Main.CONTEXT_PATH, TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD);
-    }
+    ConfigServiceAdminClient getAdminClient();
 }

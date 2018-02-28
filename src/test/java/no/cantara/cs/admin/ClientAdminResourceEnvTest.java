@@ -9,8 +9,9 @@ import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientEnvironment;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -24,28 +25,16 @@ import static org.testng.Assert.assertNotNull;
 /**
  * @author Asbjørn Willersrud
  */
-public class ClientAdminResourceEnvTest {
+public class ClientAdminResourceEnvTest extends BaseSystemTest {
     private Application application;
 
-    private TestServer testServer;
     private ClientConfig clientConfig;
 
     @BeforeClass
     public void setup() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-
-        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
+        ConfigServiceAdminClient configServiceAdminClient = getTestServer().getAdminClient();
         application = configServiceAdminClient.registerApplication("ClientStatusTest-ArtifactId");
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
     }
 
     @Test
@@ -53,9 +42,9 @@ public class ClientAdminResourceEnvTest {
         ClientRegistrationRequest registrationRequest = new ClientRegistrationRequest(application.artifactId);
         registrationRequest.envInfo = new HashMap<>();
         registrationRequest.envInfo.put("var1", "value1");
-        clientConfig = testServer.getConfigServiceClient().registerClient(registrationRequest);
+        clientConfig = getTestServer().getConfigServiceClient().registerClient(registrationRequest);
 
-        ClientEnvironment clientEnvironment = testServer.getAdminClient().getClientEnvironment(clientConfig.clientId);
+        ClientEnvironment clientEnvironment = getTestServer().getAdminClient().getClientEnvironment(clientConfig.clientId);
         assertNotNull(clientEnvironment);
         assertNotNull(clientEnvironment.envInfo);
         assertEquals(clientEnvironment.envInfo.get("var1"), "value1");
@@ -67,9 +56,9 @@ public class ClientAdminResourceEnvTest {
         HashMap<String, String> envInfo = new HashMap<>();
         envInfo.put("var2", "value2");
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest("force-new-config", envInfo);
-        testServer.getConfigServiceClient().checkForUpdate(this.clientConfig.clientId, checkForUpdateRequest);
+        getTestServer().getConfigServiceClient().checkForUpdate(this.clientConfig.clientId, checkForUpdateRequest);
 
-        ClientEnvironment clientEnvironment = testServer.getAdminClient().getClientEnvironment(clientConfig.clientId);
+        ClientEnvironment clientEnvironment = getTestServer().getAdminClient().getClientEnvironment(clientConfig.clientId);
         assertNotNull(clientEnvironment);
         assertNotNull(clientEnvironment.envInfo);
         assertEquals(clientEnvironment.envInfo.get("var2"), "value2");
@@ -79,7 +68,7 @@ public class ClientAdminResourceEnvTest {
     @Test
     public void testClientEnvForNonExistingClientIdShouldGiveNotFound() throws Exception {
         given()
-                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()

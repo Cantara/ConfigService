@@ -1,6 +1,11 @@
 package no.cantara.cs.testsupport;
 
-import no.cantara.cs.dto.*;
+import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationConfig;
+import no.cantara.cs.dto.DownloadItem;
+import no.cantara.cs.dto.MavenMetadata;
+import no.cantara.cs.dto.NamedPropertiesStore;
+import no.cantara.cs.dto.NexusUrlBuilder;
 import no.cantara.cs.dto.event.EventExtractionConfig;
 import no.cantara.cs.dto.event.EventExtractionTag;
 

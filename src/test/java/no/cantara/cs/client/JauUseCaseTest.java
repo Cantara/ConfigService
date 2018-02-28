@@ -7,8 +7,8 @@ import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.dto.event.EventExtractionConfig;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
+import no.cantara.cs.testsupport.BaseSystemTest;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -23,8 +23,8 @@ import static org.testng.Assert.assertNull;
 /**
  * Verify endpoints used by JAU client.
  */
-public class JauUseCaseTest {
-    private TestServer testServer;
+public class JauUseCaseTest extends BaseSystemTest {
+    private TestServerPostgres testServer;
     private ConfigServiceClient configServiceClient;
     private ConfigServiceAdminClient configServiceAdminClient;
 
@@ -33,21 +33,12 @@ public class JauUseCaseTest {
 
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
-        configServiceAdminClient = testServer.getAdminClient();
+        configServiceClient = getConfigServiceClient();
+        configServiceAdminClient = getConfigServiceAdminClient();
 
         application = configServiceAdminClient.registerApplication("jau-use-case-test");
 
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("JauUseCaseTest", application));
-    }
-
-    @AfterClass
-    public void tearDown() {
-        testServer.stop();
-        configServiceClient.cleanApplicationState();
     }
 
     @Test

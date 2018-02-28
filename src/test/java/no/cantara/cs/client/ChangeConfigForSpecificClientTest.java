@@ -7,8 +7,7 @@ import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -18,37 +17,25 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 
-public class ChangeConfigForSpecificClientTest {
+public class ChangeConfigForSpecificClientTest extends BaseSystemTest {
 
     private ConfigServiceClient configServiceClient;
     private Application application;
     private ConfigServiceAdminClient configServiceAdminClient;
 
-    private TestServer testServer;
     private ClientConfig currentClientConfig;
 
     @BeforeClass
     public void setup() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
+        configServiceClient = getConfigServiceClient();
 
-        configServiceAdminClient = testServer.getAdminClient();
+        configServiceAdminClient = getConfigServiceAdminClient();
         application = configServiceAdminClient.registerApplication(getClass().getSimpleName());
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("default-config", application));
 
         // Register client
         currentClientConfig = configServiceClient.registerClient(new ClientRegistrationRequest(application.artifactId));
         configServiceClient.saveApplicationState(currentClientConfig);
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
-        configServiceClient.cleanApplicationState();
     }
 
     @Test

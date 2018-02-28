@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
-@Service
+@Deprecated
 public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	private static final Logger log = LoggerFactory.getLogger(PersistedConfigRepo.class);
 	private final Map<String, Application> idToApplication;
@@ -33,8 +33,7 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	private DB db;
 
 	@Autowired
-	public PersistedConfigRepo(
-			@Value("${mapdb.path}") String mapDbPath) {
+	public PersistedConfigRepo(String mapDbPath) {
 		File mapDbPathFile = new File(mapDbPath);
 		log.debug("Using MapDB from {}", mapDbPathFile.getAbsolutePath());
 		mapDbPathFile.getParentFile().mkdirs();

@@ -6,9 +6,9 @@ import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
 import org.apache.http.HttpStatus;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -16,36 +16,27 @@ import java.net.HttpURLConnection;
 import java.util.Properties;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
-public class RegisterClientTest {
+public class RegisterClientTest extends BaseSystemTest {
 
     private ConfigServiceClient configServiceClient;
     private Application application;
     private ClientConfig clientConfig;
     private ConfigServiceAdminClient configServiceAdminClient;
 
-    private TestServer testServer;
     private ApplicationConfig defaultConfig;
 
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
+        configServiceClient = getConfigServiceClient();
 
-        configServiceAdminClient = testServer.getAdminClient();
+        configServiceAdminClient = getConfigServiceAdminClient();
         application = configServiceAdminClient.registerApplication("RegisterClientTest");
         defaultConfig = configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("default-config", application));
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
-        configServiceClient.cleanApplicationState();
     }
 
     @Test

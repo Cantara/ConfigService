@@ -2,12 +2,15 @@ package no.cantara.cs.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
-import no.cantara.cs.client.ConfigServiceAdminClient;
-import no.cantara.cs.dto.*;
+import no.cantara.cs.dto.Application;
+import no.cantara.cs.dto.ApplicationStatus;
+import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -15,45 +18,28 @@ import java.net.HttpURLConnection;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author Asbjørn Willersrud 2016-03-10
  */
-public class ApplicationResourceTest {
+public class ApplicationResourceTest extends BaseSystemTest {
     private static final ObjectMapper mapper = new ObjectMapper();
-    private TestServer testServer;
-    private ConfigServiceAdminClient configServiceAdminClient;
     private Application application;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-
-        configServiceAdminClient = testServer.getAdminClient();
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
-    }
-
 
     //createApplication
     @Test
     public void testRegisterApplicationOK() throws IOException {
-        application = configServiceAdminClient.registerApplication(getClass().getSimpleName());
+        application = getConfigServiceAdminClient().registerApplication(getClass().getSimpleName());
     }
 
     @Test(dependsOnMethods = "testRegisterApplicationOK")
     public void testRegisterApplicationWithDuplicateArtifactIdShouldReturnBadRequest() throws IOException {
         Application application1 = new Application(getClass().getSimpleName());
         given()
-                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .body(mapper.writeValueAsString(application1))
                 .log().everything()
@@ -68,7 +54,7 @@ public class ApplicationResourceTest {
     //getAllApplications
     @Test(dependsOnMethods = "testRegisterApplicationOK")
     public void testGetApplications() throws IOException {
-        List<Application> applications = testServer.getAdminClient().getAllApplications();
+        List<Application> applications = getConfigServiceAdminClient().getAllApplications();
         assertNotNull(applications);
         assertEquals(applications.size(), 1);
         Application application = applications.iterator().next();
@@ -80,16 +66,16 @@ public class ApplicationResourceTest {
     //getApplicationStatus
     @Test(dependsOnMethods = "testRegisterApplicationOK")
     public void testApplicationStatus() throws Exception {
-        configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
+        getConfigServiceAdminClient().createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
 
         // Only register client 1
-        ClientConfig client1 = testServer.getConfigServiceClient().registerClient(new ClientRegistrationRequest(application.artifactId, "client-1-name"));
+        ClientConfig client1 = getConfigServiceClient().registerClient(new ClientRegistrationRequest(application.artifactId, "client-1-name"));
 
         // Register and update client 2
-        ClientConfig registerClientResponse = testServer.getConfigServiceClient().registerClient(new ClientRegistrationRequest(application.artifactId, "client-2-name"));
-        ClientConfig client2 = testServer.getConfigServiceClient().checkForUpdate(registerClientResponse.clientId, new CheckForUpdateRequest("force-updated-config"));
+        ClientConfig registerClientResponse = getConfigServiceClient().registerClient(new ClientRegistrationRequest(application.artifactId, "client-2-name"));
+        ClientConfig client2 = getConfigServiceClient().checkForUpdate(registerClientResponse.clientId, new CheckForUpdateRequest("force-updated-config"));
 
-        ApplicationStatus applicationStatus = testServer.getAdminClient().getApplicationStatus(application.artifactId);
+        ApplicationStatus applicationStatus = getConfigServiceAdminClient().getApplicationStatus(application.artifactId);
 
         assertEquals(applicationStatus.numberOfRegisteredClients, Integer.valueOf(2));
         assertEquals(applicationStatus.seenInTheLastHourCount, Integer.valueOf(2));

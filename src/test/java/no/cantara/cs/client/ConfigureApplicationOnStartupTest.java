@@ -4,7 +4,8 @@ import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.NamedPropertiesStore;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.TestServer;
+import no.cantara.cs.testsupport.BaseSystemTest;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -14,25 +15,24 @@ import java.io.FileReader;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Verify endpoints used by when applications contact ConfigService directly (no JAU).
  */
-public class ConfigureApplicationOnStartupTest {
+public class ConfigureApplicationOnStartupTest extends BaseSystemTest {
     private ConfigServiceClient configServiceClient;
     private Application testApplication;
     private ApplicationConfig currentConfig;
-    private TestServer testServer;
+    private TestServerPostgres testServer;
 
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
+        configServiceClient = getConfigServiceClient();
 
-        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
+        ConfigServiceAdminClient configServiceAdminClient = getConfigServiceAdminClient();
         testApplication = configServiceAdminClient.registerApplication("ClientConfigResourceTestApplication");
         currentConfig = configServiceAdminClient.createApplicationConfig(testApplication, ApplicationConfigBuilder.createConfigDto("first", testApplication));
     }

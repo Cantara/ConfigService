@@ -1,15 +1,13 @@
 package no.cantara.cs.cloudwatch;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.amazonaws.services.logs.model.InputLogEvent;
+import no.cantara.cs.dto.event.Event;
+import no.cantara.cs.dto.event.EventTag;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.annotations.Test;
 
-import com.amazonaws.services.logs.model.InputLogEvent;
-
-import no.cantara.cs.dto.event.Event;
-import no.cantara.cs.dto.event.EventTag;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -1,0 +1,27 @@
+<configuration scan="true" scanPeriod="60 seconds">
+    <property name="LOG_DIR" value="logs/" />
+    <property name="env" value="prod" />
+    <property name="appName" value="configservice" />
+
+    <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/configservice.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/configservice-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.eclipse.jetty" level="WARN"/>
+
+    <logger name="no.cantara.jau" level="{LOGBACK_CANTARA_LEVEL}"/>
+
+    <root level="info">
+        <appender-ref ref="logfile" />
+    </root>
+</configuration>

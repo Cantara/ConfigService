@@ -8,65 +8,46 @@ This component is as of now *work-in*progress*, and some of the main goals and d
 
 ## Install and use Standalone
 
-
 Scripts and procedures can be found on our wiki: 
 https://wiki.cantara.no/display/JAU/Installation+and+getting+started+with+ConfigService
 
-
 ## Install and use in a Docker container.
+There are three Docker builds available for ConfigService
 
-### Install or upgrade Docker 
+1. [Alpine Linux with bundled application](DockerAlpine/README.md). Minimal container where the Docker image acts as the deployment unit.
+2. [Ubuntu without bundled application](Docker/README.md). Pull scripts inside Docker container which downloads application after container has started.
+3. [Ubuntu with AWS log agent](DockerAWS/README.md). Same as option 2, but with AWS dependency
 
-https://docs.docker.com/installation/ubuntulinux/
+See the respective READMEs for details on each Docker setup.
 
+### Quickstart with Alpine Linux and Postgres persistence
 ```
-wget -qO- https://get.docker.com/ | sh
-```
-
-###  Install data volume container and application TODO 
-```
-sudo docker pull cantara/configservice
-sudo docker create -v /data --name configservice-data cantara/configservice 
-sudo docker run -d -p 80:7000 --volumes-from configservice-data --name configservice3107 cantara/configservice
-sudo docker run -d -p 80:7000 --name configservice3107 cantara/configservice
-```
-
-
-### Check that application is up 
-
-http://localhost/jau/serviceconfig/query?clientid=clientid1
-
-
-## Backup 
-
-See https://docs.docker.com/userguide/dockervolumes/#backup-restore-or-migrate-data-volumes
-
-
-## Development 
-
-### Build and run for development
-
-```
-sudo docker build -t cantara/configservice .
-sudo docker run -d -p 80:7000 --name configservice3107 cantara/configservice
+docker run -d -p 80:8086 --name configservice \
+-e persistence.type=postgres \
+-e postgres.url=jdbc:postgresql://localhost:5432/configservice \
+-e postgres.username=dbuser \
+-e postgres.password=password \
+cantara/configservice-alpine
 ```
 
-* To stop and remove all containers: 
+Verify that the application is running
 ```
-sudo docker stop $(sudo docker ps -a -q) && sudo docker rm $(sudo docker ps -a -q)
+curl localhost/jau/health
 ```
 
-* To log in to take a look: 
-```
-sudo docker exec -it configservice3107 bash
-```
+## Configuration
+For persistence ConfigService supports Postgres and MapDb (although deprecated!)
+
+See [properties file](src/main/resources/application.properties) for settings to override.
+
+## Verify that the application is running
 
 ## How to use ConfigService.
 
 ### Add a new application
 
 ```
-curl -u admin:conservice  -i -X POST -H "Content-Type:application/json"   -d '{ "artifactId": "myApplication" }'  https://whydahdev.cantara.no/jau/application
+curl -u admin:configservice  -i -X POST -H "Content-Type:application/json"   -d '{ "artifactId": "myApplication" }'  https://whydahdev.cantara.no/jau/application
 
 # Return  {"id":"0e139a12-57c0-4a48-8999-7f32c63ff9ad","artifactId":"myApplication"}
 ```
@@ -74,7 +55,7 @@ curl -u admin:conservice  -i -X POST -H "Content-Type:application/json"   -d '{ 
 ### Add a new application configuration
 
 ```
-curl -u admin:conservice -vX POST https://whydahdev.cantara.no/jau/application/0e139a12-57c0-4a48-8999-7f32c63ff9ad/config  -d @myApplicationConfig.json --header "Content-Type: application/json"
+curl -u admin:configservice -vX POST https://whydahdev.cantara.no/jau/application/0e139a12-57c0-4a48-8999-7f32c63ff9ad/config  -d @myApplicationConfig.json --header "Content-Type: application/json"
 
 ```
 

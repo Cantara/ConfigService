@@ -6,9 +6,9 @@ import com.jayway.restassured.response.Response;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -22,31 +22,17 @@ import static org.testng.Assert.assertNotNull;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  * @author Asbjørn Willersrud 2016-03-10
  */
-public class ApplicationConfigResourceTest {
+public class ApplicationConfigResourceTest extends BaseSystemTest {
     private static final ObjectMapper mapper = new ObjectMapper();
     private Application application;
     private ApplicationConfig config;
-    private TestServer testServer;
-
-    @BeforeClass
-    public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-    }
-
-    @AfterClass
-    public void stop() {
-        testServer.stop();
-    }
-
 
     @Test
     public void testCreateApplicationConfig() throws Exception {
         String applicationId = getClass().getSimpleName();
-        application = testServer.getAdminClient().registerApplication(applicationId);
+        application = getConfigServiceAdminClient().registerApplication(applicationId);
         ApplicationConfig configInput = ApplicationConfigBuilder.createConfigDto(applicationId, application);
-        config = testServer.getAdminClient().createApplicationConfig(application, configInput);
+        config = getConfigServiceAdminClient().createApplicationConfig(application, configInput);
 
         assertNotNull(config.getId());
     }
@@ -54,7 +40,7 @@ public class ApplicationConfigResourceTest {
 
     @Test(dependsOnMethods = "testCreateApplicationConfig")
     public void testGetApplicationConfigForApplication() throws Exception {
-        ApplicationConfig applicationConfig = testServer.getAdminClient().getApplicationConfig(application.id);
+        ApplicationConfig applicationConfig = getConfigServiceAdminClient().getApplicationConfig(application.id);
         assertNotNull(applicationConfig);
         assertEquals(applicationConfig.getId(), config.getId());
     }
@@ -64,7 +50,7 @@ public class ApplicationConfigResourceTest {
     public void testGetApplicationConfig() throws Exception {
         String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
         Response response = given()
-                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_OK)
@@ -87,7 +73,7 @@ public class ApplicationConfigResourceTest {
 
         String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/" + config.getId();
         Response response = given().
-                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .body(putJsonRequest)
                 .log().everything()
@@ -108,7 +94,7 @@ public class ApplicationConfigResourceTest {
     public void testDeleteApplicationConfig() throws Exception {
         String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
         given().
-                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_NO_CONTENT)
@@ -117,7 +103,7 @@ public class ApplicationConfigResourceTest {
                 .delete(path, application.id, config.getId());
 
         given().
-                auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_NOT_FOUND)
@@ -130,13 +116,13 @@ public class ApplicationConfigResourceTest {
     //See comment in ApplicationConfigResource
     @Test
     public void testRemoveApplication() throws IOException {
-        Application app = testServer.getAdminClient().registerApplication("AppToBeDeleted");
+        Application app = getConfigServiceAdminClient().registerApplication("AppToBeDeleted");
         assertNotNull(app);
 
         String path = ApplicationResource.APPLICATION_PATH;
         given()
                 .pathParam("appId",app.id)
-                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_NO_CONTENT)

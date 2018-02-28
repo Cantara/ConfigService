@@ -7,8 +7,7 @@ import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
-import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -20,33 +19,22 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-public class RegisterClientWithPreconfiguredConfigTest {
+public class RegisterClientWithPreconfiguredConfigTest extends BaseSystemTest {
 
     private ConfigServiceClient configServiceClient;
     private ConfigServiceAdminClient configServiceAdminClient;
 
-    private TestServer testServer;
     private ClientConfig preconfiguredClientConfig;
     private String artifactId;
     private Application application;
 
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
+        configServiceClient = getConfigServiceClient();
 
-        configServiceAdminClient = testServer.getAdminClient();
+        configServiceAdminClient = getConfigServiceAdminClient();
         artifactId = getClass().getSimpleName();
         configServiceAdminClient.registerApplication(artifactId);
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
     }
 
     @Test
