@@ -19,7 +19,6 @@ ARG DOCKER_TAG=latest
 
 COPY config_override/* $HOME/config_override/
 COPY toRoot/* $HOME/
-COPY app.jar $HOME/
 
 RUN if [ $DOCKER_TAG = "latest" ]; then \
       curl -L -o $HOME/app.jar "https://mvnrepo.cantara.no/service/local/artifact/maven/redirect?r=snapshots&g=no.cantara.jau&a=configservice&v=LATEST"; \
