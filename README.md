@@ -14,7 +14,7 @@ https://wiki.cantara.no/display/JAU/Installation+and+getting+started+with+Config
 ## Install and use in a Docker container.
 There are three Docker builds available for ConfigService
 
-1. [Alpine Linux with bundled application](DockerAlpine/README.md). Minimal container where the Docker image acts as the deployment unit.
+1. [Alpine Linux with bundled application](DockerAlpine/README.md). Minimal image where the Docker image acts as the deployment unit.
 2. [Ubuntu without bundled application](Docker/README.md). Pull scripts inside Docker container which downloads application after container has started.
 3. [Ubuntu with AWS log agent](DockerAWS/README.md). Same as option 2, but with AWS dependency
 
@@ -27,6 +27,10 @@ docker run -d -p 80:8086 --name configservice \
 -e postgres.url=jdbc:postgresql://localhost:5432/configservice \
 -e postgres.username=dbuser \
 -e postgres.password=password \
+-e login.user=readonlyuser \
+-e login.password=CHANGETHIS \
+-e login.admin.user=admin \
+-e login.admin.password=CHANGETHISASWELL
 cantara/configservice-alpine
 ```
 
