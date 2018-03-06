@@ -10,8 +10,9 @@ import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.dto.ClientRegistrationRequest;
 import no.cantara.cs.dto.ClientStatus;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
+import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -25,27 +26,15 @@ import static org.testng.Assert.assertNotNull;
 /**
  * @author Asbjørn Willersrud
  */
-public class ClientAdminResourceStatusTest {
+public class ClientAdminResourceStatusTest extends BaseSystemTest {
     private Application application;
-    private TestServer testServer;
     private ClientConfig clientConfig;
 
     @BeforeClass
     public void setup() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-
-        ConfigServiceAdminClient configServiceAdminClient = testServer.getAdminClient();
+        ConfigServiceAdminClient configServiceAdminClient = getConfigServiceAdminClient();
         application = configServiceAdminClient.registerApplication("ClientStatusTest-ArtifactId");
         configServiceAdminClient.createApplicationConfig(application, ApplicationConfigBuilder.createConfigDto("arbitrary-config", application));
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
     }
 
     @Test
@@ -53,9 +42,9 @@ public class ClientAdminResourceStatusTest {
         ClientRegistrationRequest registrationRequest = new ClientRegistrationRequest(application.artifactId);
         registrationRequest.clientName = "client-name";
         registrationRequest.tags = "tags";
-        clientConfig = testServer.getConfigServiceClient().registerClient(registrationRequest);
+        clientConfig = getConfigServiceClient().registerClient(registrationRequest);
 
-        ClientStatus clientStatus = testServer.getAdminClient().getClientStatus(clientConfig.clientId);
+        ClientStatus clientStatus = getConfigServiceAdminClient().getClientStatus(clientConfig.clientId);
         assertEquals(clientStatus.client.clientId, clientConfig.clientId);
         assertEquals(clientStatus.client.applicationConfigId, clientConfig.config.getId());
         assertEquals(clientStatus.client.autoUpgrade, true); // Default should be true
@@ -71,9 +60,9 @@ public class ClientAdminResourceStatusTest {
     @Test(dependsOnMethods = "testClientStatusAfterRegisterClient")
     public void testClientStatusAfterCheckForUpdate() throws IOException {
         CheckForUpdateRequest checkForUpdateRequest = new CheckForUpdateRequest("force-new-config", new HashMap<>(), "checkForUpdateTags", "checkForUpdateName");
-        ClientConfig checkForUpdateResponse = testServer.getConfigServiceClient().checkForUpdate(this.clientConfig.clientId, checkForUpdateRequest);
+        ClientConfig checkForUpdateResponse = getConfigServiceClient().checkForUpdate(this.clientConfig.clientId, checkForUpdateRequest);
 
-        ClientStatus clientStatus = testServer.getAdminClient().getClientStatus(clientConfig.clientId);
+        ClientStatus clientStatus = getConfigServiceAdminClient().getClientStatus(clientConfig.clientId);
         assertEquals(clientStatus.client.clientId, checkForUpdateResponse.clientId);
         assertEquals(clientStatus.client.applicationConfigId, checkForUpdateResponse.config.getId());
 
@@ -88,7 +77,7 @@ public class ClientAdminResourceStatusTest {
     @Test
     public void testClientStatusForNonExistingClientIdShouldGiveNotFound() throws Exception {
         given()
-                .auth().basic(TestServer.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
+                .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()

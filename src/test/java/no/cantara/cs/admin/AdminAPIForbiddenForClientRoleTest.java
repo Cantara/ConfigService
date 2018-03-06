@@ -4,13 +4,11 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import no.cantara.cs.client.ClientResource;
-import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.Client;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestConstants;
 import no.cantara.cs.testsupport.TestServer;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.HttpURLConnection;
@@ -24,26 +22,7 @@ import static com.jayway.restassured.RestAssured.given;
  *
  * @author Asbjørn Willersrud
  */
-public class AdminAPIForbiddenForClientRoleTest {
-    private TestServer testServer;
-    private ConfigServiceClient configServiceClient;
-
-    @BeforeClass
-    public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
-        configServiceClient.cleanApplicationState();
-    }
-
+public class AdminAPIForbiddenForClientRoleTest extends BaseSystemTest {
 
     @Test
     public void testGetAdminPathsForbidden() {

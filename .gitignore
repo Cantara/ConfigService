@@ -20,3 +20,5 @@ target/
 configservice/.classpath
 configservice/.project
 configservice/.settings/
+
+config_override

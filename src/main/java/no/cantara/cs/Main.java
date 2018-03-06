@@ -1,6 +1,8 @@
 package no.cantara.cs;
 
 import no.cantara.cs.config.ConstrettoConfig;
+import no.cantara.cs.config.SpringConfigMapDb;
+import no.cantara.cs.config.SpringConfigPostgres;
 import no.cantara.cs.health.HealthResource;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -18,9 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09
@@ -34,11 +39,13 @@ public class Main {
 
     private Integer webappPort;
     private String mapDbPath;
+    private String persistenceType;
     private Server server;
 
 
-    public Main(String mapDbPath) {
+    public Main(String mapDbPath, String persistenceType) {
         this.mapDbPath = mapDbPath;
+        this.persistenceType = persistenceType;
         this.server = new Server();
     }
 
@@ -55,10 +62,11 @@ public class Main {
 
         Integer webappPort = ConstrettoConfig.getInt("service.port");
         String mapDbPath = ConstrettoConfig.getString("mapdb.path");
+        String persistenceType = ConstrettoConfig.getString("persistence.type");
 
         try {
 
-            final Main main = new Main(mapDbPath).withPort(webappPort);
+            final Main main = new Main(mapDbPath, persistenceType).withPort(webappPort);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
@@ -91,9 +99,27 @@ public class Main {
         context.addServlet(jerseyServlet, "/*");
 
         context.addEventListener(new ContextLoaderListener());
+        context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
 
-        context.setInitParameter("contextConfigLocation", "classpath:context.xml");
-        context.setInitParameter("mapdb.path", mapDbPath);
+        context.setInitParameter("mapdb.path", ofNullable(mapDbPath).orElseGet(() -> ConstrettoConfig.getString("mapdb.path")));
+
+        String pType = ofNullable(persistenceType).orElseGet(() -> ConstrettoConfig.getString("persistence.type"));
+
+        switch (pType) {
+            case "postgres":
+                log.info("Using PostgreSQL as persistence store.");
+                context.setInitParameter("contextConfigLocation", SpringConfigPostgres.class.getName());
+                break;
+            case "mapdb":
+                log.warn("Using MapDB as persistence store. This form of store is deprecated. PostgreSQL should be used instead.");
+                context.setInitParameter("contextConfigLocation", SpringConfigMapDb.class.getName());
+                break;
+            default:
+                log.warn("{} is not a valid persistence type. Falling back to using MapDB as persistence store. " +
+                        "In addition - this form of store is deprecated. Please use PostgreSQL instead.", pType);
+                context.setInitParameter("contextConfigLocation", SpringConfigMapDb.class.getName());
+                break;
+        }
 
         ServerConnector connector = new ServerConnector(server);
         if (webappPort != null) {
@@ -111,8 +137,8 @@ public class Main {
             System.exit(2);
         }
         webappPort = connector.getLocalPort();
-        log.info("ConfigService started on http://localhost:{}{}{}, mapdb.path: {}",
-                webappPort, CONTEXT_PATH, HealthResource.HEALTH_PATH, mapDbPath);
+        log.info("ConfigService started on http://localhost:{}{}{} with {} as persistence.",
+                webappPort, CONTEXT_PATH, HealthResource.HEALTH_PATH, pType);
         try {
             server.join();
         } catch (InterruptedException e) {

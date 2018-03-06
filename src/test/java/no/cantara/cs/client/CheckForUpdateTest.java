@@ -2,9 +2,9 @@ package no.cantara.cs.client;
 
 import com.jayway.restassured.http.ContentType;
 import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
 import org.apache.http.HttpStatus;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -14,26 +14,13 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
-public class CheckForUpdateTest {
+public class CheckForUpdateTest extends BaseSystemTest {
 
     private ConfigServiceClient configServiceClient;
 
-    private TestServer testServer;
-
     @BeforeClass
     public void startServer() throws Exception {
-        testServer = new TestServer(getClass());
-        testServer.cleanAllData();
-        testServer.start();
-        configServiceClient = testServer.getConfigServiceClient();
-    }
-
-    @AfterClass
-    public void stop() {
-        if (testServer != null) {
-            testServer.stop();
-        }
-        configServiceClient.cleanApplicationState();
+        configServiceClient = getConfigServiceClient();
     }
 
     @Test
