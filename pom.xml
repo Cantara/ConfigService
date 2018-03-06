@@ -57,7 +57,7 @@
 
         <!-- Which test names in the suite in src/resources/testng.xml to run. Add 'postgres' if you want to run all tests
          system tests with postgres as persistence store as well -->
-        <testnames.to.run>default,postgres</testnames.to.run>
+        <testnames.to.run>default</testnames.to.run>
     </properties>
 
     <repositories>
