@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP=app.jar
-JAVA_PARAMS="-Dlogback.configurationFile=./config_override/logback.xml -Xms64m -Xmx512m"
+JAVA_PARAMS="-Dlogback.configurationFile=./config_override/logback-default.xml -Xms64m -Xmx512m"
 
 date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S --- "
 set -x
