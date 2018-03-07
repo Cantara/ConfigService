@@ -22,6 +22,7 @@
     <logger name="no.cantara.jau" level="{LOGBACK_CANTARA_LEVEL}"/>
 
     <root level="info">
-        <appender-ref ref="logfile" />
+        <appender-ref ref="logfile"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
