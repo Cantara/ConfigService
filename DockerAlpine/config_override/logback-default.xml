@@ -3,6 +3,12 @@
     <property name="env" value="prod" />
     <property name="appName" value="configservice" />
 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/configservice.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
