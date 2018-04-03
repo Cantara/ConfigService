@@ -251,7 +251,6 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                
             </exclusions>
         </dependency>
         <dependency>
@@ -264,6 +263,10 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -273,6 +276,10 @@
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
