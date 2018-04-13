@@ -180,7 +180,7 @@ public class Main {
 
         String adminUsername = ConstrettoConfig.getString("login.admin.user");
         String adminPassword = ConstrettoConfig.getString("login.admin.password");
-        userStore.addUser(adminPassword, Credential.getCredential(adminPassword), new String[]{ADMIN_ROLE});
+        userStore.addUser(adminUsername, Credential.getCredential(adminPassword), new String[]{ADMIN_ROLE});
         loginService.setUserStore(userStore);
 
         securityHandler.setLoginService(loginService);
