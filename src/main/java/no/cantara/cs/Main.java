@@ -7,13 +7,14 @@ import no.cantara.cs.health.HealthResource;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.UserStore;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Password;
+import org.eclipse.jetty.util.security.Credential;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -170,16 +171,18 @@ public class Main {
         //all other paths require admin authentication
         securityHandler.addConstraintMapping(buildConstraintMapping("/*", new String[]{ADMIN_ROLE}));
 
-
-        //set up users and roles
         HashLoginService loginService = new HashLoginService("ConfigService");
+
         String clientUsername = ConstrettoConfig.getString("login.user");
         String clientPassword = ConstrettoConfig.getString("login.password");
-        loginService.putUser(clientUsername, new Password(clientPassword), new String[]{USER_ROLE});
+        UserStore userStore = new UserStore();
+        userStore.addUser(clientUsername, Credential.getCredential(clientPassword), new String[]{USER_ROLE});
 
         String adminUsername = ConstrettoConfig.getString("login.admin.user");
         String adminPassword = ConstrettoConfig.getString("login.admin.password");
-        loginService.putUser(adminUsername, new Password(adminPassword), new String[]{ADMIN_ROLE});
+        userStore.addUser(clientUsername, Credential.getCredential(adminPassword), new String[]{ADMIN_ROLE});
+        loginService.setUserStore(userStore);
+
         securityHandler.setLoginService(loginService);
 
         log.debug("Main instantiated with basic auth clientuser={} and adminuser={}", clientUsername, adminUsername);
