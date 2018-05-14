@@ -16,4 +16,6 @@ if [ "$AWS_PARAMETER_STORE_ENABLED" = "true" ]; then
     fi
 fi
 
+set +x
+
 java $JAVA_PARAMS $JAVA_PARAMS_OVERRIDE -jar $APP
