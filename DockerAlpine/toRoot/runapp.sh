@@ -7,7 +7,7 @@ date +" --- RUNNING $(basename $0) %Y-%m-%d_%H:%M:%S --- "
 set -x
 
 if [ "$AWS_PARAMETER_STORE_ENABLED" = "true" ]; then
-    python GetPropertiesFromParameterStore.py $AWS_PARAMETER_STORE_PATH config_override/application_override.properties
+    python GetPropertiesFromParameterStore.py $AWS_PARAMETER_STORE_PATH config_override/application_override.properties > /dev/null
     if [ $? -eq 0 ]; then
         echo 'GetPropertiesFromParameterStore.py exited successfully!'
     else
