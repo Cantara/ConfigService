@@ -39,7 +39,7 @@
         <!--        <jetty.version>9.3.2.v20150730</jetty.version>-->
         <jetty.version>9.4.9.v20180320</jetty.version>
 
-        <spring.version>5.0.5.RELEASE</spring.version>
+        <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.12</slf4j.version>
         <aws.version>1.11.245</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
