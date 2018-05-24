@@ -91,7 +91,7 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
     @Override
     public ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig) {
         newConfig.setId(UUID.randomUUID().toString());
-        jdbcTemplate.update("INSERT INTO application_configs(id, application_id, data) VALUES (?,?,?)", newConfig.getId(), applicationId, pojoToJsonWrapper(newConfig));
+        jdbcTemplate.update("INSERT INTO application_configs(id, application_id, data, created_timestamp) VALUES (?,?,?, now() at time zone 'utc')", newConfig.getId(), applicationId, pojoToJsonWrapper(newConfig));
         return newConfig;
     }
 
@@ -108,7 +108,7 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
     @Override
     public ApplicationConfig findApplicationConfigByApplicationId(String applicationId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE application_id = ?", new Object[]{applicationId},
+            return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE application_id = ? ORDER BY created_timestamp DESC LIMIT 1", new Object[]{applicationId},
                     (PersistedConfigRepoPostgres::mapApplicationConfig));
         } catch (EmptyResultDataAccessException e) {
             return null;
