@@ -305,13 +305,13 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 
     @Override
     public Map<String, ClientHeartbeatData> getAllClientHeartbeatData(String artifactId) {
-        return jdbcTemplate.query("SELECT * FROM client_heartbeat_data", (rs -> {
+        return jdbcTemplate.query("SELECT * FROM client_heartbeat_data WHERE data ->> 'artifactId' = ?", (rs -> {
             Map<String, ClientHeartbeatData> results = new HashMap<>();
             while (rs.next()) {
                 results.put(rs.getString("client_id"), fromJSON(rs.getString("data"), ClientHeartbeatData.class));
             }
             return results;
-        }));
+        }), artifactId);
     }
 
     @Override
