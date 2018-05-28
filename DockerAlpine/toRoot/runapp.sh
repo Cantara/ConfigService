@@ -17,9 +17,9 @@ if [ "$AWS_PARAMETER_STORE_ENABLED" = "true" ]; then
 fi
 
 if [ -z "$LOGBACK_CANTARA_LEVEL" ]; then
-    sed -i -e "s/{$LOGBACK_CANTARA_LEVEL}/info/g" config_override/logback-default.xml
+    sed -i -e "s/{LOGBACK_CANTARA_LEVEL}/info/g" config_override/logback-default.xml
 else
-    sed -i -e "s/{$LOGBACK_CANTARA_LEVEL}/$LOGBACK_CANTARA_LEVEL/g" config_override/logback-default.xml
+    sed -i -e "s/{LOGBACK_CANTARA_LEVEL}/$LOGBACK_CANTARA_LEVEL/g" config_override/logback-default.xml
 fi
 
 set +x
