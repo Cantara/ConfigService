@@ -285,7 +285,11 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 
     @Override
     public ClientHeartbeatData getClientHeartbeatData(String clientId) {
-        return fromJSON(jdbcTemplate.queryForObject("SELECT data FROM client_heartbeat_data WHERE client_id = ?", String.class, clientId), ClientHeartbeatData.class);
+        try {
+            return fromJSON(jdbcTemplate.queryForObject("SELECT data FROM client_heartbeat_data WHERE client_id = ?", String.class, clientId), ClientHeartbeatData.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
