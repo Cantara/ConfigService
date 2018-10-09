@@ -21,16 +21,18 @@ There are three Docker builds available for ConfigService
 See the respective READMEs for details on each Docker setup.
 
 ### Quickstart with Alpine Linux and Postgres persistence
+_Note that Postgres is not included inside the container. Therefore you need to create an empty database beforehand
+and update the parameters to match your database endpoint_
 ```
 docker run -d -p 80:8086 --name configservice \
 -e persistence.type=postgres \
--e postgres.url=jdbc:postgresql://localhost:5432/configservice \
--e postgres.username=dbuser \
--e postgres.password=password \
+-e postgres.url=jdbc:postgresql://CHANGE_TO_YOUR_DB:5432/configservice \
+-e postgres.username=YOUR_DB_USER \
+-e postgres.password=YOUR_DB_PASS \
 -e login.user=readonlyuser \
 -e login.password=CHANGETHIS \
 -e login.admin.user=admin \
--e login.admin.password=CHANGETHISASWELL
+-e login.admin.password=CHANGETHISASWELL \
 cantara/configservice-alpine
 ```
 
