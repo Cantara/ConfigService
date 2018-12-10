@@ -32,7 +32,7 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.16.1</configservice-sdk.version>
+        <configservice-sdk.version>0.16.2</configservice-sdk.version>
 
         <!-- app deps -->
         <jersey.version>2.22</jersey.version>
@@ -41,7 +41,7 @@
 
         <spring.version>5.0.10.RELEASE</spring.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <aws.version>1.11.461</aws.version>
+        <aws.version>1.11.466</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>9.4.1212.jre7</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
