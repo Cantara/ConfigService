@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -22,13 +23,18 @@ import java.util.Properties;
 public class HealthResource {
     public static final String HEALTH_PATH = "/health";
     private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
+    private final static String MAVEN_ARTIFACT_ID = "configservice";
 
     @GET
+    @Produces("application/json")
     public Response healthCheck() {
-        log.trace("healthCheck");
-        String response = String.format("ConfigService OK, version %s, now=%s, running since %s",
-                getVersion(), Instant.now(), getRunningSince());
-        return Response.ok(response).build();
+        String json = "{" +
+                "\"service\":\"" + MAVEN_ARTIFACT_ID
+                + "\",\"timestamp\":\"" + Instant.now().toString()
+                + "\",\"runningSince\":\"" + getRunningSince()
+                + "\",\"version\":\"" + getVersion()
+                + "\"}";
+        return Response.ok(json).build();
     }
 
     private String getRunningSince() {
