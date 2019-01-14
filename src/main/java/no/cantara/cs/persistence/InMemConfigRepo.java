@@ -7,6 +7,7 @@ import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientHeartbeatData;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * This class is a mess. Should be totally redesigned after the public API is stable.
@@ -18,13 +19,13 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     private final Map<String, Application> idToApplication;
     private final Map<String, ApplicationConfig> configs;
     private final Map<String, Client> clients;
-    private final Map<String, String> applicationIdToConfigIdMapping;
+    private final Map<String, String> ConfigIdToAppIdMapping;
 
 
     public InMemConfigRepo() {
-        this.idToApplication = new HashMap<>();
-        this.configs = new HashMap<>();
-        this.applicationIdToConfigIdMapping = new HashMap<>();
+        this.idToApplication = new LinkedHashMap<>();
+        this.configs = new LinkedHashMap<>();
+        this.ConfigIdToAppIdMapping = new LinkedHashMap<>();
         this.clients = new HashMap<>();
         //addTestData();
     }
@@ -40,7 +41,7 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     public ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig) {
         newConfig.setId(UUID.randomUUID().toString());
         configs.put(newConfig.getId(), newConfig);
-        applicationIdToConfigIdMapping.put(applicationId, newConfig.getId());
+        ConfigIdToAppIdMapping.put(applicationId, newConfig.getId());
         return newConfig;
     }
 
@@ -50,22 +51,25 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     }
 
     @Override
-    public ApplicationConfig findApplicationConfigByArtifactId(String artifactId) {
+    public List<ApplicationConfig> findAllApplicationConfigsByArtifactId(String artifactId) {
         Application application = findApplication(artifactId);
         if (application == null) {
             return null;
         }
 
-        return findApplicationConfigByApplicationId(application.id);
+        return findAllApplicationConfigsByApplicationId(application.id);
     }
 
     @Override
-    public ApplicationConfig findApplicationConfigByApplicationId(String applicationId) {
-        String configId = applicationIdToConfigIdMapping.get(applicationId);
-        if (configId == null) {
-            return null;
+    public List<ApplicationConfig> findAllApplicationConfigsByApplicationId(String applicationId) {
+        
+        List<ApplicationConfig> appConfigList = new ArrayList<>();
+        for(String configid : new ArrayList<>(ConfigIdToAppIdMapping.keySet())) {
+        	if(ConfigIdToAppIdMapping.get(configid).equals(applicationId)) {
+        		appConfigList.add(configs.get(configid));
+        	}
         }
-        return configs.get(configId);
+        return appConfigList;
     }
 
     private Application findApplication(String artifactId) {
@@ -85,7 +89,7 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 
     @Override
     public String getArtifactId(ApplicationConfig config) {
-        Optional<Map.Entry<String, String>> match = applicationIdToConfigIdMapping.entrySet()
+        Optional<Map.Entry<String, String>> match = ConfigIdToAppIdMapping.entrySet()
                                                                                   .stream()
                                                                                   .filter(entry -> entry.getValue().equals(config.getId()))
                                                                                   .findFirst();
@@ -97,9 +101,9 @@ public class InMemConfigRepo implements ApplicationConfigDao {
     }
 
     @Override
-    public Map<String, ApplicationConfig> getAllConfigs() {
+    public List<ApplicationConfig> getAllConfigs() {
         //TODO: Implementation
-        return null;
+        return new ArrayList<>(configs.values());
     }
 
     @Override
@@ -115,7 +119,7 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 		Application app = findApplication(artifactId);
 		if(app!=null){
 			idToApplication.remove(app.id);
-			applicationIdToConfigIdMapping.remove(app.id);
+			ConfigIdToAppIdMapping.remove(app.id);
 		}
 		return config;
 	}
@@ -133,9 +137,27 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 	@Override
 	public Application deleteApplication(String applicationId) {
 		Application app = idToApplication.remove(applicationId);
-		String configId =applicationIdToConfigIdMapping.remove(applicationId);
+		String configId =ConfigIdToAppIdMapping.remove(applicationId);
 		configs.remove(configId);
 		return app;
+	}
+
+	@Override
+	public ApplicationConfig findTheLatestApplicationConfigByArtifactId(String artifactId) {
+		Application app = findApplication(artifactId);
+		return findTheLatestApplicationConfigByApplicationId(app.id);
+	}
+
+	@Override
+	public ApplicationConfig findTheLatestApplicationConfigByApplicationId(String applicationId) {
+		Entry<String, String> last = null;
+		for (Entry<String, String> e : ConfigIdToAppIdMapping.entrySet()) {
+			if(e.getValue().equals(applicationId)) {
+				last = e;
+			}
+		}
+		return configs.get(last.getKey());
+		
 	}
 
 }

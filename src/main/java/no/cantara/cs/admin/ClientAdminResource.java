@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Http endpoints for administration APIs for client: https://wiki.cantara.no/display/JAU/ConfigService+Admin+API
@@ -54,7 +55,7 @@ public class ClientAdminResource {
         List<Client> allClients = clientDao.getAllClients();
         return mapResponseToJson(allClients);
     }
-
+    
     //ChangeConfigForSpecificClientTest.testChangeConfigForSingleClient
     @GET
     @Path("/{clientId}")
@@ -173,12 +174,79 @@ public class ClientAdminResource {
             clientDao.saveClient(updatedClient);
 
             return mapResponseToJson(updatedClient);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage())
+                    .build();
+        }
+    }
+    
+    @GET
+    @Path("/aliases")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientAlliases(@Context SecurityContext context) {
+        log.trace("getAllClientAlliases");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        List<ClientAlias> allClients = clientDao.getAllClientAliases();
+        return mapResponseToJson(allClients);
+    }
+
+    @PUT
+    @Path("/aliases/{clientId}/{clientName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response putClientAlias(@Context SecurityContext context, @PathParam("clientId") String clientId, @PathParam("clientName")  String clientName) {
+        log.debug("Invoked putClientAlias clientId={}/clientName={}", clientId, clientName);
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        ClientAlias updatedClientAlias = new ClientAlias(clientId, clientName);
+
+        try {
+            clientDao.saveClientAlias(updatedClientAlias);
+
+            return mapResponseToJson(updatedClientAlias);
+        } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage())
                     .build();
         }
     }
 
+    
+   
+    @GET
+    @Path("/ignoredClients")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllIgnoredClientIds(@Context SecurityContext context) {
+        log.trace("getAllIgnoredClientIds");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        List<String> allClients = clientDao.getAllIgnoredClientIds();
+        return mapResponseToJson(allClients);
+    } 
+    
+    @PUT
+    @Path("/ignoredClients/{clientId}/{flag}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response putIgnoreAClient(@Context SecurityContext context, @PathParam("clientId") String clientId, @PathParam("flag") String flag) {
+        log.debug("Invoked putClientAlias clientId={}/set ignored={}", clientId, flag.equals("1") || flag.equals("true"));
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        clientDao.saveIgnoredFlag(clientId, flag.equals("1") || flag.equals("true"));
+        try {
+            return mapResponseToJson(clientId);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage())
+                    .build();
+        }
+    }
 
     private Response mapResponseToJson(Object response) {
         String jsonResult;
@@ -195,4 +263,5 @@ public class ClientAdminResource {
     private boolean isAdmin(@Context SecurityContext context) {
         return context.isUserInRole(Main.ADMIN_ROLE);
     }
+
 }

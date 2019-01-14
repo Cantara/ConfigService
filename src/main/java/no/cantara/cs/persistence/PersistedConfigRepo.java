@@ -13,7 +13,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,9 +28,13 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	private final Map<String, Application> idToApplication;
 	private final Map<String, ApplicationConfig> configs;
 	private final Map<String, Client> clients;
+	private final Map<String, ClientAlias> clientAliases;
 	private final Map<String, ClientHeartbeatData> clientHeartbeatDataMap;
 	private final Map<String, ClientEnvironment> clientEnvironmentMap;
-	private final Map<String, String> applicationIdToConfigIdMapping;
+	private final Map<String, String> configIdToApplicationId;
+	private final Map<String, String> ignoredClients;
+	private final Map<String, Long> configIdToCreateTimeStamp;
+	 
 
 	private DB db;
 
@@ -42,10 +48,12 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		this.idToApplication = db.getHashMap("idToApplication");
 		this.configs = db.getHashMap("configs");
 		this.clients = db.getHashMap("clients");
-		this.applicationIdToConfigIdMapping = db.getHashMap("applicationIdToConfigIdMapping");
+		this.clientAliases = db.getHashMap("clientAliases");
+		this.configIdToApplicationId = db.getHashMap("configIdToApplicationIdMapping");
 		this.clientHeartbeatDataMap = db.getHashMap("clientHeartbeatData");
 		this.clientEnvironmentMap = db.getHashMap("clientEnvironment");
-
+		this.ignoredClients = db.getHashMap("ignoredclients");
+		this.configIdToCreateTimeStamp = db.getHashMap("configIdToCreateTimeStamp");
 		StringBuilder dbInfo = new StringBuilder().append("MapDB entries:");
 		for (String mapName : db.getAll().keySet()) {
 			dbInfo.append("\n").append(db.getHashMap(mapName).size()).append(" ").append(mapName);
@@ -70,7 +78,8 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	public ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig) {
 		newConfig.setId(UUID.randomUUID().toString());
 		configs.put(newConfig.getId(), newConfig);
-		applicationIdToConfigIdMapping.put(applicationId, newConfig.getId());
+		configIdToApplicationId.put(newConfig.getId(), applicationId);
+		configIdToCreateTimeStamp.put(newConfig.getId(), System.currentTimeMillis());
 		db.commit();
 		return newConfig;
 	}
@@ -83,11 +92,16 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	@Override
 	public ApplicationConfig deleteApplicationConfig(String configId) {
 		ApplicationConfig config = configs.remove(configId);
+		configIdToApplicationId.remove(configId);
+		configIdToCreateTimeStamp.remove(configId);
 		String artifactId = getArtifactId(config);
 		Application app = findApplication(artifactId);
+		
 		if(app!=null){
-			idToApplication.remove(app.id);
-			applicationIdToConfigIdMapping.remove(app.id);
+			//if there is no other configs belonging to this app, we just delete the app as well
+			if(findAllApplicationConfigsByApplicationId(app.id)==null || findAllApplicationConfigsByApplicationId(app.id).size()==0) {
+				idToApplication.remove(app.id);
+			}
 		}
 		for(Client client : new ArrayList<>(getAllClients())){
 			if(client.applicationConfigId.equals(configId)){
@@ -103,11 +117,13 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	@Override
 	public boolean canDeleteApplicationConfig(String configId) {
 		ApplicationConfig config = configs.get(configId);
-		String artifactId = getArtifactId(config);
-		if(artifactId!=null){
-			Application app = findApplication(artifactId);
-			if (app != null) {
-				return canDeleteApplication(app.id);
+		if(config!=null) {
+			String artifactId = getArtifactId(config);
+			if(artifactId!=null){
+				Application app = findApplication(artifactId);
+				if (app != null) {
+					return canDeleteApplication(app.id);
+				}
 			}
 		}
 		return true;
@@ -128,40 +144,46 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 
 	@Override
 	public Application deleteApplication(String applicationId) {
-		Application app = idToApplication.remove(applicationId);
-		String configId =applicationIdToConfigIdMapping.remove(applicationId);
-		if (configId != null) {
-			configs.remove(configId);
-		}
-		for (Client client : new ArrayList<>(getAllClients())){
-			if(client.applicationConfigId.equals(configId)){
-				clientHeartbeatDataMap.remove(client.clientId);
-				clientEnvironmentMap.remove(client.clientId);
-				clients.remove(client.clientId);
+		
+		List<ApplicationConfig> configList = findAllApplicationConfigsByApplicationId(applicationId);
+		for(ApplicationConfig ac : configList) {
+			configIdToApplicationId.remove(ac.getId());
+			configIdToCreateTimeStamp.remove(ac.getId());
+			configs.remove(ac.getId());
+			
+			//also remove clients having this configuration
+			for (Client client : new ArrayList<>(getAllClients())){
+				if(client.applicationConfigId.equals(ac.getId())){
+					clientHeartbeatDataMap.remove(client.clientId);
+					clientEnvironmentMap.remove(client.clientId);
+					clients.remove(client.clientId);
+				}
 			}
 		}
-		
+		Application app = idToApplication.remove(applicationId);
 		db.commit();
 		return app;
 	}
 
 	@Override
-	public ApplicationConfig findApplicationConfigByArtifactId(String artifactId) {
+	public List<ApplicationConfig> findAllApplicationConfigsByArtifactId(String artifactId) {
 		Application application = findApplication(artifactId);
 		if (application == null) {
 			return null;
 		}
 
-		return findApplicationConfigByApplicationId(application.id);
+		return findAllApplicationConfigsByApplicationId(application.id);
 	}
 
 	@Override
-	public ApplicationConfig findApplicationConfigByApplicationId(String applicationId) {
-		String configId = applicationIdToConfigIdMapping.get(applicationId);
-		if (configId == null) {
-			return null;
+	public List<ApplicationConfig> findAllApplicationConfigsByApplicationId(String applicationId) {
+		List<ApplicationConfig> appConfigList = new ArrayList<>();
+		for(Entry<String, String> configId_appId_entry: configIdToApplicationId.entrySet()) {
+			if(configId_appId_entry.getValue().equals(applicationId)) {
+				appConfigList.add(configs.get(configId_appId_entry.getKey()));
+			}
 		}
-		return configs.get(configId);
+		return appConfigList;
 	}
 
 	private Application findApplication(String artifactId) {
@@ -203,20 +225,28 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	@Override
 	public String getArtifactId(ApplicationConfig config) {
 		// Note: this code is a work-around for missing many-to-one mapping from configuration to application.
-		Optional<Map.Entry<String, String>> match = applicationIdToConfigIdMapping.entrySet()
-				.stream()
-				.filter(entry -> entry.getValue().equals(config.getId()))
-				.findFirst();
-		if (match.isPresent()) {
-			Application application = idToApplication.get(match.get().getKey());
-			return application == null ? null : application.artifactId;
+//		Optional<Map.Entry<String, String>> match = configIdMappingToApplicationId.entrySet()
+//				.stream()
+//				.filter(entry -> entry.getValue().equals(config.getId()))
+//				.findFirst();
+//		if (match.isPresent()) {
+//			Application application = idToApplication.get(match.get().getKey());
+//			return application == null ? null : application.artifactId;
+//		}
+//		return null;
+		if(config!=null) {
+			String appId = configIdToApplicationId.get(config.getId());
+			Application app = idToApplication.get(appId);
+			return app == null ? null : app.artifactId;
+		} else {
+			return null;
 		}
-		return null;
+		
 	}
 
 	@Override
-	public Map<String, ApplicationConfig> getAllConfigs() {
-		return configs;
+	public List<ApplicationConfig> getAllConfigs() {
+		return new ArrayList<>(configs.values());
 	}
 
 	@Override
@@ -255,4 +285,62 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 	public List<Client> getAllClients() {
 		return clients.values().stream().collect(Collectors.toList());
 	}
+
+	@Override
+	public List<ClientAlias> getAllClientAliases() {
+		return clientAliases.values().stream().collect(Collectors.toList());
+	}
+	
+	@Override
+	public void saveClientAlias(ClientAlias ca) {
+		
+		clientAliases.put(ca.clientId, ca);
+		db.commit();
+	}
+
+	@Override
+	public List<String> getAllIgnoredClientIds() {
+		// TODO Auto-generated method stub
+		return ignoredClients.values().stream().collect(Collectors.toList());
+	}
+
+	@Override
+	public void saveIgnoredFlag(String clientId, boolean ignored) {
+		if(ignored) {
+			if(!ignoredClients.containsKey(clientId)) {
+				ignoredClients.put(clientId, clientId);
+			}
+		} else {
+			ignoredClients.remove(clientId);
+		}
+		db.commit();
+	}
+
+	@Override
+	public ApplicationConfig findTheLatestApplicationConfigByArtifactId(String artifactId) {
+		Application app=findApplication(artifactId);
+		if(app!=null) {
+			return findTheLatestApplicationConfigByApplicationId(app.id);
+		}
+		return null;
+	}
+	
+
+	@Override
+	public ApplicationConfig findTheLatestApplicationConfigByApplicationId(String applicationId) {
+		
+		List<ApplicationConfig> configList = findAllApplicationConfigsByApplicationId(applicationId);
+		long time=0;
+		ApplicationConfig theNewest =null; //which should have the latest creation time stamp
+		for(ApplicationConfig config : configList) {
+			if(configIdToCreateTimeStamp.get(config.getId()) > time) {
+				time = configIdToCreateTimeStamp.get(config.getId());
+				theNewest = config;
+			}
+		}
+		return theNewest;
+	}
+	
+
+	
 }

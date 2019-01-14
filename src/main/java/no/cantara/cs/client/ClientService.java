@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -57,8 +58,9 @@ public class ClientService {
                 return null;
             }
         } else {
-            config = applicationConfigDao.findApplicationConfigByArtifactId(registration.artifactId);
-            if (config == null) {
+        	config = applicationConfigDao.findTheLatestApplicationConfigByArtifactId(registration.artifactId);
+        	
+            if (config==null) {
                 log.warn("No ApplicationConfig was found for artifactId={}", registration.artifactId);
                 return null;
             }

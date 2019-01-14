@@ -13,6 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,7 +99,7 @@ public class ApplicationConfigResource {
 	public Response getAllApplicationConfigs() {
 		log.trace("invoked getAllApplicationConfigs");
 
-		Map<String, ApplicationConfig> allConfigs = applicationConfigDao.getAllConfigs();
+		List<ApplicationConfig> allConfigs = applicationConfigDao.getAllConfigs();
 
 		String jsonResult;
 		try {
@@ -116,7 +117,7 @@ public class ApplicationConfigResource {
 	public Response getApplicationConfigForApplication(@PathParam("applicationId") String applicationId) {
 		log.trace("invoked getApplicationConfigForApplication");
 
-		ApplicationConfig applicationConfig = applicationConfigDao.findApplicationConfigByApplicationId(applicationId);
+		ApplicationConfig applicationConfig = applicationConfigDao.findTheLatestApplicationConfigByApplicationId(applicationId);
 		if (applicationConfig == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}

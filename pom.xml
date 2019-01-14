@@ -32,7 +32,7 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.16.3</configservice-sdk.version>
+        <configservice-sdk.version>0.16.4</configservice-sdk.version>
 
         <!-- app deps -->
         <jersey.version>2.22</jersey.version>

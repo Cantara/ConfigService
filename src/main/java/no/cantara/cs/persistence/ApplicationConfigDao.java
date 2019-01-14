@@ -14,9 +14,13 @@ public interface ApplicationConfigDao {
 
     ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig);
 
-    ApplicationConfig findApplicationConfigByArtifactId(String artifactId);
+    List<ApplicationConfig> findAllApplicationConfigsByArtifactId(String artifactId);
+    
+    ApplicationConfig findTheLatestApplicationConfigByArtifactId(String artifactId);
 
-    ApplicationConfig findApplicationConfigByApplicationId(String applicationId);
+    List<ApplicationConfig> findAllApplicationConfigsByApplicationId(String applicationId);
+    
+    ApplicationConfig findTheLatestApplicationConfigByApplicationId(String applicationId);
 
     ApplicationConfig getApplicationConfig(String configId);
 
@@ -26,7 +30,7 @@ public interface ApplicationConfigDao {
 
     String getArtifactId(ApplicationConfig config);
 
-    Map<String, ApplicationConfig> getAllConfigs();
+    List< ApplicationConfig> getAllConfigs();
 
     List<Application> getApplications();
 
