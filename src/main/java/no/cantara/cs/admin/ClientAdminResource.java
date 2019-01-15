@@ -249,15 +249,18 @@ public class ClientAdminResource {
     }
 
     private Response mapResponseToJson(Object response) {
-        String jsonResult;
+       
         try {
-            jsonResult = mapper.writeValueAsString(response);
+        	if(response!=null) {
+        		String jsonResult="";
+        		jsonResult = mapper.writeValueAsString(response);
+                return Response.ok(jsonResult).build();
+        	}
         } catch (IOException e) {
             log.warn("Could not convert to Json {}", response.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
-        return Response.ok(jsonResult).build();
+        return Response.ok().build();
     }
 
     private boolean isAdmin(@Context SecurityContext context) {
