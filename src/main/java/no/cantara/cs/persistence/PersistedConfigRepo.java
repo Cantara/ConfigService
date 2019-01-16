@@ -340,6 +340,18 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		}
 		return theNewest;
 	}
+
+	@Override
+	public Map<String, ClientHeartbeatData> getAllClientHeartbeatData() {
+		return clientHeartbeatDataMap.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+
+	@Override
+	public Map<String, ClientEnvironment> getAllClientEnvironments() {
+		return clientEnvironmentMap.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
 	
 
 	

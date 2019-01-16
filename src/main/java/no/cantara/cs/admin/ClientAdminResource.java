@@ -84,14 +84,9 @@ public class ClientAdminResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        Client client = clientDao.getClient(clientId);
-        if (client == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
         ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(clientId);
 
-        ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
-        return mapResponseToJson(statusView);
+        return mapResponseToJson(clientHeartbeatData);
     }
 
     ////ClientAdminResourceEnvTest
@@ -214,7 +209,31 @@ public class ClientAdminResource {
         }
     }
 
+    @GET
+    @Path("/env")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientEnvironments(@Context SecurityContext context) {
+        log.trace("getAllClientEnvironments");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        Map<String, ClientEnvironment> allClientEnvs = clientDao.getAllClientEnvironments();
+        return mapResponseToJson(allClientEnvs);
+    }
     
+    @GET
+    @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientHeartbeatData(@Context SecurityContext context) {
+        log.trace("getAllClientHeartbeatData");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        Map<String, ClientHeartbeatData> allClientHeartBeats = clientDao.getAllClientHeartbeatData();
+        return mapResponseToJson(allClientHeartBeats);
+    }
    
     @GET
     @Path("/ignoredClients")

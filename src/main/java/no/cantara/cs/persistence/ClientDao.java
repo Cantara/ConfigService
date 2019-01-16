@@ -11,16 +11,20 @@ import java.util.Map;
 public interface ClientDao {
 
     Client getClient(String clientId);
+    
+    ClientHeartbeatData getClientHeartbeatData(String clientId);
+    
+    ClientEnvironment getClientEnvironment(String clientId);
 
     void saveClient(Client client);
 
-    void saveClientHeartbeatData(String clientId, ClientHeartbeatData clientHeartbeatData);
-
-    ClientHeartbeatData getClientHeartbeatData(String clientId);
+    void saveClientHeartbeatData(String clientId, ClientHeartbeatData clientHeartbeatData); 
 
     void saveClientEnvironment(String clientId, ClientEnvironment clientEnvironment);
 
-    ClientEnvironment getClientEnvironment(String clientId);
+    void saveClientAlias(ClientAlias clientAlias);
+    
+    void saveIgnoredFlag(String clientId, boolean ignored);
 
     Map<String,ClientHeartbeatData> getAllClientHeartbeatData(String artifactId);
 
@@ -29,9 +33,8 @@ public interface ClientDao {
     List<String> getAllIgnoredClientIds();
     
     List<ClientAlias> getAllClientAliases();
+
+    Map<String, ClientHeartbeatData> getAllClientHeartbeatData();
     
-    void saveClientAlias(ClientAlias clientAlias);
-    
-    void saveIgnoredFlag(String clientId, boolean ignored);
- 
+    Map<String, ClientEnvironment> getAllClientEnvironments();
 }

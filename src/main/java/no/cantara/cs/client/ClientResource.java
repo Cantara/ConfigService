@@ -83,7 +83,7 @@ public class ClientResource {
         }
 
         clientService.processEvents(clientId, checkForUpdateRequest.eventsStore);
-
+        
         ClientConfig clientConfig = clientService.checkForUpdatedClientConfig(clientId, checkForUpdateRequest);
         if (clientConfig == null) {
             String msg = "No ClientConfig could be found. Not registered? clientId=" + clientId + ", configLastChanged=" + checkForUpdateRequest.configLastChanged;

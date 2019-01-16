@@ -429,5 +429,28 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 		}
 	}
 
+	
+	@Override
+	public Map<String, ClientHeartbeatData> getAllClientHeartbeatData() {
+		return jdbcTemplate.query("SELECT * FROM client_heartbeat_data", (rs -> {
+			Map<String, ClientHeartbeatData> results = new HashMap<>();
+			while (rs.next()) {
+				results.put(rs.getString("client_id"), fromJSON(rs.getString("data"), ClientHeartbeatData.class));
+			}
+			return results;
+		}));
+	}
+
+	@Override
+	public Map<String, ClientEnvironment> getAllClientEnvironments() {
+		return jdbcTemplate.query("SELECT * FROM client_environments", (rs -> {
+			Map<String, ClientEnvironment> results = new HashMap<>();
+			while (rs.next()) {
+				results.put(rs.getString("client_id"), fromJSON(rs.getString("data"), ClientEnvironment.class));
+			}
+			return results;
+		}));
+	}
+
 
 }
