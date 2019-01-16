@@ -54,8 +54,8 @@ public class ClientAdminResourceStatusTest extends BaseSystemTest {
         assertEquals(latestClientHeartbeatData.applicationConfigId, clientConfig.config.getId());
         assertEquals(latestClientHeartbeatData.artifactId, application.artifactId);
         
-        //clientName is now changed to the pattern computername - internal_ip - wrapped os
-        //assertEquals(latestClientHeartbeatData.clientName, registrationRequest.clientName);
+       
+        assertEquals(latestClientHeartbeatData.clientName, registrationRequest.clientName);
         assertEquals(latestClientHeartbeatData.tags, registrationRequest.tags);
     }
 
@@ -73,8 +73,8 @@ public class ClientAdminResourceStatusTest extends BaseSystemTest {
         assertEquals(latestClientHeartbeatData.applicationConfigId, checkForUpdateResponse.config.getId());
         assertEquals(latestClientHeartbeatData.artifactId, application.artifactId);
         
-        //clientName is now changed to the pattern computername - internal_ip - wrapped os
-        //assertEquals(latestClientHeartbeatData.clientName, checkForUpdateRequest.clientName);
+        
+        assertEquals(latestClientHeartbeatData.clientName, checkForUpdateRequest.clientName);
         assertEquals(latestClientHeartbeatData.tags, checkForUpdateRequest.tags);
     }
 
