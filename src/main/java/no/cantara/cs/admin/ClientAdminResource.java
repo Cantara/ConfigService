@@ -162,7 +162,7 @@ public class ClientAdminResource {
 		}
 		String wrapped_os = env.envInfo.containsKey("WRAPPER_OS")? 
 				env.envInfo.get("WRAPPER_OS"): env.envInfo.get("OS");
-		return computerName + " - " + localIP + " - " + wrapped_os;
+		return (computerName!=null? (computerName + " - "):"") + localIP + (wrapped_os!=null? (" - " + wrapped_os) : "");
 	}
 
 
