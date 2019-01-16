@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,8 @@ public class ClientAdminResource {
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
     private final ClientService clientService;
-  
+    //clientName which matches one of these elements will have a new name [ComputerName - local_ip - wrappedod/os 
+    private final String[] defaultClientNameList = {"Default clientName", "Default client", "local-jau"};
 
     @Autowired
     public ClientAdminResource(EventsDao eventsDao, ClientDao clientDao, ClientService clientService) {
@@ -107,7 +109,9 @@ public class ClientAdminResource {
         ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(clientId);
         ClientEnvironment clientEnv = clientDao.getClientEnvironment(clientId);
         if(clientEnv!=null && clientHeartbeatData!=null) {
-        	clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+        	if(Arrays.asList(defaultClientNameList).contains(clientHeartbeatData.clientName)) {
+				clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+			}
         }
         ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
         return mapResponseToJson(statusView);
@@ -124,13 +128,21 @@ public class ClientAdminResource {
         List<ClientStatus> clientStatuses = new ArrayList<>();
         List<Client> clientList = clientDao.getAllClients();
         List<String> ignoredList = clientDao.getAllIgnoredClientIds();
+		Map<String, ClientHeartbeatData> allclientHeartbeatData = clientDao.getAllClientHeartbeatData();
+		Map<String, ClientEnvironment> allclientEnvs = clientDao.getAllClientEnvironments();
+		
         for(Client client : clientList) {
         	if(!ignoredList.contains(client.clientId)) {
-        		ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(client.clientId);
-        		ClientEnvironment clientEnv = clientDao.getClientEnvironment(client.clientId);
+        
+        		ClientHeartbeatData clientHeartbeatData = allclientHeartbeatData.get(client.clientId);
+        		ClientEnvironment clientEnv = allclientEnvs.get(client.clientId);
+        		
         		if(clientEnv!=null && clientHeartbeatData!=null) {
-        			clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+        			if(Arrays.asList(defaultClientNameList).contains(clientHeartbeatData.clientName)) {
+        				clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+        			}
         		}
+        		
         		ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
         		clientStatuses.add(statusView);
         	}
