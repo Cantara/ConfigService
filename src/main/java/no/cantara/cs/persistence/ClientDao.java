@@ -37,4 +37,5 @@ public interface ClientDao {
     Map<String, ClientHeartbeatData> getAllClientHeartbeatData();
     
     Map<String, ClientEnvironment> getAllClientEnvironments();
+    
 }

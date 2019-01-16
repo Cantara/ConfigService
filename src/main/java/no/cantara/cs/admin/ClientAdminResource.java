@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class ClientAdminResource {
     private final EventsDao eventsDao;
     private final ClientDao clientDao;
     private final ClientService clientService;
+  
 
     @Autowired
     public ClientAdminResource(EventsDao eventsDao, ClientDao clientDao, ClientService clientService) {
@@ -74,6 +76,20 @@ public class ClientAdminResource {
         return mapResponseToJson(client);
     }
 
+    @GET
+    @Path("/{clientId}/heartbeat")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClientHeartbeat(@Context SecurityContext context, @PathParam("clientId") String clientId) {
+        log.trace("getStatus");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(clientId);
+
+        return mapResponseToJson(clientHeartbeatData);
+    }
+    
     //ClientAdminResourceStatusTest
     @GET
     @Path("/{clientId}/status")
@@ -84,10 +100,59 @@ public class ClientAdminResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
+        Client client = clientDao.getClient(clientId);
+        if (client == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(clientId);
-
-        return mapResponseToJson(clientHeartbeatData);
+        ClientEnvironment clientEnv = clientDao.getClientEnvironment(clientId);
+        if(clientEnv!=null && clientHeartbeatData!=null) {
+        	clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+        }
+        ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
+        return mapResponseToJson(statusView);
     }
+    
+    @GET
+    @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllClientStatuses(@Context SecurityContext context) {
+        log.trace("getStatus");
+        if (!isAdmin(context)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        List<ClientStatus> clientStatuses = new ArrayList<>();
+        List<Client> clientList = clientDao.getAllClients();
+        List<String> ignoredList = clientDao.getAllIgnoredClientIds();
+        for(Client client : clientList) {
+        	if(!ignoredList.contains(client.clientId)) {
+        		ClientHeartbeatData clientHeartbeatData = clientDao.getClientHeartbeatData(client.clientId);
+        		ClientEnvironment clientEnv = clientDao.getClientEnvironment(client.clientId);
+        		if(clientEnv!=null && clientHeartbeatData!=null) {
+        			clientHeartbeatData.clientName = makeUpADefaultClientName(clientEnv);
+        		}
+        		ClientStatus statusView = new ClientStatus(client, clientHeartbeatData);
+        		clientStatuses.add(statusView);
+        	}
+        }       
+        return mapResponseToJson(clientStatuses);
+    }
+    
+    
+    private String makeUpADefaultClientName(ClientEnvironment env) {
+		String computerName = env.envInfo.get("COMPUTERNAME");
+		String localIP = "";
+		for(String key : env.envInfo.keySet()) {
+			if(key.startsWith("networkinterface_")) {
+				localIP = env.envInfo.get(key);
+				break;
+			}
+		}
+		String wrapped_os = env.envInfo.containsKey("WRAPPER_OS")? 
+				env.envInfo.get("WRAPPER_OS"): env.envInfo.get("OS");
+		return computerName + " - " + localIP + " - " + wrapped_os;
+	}
+
 
     ////ClientAdminResourceEnvTest
     @GET
@@ -223,7 +288,7 @@ public class ClientAdminResource {
     }
     
     @GET
-    @Path("/status")
+    @Path("/heartbeats")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientHeartbeatData(@Context SecurityContext context) {
         log.trace("getAllClientHeartbeatData");
