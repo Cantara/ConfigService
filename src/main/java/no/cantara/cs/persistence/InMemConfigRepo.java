@@ -32,9 +32,11 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 
     @Override
     public Application createApplication(Application newApplication) {
-        newApplication.id = UUID.randomUUID().toString();
-        idToApplication.put(newApplication.id, newApplication);
-        return newApplication;
+    	
+    	newApplication.id = UUID.randomUUID().toString();
+    	idToApplication.put(newApplication.id, newApplication);
+    	return newApplication;
+
     }
 
     @Override
@@ -158,6 +160,16 @@ public class InMemConfigRepo implements ApplicationConfigDao {
 		}
 		return configs.get(last.getKey());
 		
+	}
+
+	@Override
+	public Application getApplication(String artifact) {
+		for (Entry<String, Application> e : idToApplication.entrySet()) {
+			if(e.getValue().artifactId.toLowerCase().equals(artifact.toLowerCase())) {
+				return e.getValue();
+			}
+		}
+		return null;
 	}
 
 }

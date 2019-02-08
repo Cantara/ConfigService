@@ -34,11 +34,12 @@ public class ApplicationConfigResource {
 		this.applicationConfigDao = applicationConfigDao;
 	}
 
+	//associate an appId to a configId
 	@POST
 	@Path(CONFIG_PATH)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createApplicationConfig(@PathParam("applicationId") String applicationId, String json) {
+	public Response LinkAppToApplicationConfig(@PathParam("applicationId") String applicationId, String json) {
 		log.debug("Invoked createApplicationConfig with json {} and applicationId {}", json, applicationId);
 
 		ApplicationConfig newConfig;
@@ -61,8 +62,9 @@ public class ApplicationConfigResource {
 		}
 	}
 
+	//update a config
 	@PUT
-	@Path(CONFIG_PATH + "/{applicationConfigId}")
+	@Path("/config/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId, String json) {
@@ -93,6 +95,7 @@ public class ApplicationConfigResource {
 		return Response.ok(jsonResult).build();
 	}
 
+	//list all configs
 	@GET
 	@Path("/config")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -110,7 +113,8 @@ public class ApplicationConfigResource {
 		}
 		return Response.ok(jsonResult).build();
 	}
-
+	
+	//get the latest config for this app
 	@GET
 	@Path(CONFIG_PATH)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -131,9 +135,32 @@ public class ApplicationConfigResource {
 		}
 		return Response.ok(jsonResult).build();
 	}
-
+	
+	//get all configs for this app
 	@GET
-	@Path(CONFIG_PATH + "/{applicationConfigId}")
+	@Path(CONFIG_PATH + "/list")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllApplicationConfigsForApplication(@PathParam("applicationId") String applicationId) {
+		log.trace("invoked getAllApplicationConfigsForApplication");
+
+		List<ApplicationConfig> applicationConfigList = applicationConfigDao.findAllApplicationConfigsByApplicationId(applicationId);
+		if (applicationConfigList == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+
+		String jsonResult;
+		try {
+			jsonResult = mapper.writeValueAsString(applicationConfigList);
+		} catch (JsonProcessingException e) {
+			log.error("", e);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.ok(jsonResult).build();
+	}
+
+	//get a config by config id
+	@GET
+	@Path("/config/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
 		log.trace("getApplicationConfig with configId={}", applicationConfigId);
@@ -153,9 +180,34 @@ public class ApplicationConfigResource {
 		}
 		return Response.ok(jsonResult).build();
 	}
+	
+	@GET
+	@Path("/config/findartifactid/{applicationConfigId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getArtifactIdForThisAppConfig(@PathParam("applicationConfigId") String applicationConfigId) {
+		log.trace("getArtifactIdForThisAppConfig with configId={}", applicationConfigId);
+
+		
+		ApplicationConfig config = applicationConfigDao.getApplicationConfig(applicationConfigId);
+		if (config == null) {
+			log.warn("Could not find ApplicationConfig with id={}", applicationConfigId);
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		String artifactId = applicationConfigDao.getArtifactId(config);
+
+		String jsonResult;
+		try {
+			jsonResult = mapper.writeValueAsString(artifactId);
+		} catch (JsonProcessingException e) {
+			log.error("", e);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.ok(jsonResult).build();
+	}
+
 
 	@DELETE
-	@Path(CONFIG_PATH + "/{applicationConfigId}")
+	@Path("/config/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
 		log.debug("deleteApplicationConfig with applicationConfigId={}", applicationConfigId);
@@ -189,6 +241,36 @@ public class ApplicationConfigResource {
 			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
 		}
 		return Response.status(Response.Status.NO_CONTENT).build();
+	}
+	
+	@GET
+	@Path("/canDeleteApp/{applicationId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response canDeleteThisApp(@PathParam("applicationId") String applicationId) {
+		log.debug("canDeleteThisApp ={}", applicationId);
+		String jsonResult;
+		try {
+			jsonResult = mapper.writeValueAsString(applicationConfigDao.canDeleteApplication(applicationId));
+		} catch (JsonProcessingException e) {
+			log.error("", e);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.ok(jsonResult).build();
+	}
+	
+	@GET
+	@Path("/canDeleteAppConfig/{configId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response canDeleteThisAppConfig(@PathParam("configId") String configId) {
+		log.debug("canDeleteThisAppConfig ={}", configId);
+		String jsonResult;
+		try {
+			jsonResult = mapper.writeValueAsString(applicationConfigDao.canDeleteApplicationConfig(configId));
+		} catch (JsonProcessingException e) {
+			log.error("", e);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.ok(jsonResult).build();
 	}
 
 }

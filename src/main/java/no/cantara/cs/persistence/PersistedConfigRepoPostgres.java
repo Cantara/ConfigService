@@ -230,12 +230,17 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 
 	@Override
 	public boolean canDeleteApplicationConfig(String configId) {
-		return ofNullable(getApplicationConfig(configId))
-				.map(appConfig -> getArtifactId(appConfig))
-				.map(artifactId -> findApplicationByArtifactId(artifactId))
-				.map(app -> app.id)
-				.map(id -> canDeleteApplication(id))
-				.orElse(true);
+		
+		List<Client> clients = getAllClientsByConfigId(configId);
+		if(clients.size()==0) {
+			return true;
+		} else {
+			//every client should have no heart beat in 1 hour
+			String artifactId = getArtifactId(getApplicationConfig(configId));
+			Map<String, ClientHeartbeatData> map = getAllClientHeartbeatData(artifactId);
+			return new ApplicationStatus(map).seenInTheLastHourCount == 0;
+			
+		}
 	}
 
 	private Application findApplicationByArtifactId(String artifactId) {
@@ -264,11 +269,14 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 
 	@Override
 	public boolean canDeleteApplication(String applicationId) {
+		
 		return ofNullable(findApplicationByApplicationId(applicationId))
 				.map(app -> app.artifactId)
 				.map(artifactId -> getAllClientHeartbeatData(artifactId))
 				.map(data -> new ApplicationStatus(data).seenInTheLastHourCount == 0)
 				.orElse(true);
+		
+		
 	}
 
 	private static PGobject pojoToJsonWrapper(Object msg) {
@@ -315,6 +323,8 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 		jdbcTemplate.update("INSERT INTO clients (client_id, application_config_id, auto_upgrade) VALUES (?,?,?) ON CONFLICT (client_id) " +
 				"DO UPDATE SET application_config_id = EXCLUDED.application_config_id, auto_upgrade = EXCLUDED.auto_upgrade",
 				client.clientId, client.applicationConfigId, client.autoUpgrade);
+		
+		
 	}
 
 	@Override
@@ -361,6 +371,19 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public List<Client> getAllClients() {
 		return jdbcTemplate.query("SELECT * FROM clients", (rs) -> {
+			List<Client> results = new ArrayList<>();
+			while (rs.next()) {
+				results.add(new Client(rs.getString("client_id"), rs.getString("application_config_id"), rs.getBoolean("auto_upgrade")));
+			}
+			return results;
+		});
+	}
+	
+	@Override
+	public List<Client> getAllClientsByConfigId(String configId) {
+		
+
+		return jdbcTemplate.query("SELECT * FROM clients WHERE application_config_id = ?", new Object[] {configId}, (rs) -> {
 			List<Client> results = new ArrayList<>();
 			while (rs.next()) {
 				results.add(new Client(rs.getString("client_id"), rs.getString("application_config_id"), rs.getBoolean("auto_upgrade")));
@@ -450,6 +473,20 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 			}
 			return results;
 		}));
+	}
+
+	@Override
+	public Application getApplication(String artifact) {
+		return findApplicationByArtifactId(artifact);
+	}
+
+	
+	@Override
+	public void saveClients(Client[] clients) {
+		//TODO: can be made better
+		for(Client client : clients) {
+			saveClient(client);
+		}
 	}
 
 

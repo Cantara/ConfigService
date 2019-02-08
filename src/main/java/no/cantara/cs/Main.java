@@ -35,7 +35,7 @@ public class Main {
     public static final String CONTEXT_PATH = "/jau";
     public static final String ADMIN_ROLE = "admin";
     public static final String USER_ROLE = "user";
-
+  	
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private Integer webappPort;

@@ -17,6 +17,8 @@ public interface ClientDao {
     ClientEnvironment getClientEnvironment(String clientId);
 
     void saveClient(Client client);
+    
+    void saveClients(Client[] client);
 
     void saveClientHeartbeatData(String clientId, ClientHeartbeatData clientHeartbeatData); 
 
@@ -37,5 +39,7 @@ public interface ClientDao {
     Map<String, ClientHeartbeatData> getAllClientHeartbeatData();
     
     Map<String, ClientEnvironment> getAllClientEnvironments();
+    
+    List<Client> getAllClientsByConfigId(String configId);
     
 }

@@ -352,6 +352,34 @@ public class PersistedConfigRepo implements ApplicationConfigDao, ClientDao {
 		return clientEnvironmentMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
+
+	@Override
+	public Application getApplication(String artifact) {
+		for (Entry<String, Application> e : idToApplication.entrySet()) {
+			if(e.getValue().artifactId.toLowerCase().equals(artifact.toLowerCase())) {
+				return e.getValue();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<Client> getAllClientsByConfigId(String configId) {
+		List<Client> clientsByConfigId = new ArrayList<>();
+		for(Client client : clients.values()) {
+			if(client.applicationConfigId.equals(configId)) {
+				clientsByConfigId.add(client);
+			}
+		}
+		return clientsByConfigId;
+	}
+
+	@Override
+	public void saveClients(Client[] clients) {
+		for(Client client : clients) {
+			saveClient(client);
+		}	
+	}
 	
 
 	

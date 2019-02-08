@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+
+import no.cantara.cs.Main;
 import no.cantara.cs.dto.Application;
 import no.cantara.cs.dto.ApplicationStatus;
+import no.cantara.cs.dto.ClientEnvironment;
 import no.cantara.cs.dto.ClientHeartbeatData;
 import no.cantara.cs.persistence.ApplicationConfigDao;
 import no.cantara.cs.persistence.ClientDao;
@@ -17,6 +20,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +34,8 @@ public class ApplicationResource {
     private static final ObjectMapper mapper = new ObjectMapper();
     private final ApplicationConfigDao applicationConfigDao;
     private final ClientDao clientDao;
+
+
 
     @Autowired
     public ApplicationResource(ApplicationConfigDao applicationConfigDao, ClientDao clientDao) {
@@ -82,7 +88,23 @@ public class ApplicationResource {
         }
         return Response.ok(jsonResponse).build();
     }
-
+    
+    @GET
+    @Path("/{artifactId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getApplicationByArtifact(@PathParam("artifactId") String artifactId) {
+        log.trace("getApplicationByArtifactId");
+        Application app = applicationConfigDao.getApplication(artifactId);
+        String jsonResponse;
+        try {
+            jsonResponse = mapper.writeValueAsString(app);
+        } catch (JsonProcessingException e) {
+            log.warn("Could not convert to Json {}", app);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(jsonResponse).build();
+    }
+    
     @GET
     @Path("/{artifactId}/status")
     @Produces(MediaType.APPLICATION_JSON)
@@ -92,7 +114,14 @@ public class ApplicationResource {
         Map<String, ClientHeartbeatData> allClientHeartbeatData = clientDao.getAllClientHeartbeatData(artifactId);
 
         ApplicationStatus applicationStatus = new ApplicationStatus(allClientHeartbeatData);
-
+        for(String key : allClientHeartbeatData.keySet()) {
+        	if(Arrays.asList(ClientAdminResource.defaultClientNameList).contains(allClientHeartbeatData.get(key).clientName)) {
+        		ClientEnvironment ce = clientDao.getClientEnvironment(key);
+        		allClientHeartbeatData.get(key).clientName = ClientAdminResource.makeUpADefaultClientName(ce);
+			}
+        }
+      
+		
         String jsonResult;
         try {
             jsonResult = mapper.writeValueAsString(applicationStatus);

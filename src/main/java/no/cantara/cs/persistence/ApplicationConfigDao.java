@@ -10,6 +10,9 @@ import java.util.Map;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-07-09.
  */
 public interface ApplicationConfigDao {
+	
+	Application getApplication(String artifact);
+	
     Application createApplication(Application newApplication);
 
     ApplicationConfig createApplicationConfig(String applicationId, ApplicationConfig newConfig);

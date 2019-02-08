@@ -32,13 +32,12 @@ import java.util.Map;
 public class ClientAdminResource {
 	private static final Logger log = LoggerFactory.getLogger(ClientAdminResource.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
-
+    //clientName which matches one of these elements will have a new name [ComputerName - local_ip - wrappedod/os 
+  	public static final String[] defaultClientNameList = {"Default clientName", "Default client", "local-jau"};
 	private final EventsDao eventsDao;
 	private final ClientDao clientDao;
 	private final ClientService clientService;
-	//clientName which matches one of these elements will have a new name [ComputerName - local_ip - wrappedod/os 
-	private final String[] defaultClientNameList = {"Default clientName", "Default client", "local-jau"};
-
+	
 	@Autowired
 	public ClientAdminResource(EventsDao eventsDao, ClientDao clientDao, ClientService clientService) {
 		this.eventsDao = eventsDao;
@@ -151,7 +150,7 @@ public class ClientAdminResource {
 	}
 
 
-	private String makeUpADefaultClientName(ClientEnvironment env) {
+	public static String makeUpADefaultClientName(ClientEnvironment env) {
 		String computerName = env.envInfo.get("COMPUTERNAME");
 		String localIP = "";
 		for(String key : env.envInfo.keySet()) {
@@ -255,6 +254,36 @@ public class ClientAdminResource {
 					.build();
 		}
 	}
+	
+	@PUT
+	@Path("/updateClientList")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response putClient(@Context SecurityContext context, String jsonRequest) {
+		log.debug("Invoked putClient with request {}",  jsonRequest);
+		if (!isAdmin(context)) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+
+		Client[] clients;
+		try {
+			clients = mapper.readValue(jsonRequest, Client[].class);
+		} catch (IOException e) {
+			log.error("Error parsing json. {}, json={}", e.getMessage(), jsonRequest);
+			return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse json.").build();
+		}
+
+	
+		try {
+			clientDao.saveClients(clients);
+
+			return mapResponseToJson(clients);
+		} catch (Exception e) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage())
+					.build();
+		}
+	}
+	
 
 	@GET
 	@Path("/aliases")

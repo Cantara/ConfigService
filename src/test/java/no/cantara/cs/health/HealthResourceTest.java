@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.Properties;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -24,4 +25,10 @@ public class HealthResourceTest extends BaseSystemTest {
                 .get(HealthResource.HEALTH_PATH);
     }
 
+    @Test
+    public void testMe() {
+    	Properties sysProps = System.getProperties();
+    	sysProps.list(System.out);
+    	//System.out.println("---------------> " + System.getenv());
+    }
 }
