@@ -48,7 +48,7 @@ public class ApplicationConfigResourceTest extends BaseSystemTest {
 
     @Test(dependsOnMethods = "testCreateApplicationConfig")
     public void testGetApplicationConfig() throws Exception {
-        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH_WITH_APPID + "/{configId}";
         Response response = given()
                 .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()
@@ -71,7 +71,7 @@ public class ApplicationConfigResourceTest extends BaseSystemTest {
         config.setName("something new");
         String putJsonRequest = mapper.writeValueAsString(config);
 
-        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/" + config.getId();
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH_WITH_APPID + "/" + config.getId();
         Response response = given().
                 auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .contentType(ContentType.JSON)
@@ -92,7 +92,7 @@ public class ApplicationConfigResourceTest extends BaseSystemTest {
 
     @Test(dependsOnMethods = "testUpdateApplicationConfig")
     public void testDeleteApplicationConfig() throws Exception {
-        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH + "/{configId}";
+        String path = ApplicationResource.APPLICATION_PATH + ApplicationConfigResource.CONFIG_PATH_WITH_APPID + "/{configId}";
         given().
                 auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
                 .log().everything()

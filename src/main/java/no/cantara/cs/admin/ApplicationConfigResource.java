@@ -23,7 +23,8 @@ import java.util.Map;
  */
 @Path(ApplicationResource.APPLICATION_PATH)
 public class ApplicationConfigResource {
-	public static final String CONFIG_PATH = "/{applicationId}/config";
+	public static final String CONFIG_PATH_WITH_APPID = "/{applicationId}/config";
+	public static final String CONFIG_PATH = "/config";
 
 	private static final Logger log = LoggerFactory.getLogger(ApplicationConfigResource.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -36,7 +37,7 @@ public class ApplicationConfigResource {
 
 	//associate an appId to a configId
 	@POST
-	@Path(CONFIG_PATH)
+	@Path(CONFIG_PATH_WITH_APPID)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response LinkAppToApplicationConfig(@PathParam("applicationId") String applicationId, String json) {
@@ -64,7 +65,7 @@ public class ApplicationConfigResource {
 
 	//update a config
 	@PUT
-	@Path("/config/{applicationConfigId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId, String json) {
@@ -94,10 +95,20 @@ public class ApplicationConfigResource {
 		}
 		return Response.ok(jsonResult).build();
 	}
+	
+	//provide compatibility for older config-service SDK version
+	@PUT
+	@Path(CONFIG_PATH_WITH_APPID + "/{applicationConfigId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateApplicationConfig2(@PathParam("applicationId") String applicationId, @PathParam("applicationConfigId") String applicationConfigId, String json) {
+		log.debug("Invoked updateApplicationConfig with json {}", json);
+		return updateApplicationConfig(applicationConfigId, json);
+	}
 
 	//list all configs
 	@GET
-	@Path("/config")
+	@Path(CONFIG_PATH)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllApplicationConfigs() {
 		log.trace("invoked getAllApplicationConfigs");
@@ -116,7 +127,7 @@ public class ApplicationConfigResource {
 	
 	//get the latest config for this app
 	@GET
-	@Path(CONFIG_PATH)
+	@Path(CONFIG_PATH_WITH_APPID)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getApplicationConfigForApplication(@PathParam("applicationId") String applicationId) {
 		log.trace("invoked getApplicationConfigForApplication");
@@ -138,7 +149,7 @@ public class ApplicationConfigResource {
 	
 	//get all configs for this app
 	@GET
-	@Path(CONFIG_PATH + "/list")
+	@Path(CONFIG_PATH_WITH_APPID + "/list")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllApplicationConfigsForApplication(@PathParam("applicationId") String applicationId) {
 		log.trace("invoked getAllApplicationConfigsForApplication");
@@ -160,7 +171,7 @@ public class ApplicationConfigResource {
 
 	//get a config by config id
 	@GET
-	@Path("/config/{applicationConfigId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
 		log.trace("getApplicationConfig with configId={}", applicationConfigId);
@@ -181,8 +192,18 @@ public class ApplicationConfigResource {
 		return Response.ok(jsonResult).build();
 	}
 	
+	//TODO: will remove this use in SDK
+	//for compatibility with older SDK version
 	@GET
-	@Path("/config/findartifactid/{applicationConfigId}")
+	@Path(CONFIG_PATH_WITH_APPID + "/{applicationConfigId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getApplicationConfig2(@PathParam("applicationId") String applicationId, @PathParam("applicationConfigId") String applicationConfigId) {
+		log.trace("getApplicationConfig with configId={}", applicationConfigId);
+		return getApplicationConfig(applicationConfigId);
+	}
+	
+	@GET
+	@Path(CONFIG_PATH + "/findartifactid/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getArtifactIdForThisAppConfig(@PathParam("applicationConfigId") String applicationConfigId) {
 		log.trace("getArtifactIdForThisAppConfig with configId={}", applicationConfigId);
@@ -207,7 +228,7 @@ public class ApplicationConfigResource {
 
 
 	@DELETE
-	@Path("/config/{applicationConfigId}")
+	@Path(CONFIG_PATH + "/{applicationConfigId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteApplicationConfig(@PathParam("applicationConfigId") String applicationConfigId) {
 		log.debug("deleteApplicationConfig with applicationConfigId={}", applicationConfigId);
@@ -222,6 +243,14 @@ public class ApplicationConfigResource {
 			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
 		}
 		return Response.status(Response.Status.NO_CONTENT).build();
+	}
+	
+	@DELETE
+	@Path(CONFIG_PATH_WITH_APPID + "/{applicationConfigId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteApplicationConfig2(@PathParam("applicationId") String applicationId, @PathParam("applicationConfigId") String applicationConfigId) {
+		log.debug("deleteApplicationConfig with applicationConfigId={}", applicationConfigId);
+		return deleteApplicationConfig(applicationConfigId);
 	}
 
 	//TODO Review, does not look good...
