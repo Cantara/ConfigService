@@ -43,7 +43,7 @@
         <slf4j.version>1.7.12</slf4j.version>
         <aws.version>1.11.490</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
         <postgresql.version>42.2.5</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.0.7</flyway.version>
@@ -429,7 +429,7 @@
                                         <Main-Class>no.cantara.cs.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.handlers</resource>
