@@ -32,12 +32,12 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.16.9</configservice-sdk.version>
+        <configservice-sdk.version>0.17.0</configservice-sdk.version>
 
         <!-- app deps -->
         <jersey.version>2.22</jersey.version>
         <!--        <jetty.version>9.3.2.v20150730</jetty.version>-->
-        <jetty.version>9.4.17.v20190418</jetty.version>
+        <jetty.version>9.4.19.v20190610</jetty.version>
 
         <spring.version>5.1.9.RELEASE</spring.version>
         <slf4j.version>1.7.12</slf4j.version>
