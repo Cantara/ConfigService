@@ -32,19 +32,19 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.16.4</configservice-sdk.version>
+        <configservice-sdk.version>0.16.9</configservice-sdk.version>
 
         <!-- app deps -->
         <jersey.version>2.22</jersey.version>
         <!--        <jetty.version>9.3.2.v20150730</jetty.version>-->
         <jetty.version>9.4.17.v20190418</jetty.version>
 
-        <spring.version>5.1.5.RELEASE</spring.version>
+        <spring.version>5.1.9.RELEASE</spring.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <aws.version>1.11.490</aws.version>
+        <aws.version>1.11.608</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
-        <jackson.version>2.9.9</jackson.version>
-        <jackson-databind.version>2.9.9.3</jackson-databind.version>
+<!--        <jackson.version>2.9.9</jackson.version>
+        <jackson-databind.version>2.9.9.3</jackson-databind.version> -->
         <postgresql.version>42.2.5</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.0.7</flyway.version>
@@ -306,23 +306,23 @@
             </exclusions>
         </dependency>
 
-        <dependency>
+       <!-- <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
-        </dependency>
+        </dependency> -->
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
             <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
+        </dependency> -->
+<!--        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-
+-->
         <!-- DB -->
         <dependency>
             <groupId>org.postgresql</groupId>
