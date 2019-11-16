@@ -40,7 +40,7 @@
         <jetty.version>9.4.21.v20190926</jetty.version>
 
         <spring.version>5.2.0.RELEASE</spring.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.28</slf4j.version>
         <aws.version>1.11.632</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
 <!--        <jackson.version>2.9.9</jackson.version>
