@@ -35,11 +35,11 @@
         <configservice-sdk.version>0.17.5</configservice-sdk.version>
 
         <!-- app deps -->
-        <jersey.version>2.29.1</jersey.version>
+        <jersey.version>2.30</jersey.version>
         <!--        <jetty.version>9.3.2.v20150730</jetty.version>-->
         <jetty.version>9.4.24.v20191120</jetty.version>
 
-        <spring.version>5.2.0.RELEASE</spring.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.28</slf4j.version>
         <aws.version>1.11.698</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
@@ -118,7 +118,7 @@
         <!-- https://jersey.java.net/documentation/latest/spring.html, allows Spring to inject into Jersey managed components -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
-            <artifactId>jersey-spring3</artifactId>
+            <artifactId>jersey-spring4</artifactId>
             <version>${jersey.version}</version>
             <exclusions>
                 <exclusion>
