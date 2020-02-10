@@ -41,7 +41,7 @@
 
         <spring.version>5.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.28</slf4j.version>
-        <aws.version>1.11.698</aws.version>
+        <aws.version>1.11.710</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
 <!--        <jackson.version>2.9.9</jackson.version>
         <jackson-databind.version>2.9.9.3</jackson-databind.version> -->
@@ -427,7 +427,7 @@
                                         <Main-Class>no.cantara.cs.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.handlers</resource>
