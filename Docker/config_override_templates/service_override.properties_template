@@ -2,7 +2,7 @@ releaseRepo=http://mvnrepo.cantara.no/content/repositories/releases
 snapshotRepo=http://mvnrepo.cantara.no/content/repositories/snapshots
 groupId=no/cantara/jau
 artifactId=configservice
-version=0.8-beta-7
+version=0.12.4
 
 APP=${artifactId}.jar
 JAVA_PARAMS="-Dlogback.configurationFile=./config_override/logback.xml -Xms128m -Xmx1024m"
