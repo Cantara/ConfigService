@@ -9,9 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		supervisor cron logrotate \
 	&& rm -rf /var/lib/apt/lists/*
 
-## Fix for python/supervisor error "ImportError: No module named pkg_resources"
-RUN wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python
-
 ## Set up start of services
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
