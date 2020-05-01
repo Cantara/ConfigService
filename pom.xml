@@ -45,7 +45,7 @@
         <httpclient.version>4.5.5</httpclient.version>
 <!--        <jackson.version>2.9.9</jackson.version>
         <jackson-databind.version>2.9.9.3</jackson-databind.version> -->
-        <postgresql.version>42.2.11.jre7</postgresql.version>
+        <postgresql.version>42.2.12.jre7</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.2.4</flyway.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
