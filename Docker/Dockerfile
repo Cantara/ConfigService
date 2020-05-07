@@ -5,7 +5,7 @@ ENV USER=configservice
 ENV HOME=/home/$USER
 RUN useradd -d "$HOME" -u 500 -m -s /bin/bash $USER
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade && apt-get install -y --no-install-recommends \
 		supervisor cron logrotate \
 	&& rm -rf /var/lib/apt/lists/*
 
