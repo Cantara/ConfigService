@@ -3,7 +3,7 @@ MAINTAINER Krzysztof Grodzicki <krzysztof@flowlab.no>
 
 ENV USER=configservice
 
-RUN apt-get update \
+RUN apt-get update && apt-get upgrade \
     && apt-get install -y python-pip python-setuptools \
 	&& pip install awscli-cwlogs \
 	&& rm -rf /var/lib/apt/lists/*
