@@ -30,7 +30,9 @@ public class HealthResource {
     public Response healthCheck() {
         String json = "{" +
                 "\"service\":\"" + MAVEN_ARTIFACT_ID
+                + "\",\"Status\":\"" + "OK"
                 + "\",\"timestamp\":\"" + Instant.now().toString()
+                + "\",\"IP\":\"" + getMyIPAddresssString()
                 + "\",\"runningSince\":\"" + getRunningSince()
                 + "\",\"version\":\"" + getVersion()
                 + "\"}";
@@ -55,5 +57,32 @@ public class HealthResource {
             }
         }
         return "(DEV VERSION)";
+    }
+    
+    public static String getMyIPAddresssesString() {
+        String ipAdresses = "";
+
+        try {
+            ipAdresses = InetAddress.getLocalHost().getHostAddress();
+            Enumeration n = NetworkInterface.getNetworkInterfaces();
+
+            while (n.hasMoreElements()) {
+                NetworkInterface e = (NetworkInterface) n.nextElement();
+
+                InetAddress addr;
+                for (Enumeration a = e.getInetAddresses(); a.hasMoreElements(); ipAdresses = ipAdresses + "  " + addr.getHostAddress()) {
+                    addr = (InetAddress) a.nextElement();
+                }
+            }
+        } catch (Exception e) {
+            ipAdresses = "Not resolved";
+        }
+
+        return ipAdresses;
+    }
+
+    public static String getMyIPAddresssString() {
+        String fullString = getMyIPAddresssesString();
+        return fullString.substring(0, fullString.indexOf(" "));
     }
 }
