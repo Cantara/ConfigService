@@ -9,14 +9,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Properties;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * Simple health endpoint for checking the server is running
@@ -28,6 +27,8 @@ public class HealthResource {
     public static final String HEALTH_PATH = "/health";
     private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
     private final static String MAVEN_ARTIFACT_ID = "configservice";
+    private static String myIp;
+    private static String myVersion;
 
     @GET
     @Produces("application/json")
@@ -49,20 +50,24 @@ public class HealthResource {
     }
 
     private String getVersion() {
-        Properties mavenProperties = new Properties();
-        String resourcePath = "/META-INF/maven/no.cantara.jau/configservice/pom.properties";
-        URL mavenVersionResource = this.getClass().getResource(resourcePath);
-        if (mavenVersionResource != null) {
-            try {
-                mavenProperties.load(mavenVersionResource.openStream());
-                return mavenProperties.getProperty("version", "missing version info in " + resourcePath);
-            } catch (IOException e) {
-                log.warn("Problem reading version resource from classpath: ", e);
+        if (myVersion == null || myVersion.length() < 1) {
+            Properties mavenProperties = new Properties();
+            String resourcePath = "/META-INF/maven/no.cantara.jau/configservice/pom.properties";
+            URL mavenVersionResource = this.getClass().getResource(resourcePath);
+            if (mavenVersionResource != null) {
+                try {
+                    mavenProperties.load(mavenVersionResource.openStream());
+                    myVersion = mavenProperties.getProperty("version", "missing version info in " + resourcePath);
+                    return myVersion;
+                } catch (IOException e) {
+                    log.warn("Problem reading version resource from classpath: ", e);
+                }
             }
         }
-        return "(DEV VERSION)";
+        myVersion = "(DEV VERSION)";
+        return myVersion;
     }
-    
+
     public static String getMyIPAddresssesString() {
         String ipAdresses = "";
 
@@ -86,7 +91,10 @@ public class HealthResource {
     }
 
     public static String getMyIPAddresssString() {
-        String fullString = getMyIPAddresssesString();
-        return fullString.substring(0, fullString.indexOf(" "));
+        if (myIp == null || myIp.length() < 1) {
+            String fullString = getMyIPAddresssesString();
+            myIp = fullString.substring(0, fullString.indexOf(" "));
+        }
+        return myIp;
     }
 }
