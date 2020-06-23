@@ -32,19 +32,16 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.17.7</configservice-sdk.version>
+        <configservice-sdk.version>0.17.9</configservice-sdk.version>
 
         <!-- app deps -->
         <jersey.version>2.31</jersey.version>
-        <!--        <jetty.version>9.3.2.v20150730</jetty.version>-->
         <jetty.version>9.4.29.v20200521</jetty.version>
 
         <spring.version>5.2.6.RELEASE</spring.version>
         <slf4j.version>1.7.30</slf4j.version>
         <aws.version>1.11.792</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
-<!--        <jackson.version>2.9.9</jackson.version>
-        <jackson-databind.version>2.9.9.3</jackson-databind.version> -->
         <postgresql.version>42.2.14.jre7</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.2.4</flyway.version>
