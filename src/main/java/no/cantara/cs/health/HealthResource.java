@@ -49,23 +49,23 @@ public class HealthResource {
         return Instant.now().minus(uptimeInMillis, ChronoUnit.MILLIS).toString();
     }
 
-    private String getVersion() {
-        if (myVersion == null || myVersion.length() < 1) {
-            Properties mavenProperties = new Properties();
-            String resourcePath = "/META-INF/maven/no.cantara.jau/configservice/pom.properties";
-            URL mavenVersionResource = this.getClass().getResource(resourcePath);
-            if (mavenVersionResource != null) {
-                try {
-                    mavenProperties.load(mavenVersionResource.openStream());
-                    myVersion = mavenProperties.getProperty("version", "missing version info in " + resourcePath);
-                    return myVersion;
-                } catch (IOException e) {
-                    log.warn("Problem reading version resource from classpath: ", e);
-                }
+
+    private static String getVersion() {
+        Properties mavenProperties = new Properties();
+        String resourcePath = "/META-INF/maven/no.cantara.jau/configservice/pom.properties";
+
+        URL mavenVersionResource = HealthResource.class.getResource(resourcePath);
+        if (mavenVersionResource != null) {
+            try {
+                mavenProperties.load(mavenVersionResource.openStream());
+                return mavenProperties.getProperty("version", "missing version info in " + resourcePath);
+            } catch (IOException e) {
+                log.warn("Problem reading version resource from classpath: ", e);
             }
         }
-        myVersion = "(DEV VERSION)";
-        return myVersion;
+        return "(DEV VERSION)" + getMyIPAddresssesString() + "]";
+//        return myVersion;
+
     }
 
     public static String getMyIPAddresssesString() {
