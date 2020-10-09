@@ -40,7 +40,7 @@
 
         <spring.version>5.2.9.RELEASE</spring.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <aws.version>1.11.862</aws.version>
+        <aws.version>1.11.863</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>42.2.16.jre7</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
