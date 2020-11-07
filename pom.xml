@@ -46,7 +46,7 @@
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.2.4</flyway.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <mapdb.version>1.0.9</mapdb.version>
+        <mapdb.version>3.0.8</mapdb.version>
         <constretto.version>2.2.3</constretto.version>
         <json-path.version>2.4.0</json-path.version>
         <logback-classic.version>1.2.3</logback-classic.version>
