@@ -45,7 +45,7 @@
         <postgresql.version>42.2.18.jre7</postgresql.version>
         <HikariCP.version>2.7.9</HikariCP.version>
         <flyway.version>5.2.4</flyway.version>
-        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <mapdb.version>1.0.9</mapdb.version>
         <constretto.version>2.2.3</constretto.version>
         <json-path.version>2.4.0</json-path.version>
