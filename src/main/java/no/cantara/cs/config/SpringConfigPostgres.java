@@ -70,10 +70,9 @@ public class SpringConfigPostgres {
 
     @Bean(initMethod = "migrate")
     Flyway flyway(DataSource dataSource) {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.setBaselineOnMigrate(true);
-        flyway.setLocations("migrations");
+        Flyway flyway = Flyway.configure().baselineOnMigrate(true).locations("migrations").dataSource(dataSource).load();
+//        flyway.setBaselineOnMigrate(true);
+//        flyway.setLocations("migrations");
         return flyway;
     }
 }
