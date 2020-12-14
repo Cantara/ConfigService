@@ -25,14 +25,14 @@
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/ConfigService.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/ConfigService.git</connection>
-        <tag>configservice-0.12.10</tag>
     </scm>
 
     <properties>
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.17.12</configservice-sdk.version>
+        <configservice-sdk.version>0.17.21</configservice-sdk.version>
+        
 
         <!-- app deps -->
         <jersey.version>2.32</jersey.version>
