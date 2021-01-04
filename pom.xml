@@ -49,7 +49,7 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <mapdb.version>1.0.9</mapdb.version>
         <constretto.version>2.2.3</constretto.version>
-        <json-path.version>2.4.0</json-path.version>
+        <json-path.version>2.5.0</json-path.version>
         <logback-classic.version>1.2.3</logback-classic.version>
 
         <!-- test deps -->
