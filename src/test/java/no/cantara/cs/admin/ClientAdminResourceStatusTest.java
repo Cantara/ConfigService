@@ -1,14 +1,8 @@
 package no.cantara.cs.admin;
 
-import com.jayway.restassured.http.ContentType;
 import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceAdminClient;
-import no.cantara.cs.dto.Application;
-import no.cantara.cs.dto.CheckForUpdateRequest;
-import no.cantara.cs.dto.ClientConfig;
-import no.cantara.cs.dto.ClientHeartbeatData;
-import no.cantara.cs.dto.ClientRegistrationRequest;
-import no.cantara.cs.dto.ClientStatus;
+import no.cantara.cs.dto.*;
 import no.cantara.cs.testsupport.ApplicationConfigBuilder;
 import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
@@ -16,6 +10,7 @@ import no.cantara.cs.testsupport.TestServerPostgres;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -82,7 +77,7 @@ public class ClientAdminResourceStatusTest extends BaseSystemTest {
     public void testClientStatusForNonExistingClientIdShouldGiveNotFound() throws Exception {
         given()
                 .auth().basic(TestServerPostgres.ADMIN_USERNAME, TestServer.ADMIN_PASSWORD)
-                .contentType(ContentType.JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .log().everything()
                 .expect()
                 .statusCode(404)

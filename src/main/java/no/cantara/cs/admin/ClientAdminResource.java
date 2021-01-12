@@ -94,6 +94,7 @@ public class ClientAdminResource {
 	//ClientAdminResourceStatusTest
 	@GET
 	@Path("/{clientId}/status")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStatus(@Context SecurityContext context, @PathParam("clientId") String clientId) {
 		log.trace("getStatus");
@@ -172,6 +173,7 @@ public class ClientAdminResource {
 	////ClientAdminResourceEnvTest
 	@GET
 	@Path("/{clientId}/env")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEnvironment(@Context SecurityContext context, @PathParam("clientId") String clientId) {
 		log.trace("getStatus");
