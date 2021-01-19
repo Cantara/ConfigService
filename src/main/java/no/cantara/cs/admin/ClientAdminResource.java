@@ -94,10 +94,9 @@ public class ClientAdminResource {
 	//ClientAdminResourceStatusTest
 	@GET
 	@Path("/{clientId}/status")
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStatus(@Context SecurityContext context, @PathParam("clientId") String clientId) {
-		log.trace("getStatus");
+		log.trace("/{clientId}/status");
 		if (!isAdmin(context)) {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
@@ -121,7 +120,7 @@ public class ClientAdminResource {
 	@Path("/status")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllClientStatuses(@Context SecurityContext context) {
-		log.trace("getStatus");
+		log.trace("getAllClientStatuses");
 		if (!isAdmin(context)) {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
@@ -131,7 +130,7 @@ public class ClientAdminResource {
 		Map<String, ClientHeartbeatData> allclientHeartbeatData = clientDao.getAllClientHeartbeatData();
 		Map<String, ClientEnvironment> allclientEnvs = clientDao.getAllClientEnvironments();
 
-		for(Client client : clientList) {
+		for (Client client : clientList) {
 			if(!ignoredList.contains(client.clientId)) {
 
 				ClientHeartbeatData clientHeartbeatData = allclientHeartbeatData.get(client.clientId);
@@ -173,10 +172,9 @@ public class ClientAdminResource {
 	////ClientAdminResourceEnvTest
 	@GET
 	@Path("/{clientId}/env")
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEnvironment(@Context SecurityContext context, @PathParam("clientId") String clientId) {
-		log.trace("getStatus");
+		log.trace("/{clientId}/env");
 		if (!isAdmin(context)) {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
