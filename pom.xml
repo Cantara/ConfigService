@@ -234,9 +234,9 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
+                <exclusion>  
+                   <groupId>com.fasterxml.jackson.dataformat</groupId>
+                   <artifactId>jackson-dataformat-cbor</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -257,9 +257,9 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
+                <exclusion>  
+                   <groupId>com.fasterxml.jackson.dataformat</groupId>
+                   <artifactId>jackson-dataformat-cbor</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -280,9 +280,9 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
+                <exclusion>  
+                   <groupId>com.fasterxml.jackson.dataformat</groupId>
+                   <artifactId>jackson-dataformat-cbor</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
