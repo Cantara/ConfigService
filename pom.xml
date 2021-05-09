@@ -44,7 +44,7 @@
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>42.2.19.jre7</postgresql.version>
         <HikariCP.version>4.0.3</HikariCP.version>
-        <flyway.version>7.7.3</flyway.version>
+        <flyway.version>7.8.0</flyway.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <mapdb.version>1.0.9</mapdb.version>
         <constretto.version>2.2.3</constretto.version>
