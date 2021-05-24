@@ -199,8 +199,20 @@
                     <groupId>asm</groupId>
                     <artifactId>asm</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/net.minidev/json-smart -->
+        <dependency>
+           <groupId>net.minidev</groupId>
+           <artifactId>json-smart</artifactId>
+           <version>2.4.7</version>
+        </dependency>
+
 
         <!-- spring use Commons logging -->
         <dependency>
