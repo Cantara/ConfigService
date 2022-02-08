@@ -39,7 +39,7 @@
         <jetty.version>9.4.45.v20220203</jetty.version>
 
         <spring.version>5.3.15</spring.version>
-        <slf4j.version>1.7.35</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <aws.version>1.12.150</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>42.3.2</postgresql.version>
