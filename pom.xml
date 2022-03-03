@@ -35,7 +35,7 @@
         <configservice-sdk.version>0.19.1</configservice-sdk.version>        
 
         <!-- app deps -->
-        <jersey.version>2.35</jersey.version>
+        <jersey.version>3.0.4</jersey.version>
         <jetty.version>9.4.45.v20220203</jetty.version>
 
         <spring.version>5.3.16</spring.version>
