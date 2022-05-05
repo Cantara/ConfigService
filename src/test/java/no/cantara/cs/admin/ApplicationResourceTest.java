@@ -44,7 +44,7 @@ public class ApplicationResourceTest extends BaseSystemTest {
                 .body(mapper.writeValueAsString(application1))
                 .log().everything()
                 .expect()
-                .statusCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
                 .log().everything()
                 .when()
                 .post(ApplicationResource.APPLICATION_PATH);
