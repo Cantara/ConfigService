@@ -8,6 +8,7 @@ import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.UserStore;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -183,6 +184,7 @@ public class Main {
         userStore.addUser(adminUsername, Credential.getCredential(adminPassword), new String[]{ADMIN_ROLE});
         loginService.setUserStore(userStore);
 
+        securityHandler.setAuthenticator(new BasicAuthenticator());
         securityHandler.setLoginService(loginService);
 
         log.debug("Main instantiated with basic auth clientuser={} and adminuser={}", clientUsername, adminUsername);
