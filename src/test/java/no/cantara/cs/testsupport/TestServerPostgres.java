@@ -8,8 +8,6 @@ import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.config.ConstrettoConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -63,7 +61,7 @@ public class TestServerPostgres implements TestServer {
 
     public void start() throws InterruptedException {
         new Thread(() -> {
-            main = new Main(null, "postgres");
+            main = new Main("postgres");
             main.start();
         }).start();
         do {

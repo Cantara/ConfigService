@@ -19,9 +19,9 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = "no.cantara.cs", excludeFilters = {
-        /* Exclude the MapDb Spring configuration. */
+        /* Exclude the Embedded Spring configuration. */
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-                value = {SpringConfigMapDb.class})
+                value = {SpringConfigEmbedded.class})
 })
 public class SpringConfigPostgres {
     private static final Logger log = LoggerFactory.getLogger(SpringConfigPostgres.class);

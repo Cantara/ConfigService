@@ -9,7 +9,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * Configures a test server with either mapdb or postgres persistence
+ * Configures a test server with either embedded or postgres persistence
  *
  * @author Anders Emil Rønning
  */
@@ -21,11 +21,11 @@ public abstract class BaseSystemTest {
 
     @BeforeClass
     @Parameters({ "persistenceType" })
-    public void startServer(@Optional("mapdb") String persistenceType) throws Exception {
+    public void startServer(@Optional("embedded") String persistenceType) throws Exception {
         if (persistenceType.equals("postgres")) {
             testServer = new TestServerPostgres(getClass());
         } else {
-            testServer = new TestServerMapDb(getClass());
+            testServer = new TestServerEmbedded(getClass());
         }
         testServer.cleanAllData();
         testServer.start();
