@@ -42,7 +42,7 @@ curl localhost/jau/health
 ```
 
 ## Configuration
-For persistence ConfigService supports Postgres and MapDb (although deprecated!)
+For persistence ConfigService supports Postgres and Embedded Postgres
 
 See [properties file](src/main/resources/application.properties) for settings to override.
 

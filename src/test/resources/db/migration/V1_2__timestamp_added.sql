@@ -1,0 +1,2 @@
+ALTER TABLE application_configs ADD created_timestamp TIMESTAMP;
+UPDATE application_configs SET created_timestamp = to_timestamp(data ->> 'lastChanged'::text, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') WHERE created_timestamp IS NULL;

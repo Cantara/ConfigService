@@ -1,7 +1,7 @@
 package no.cantara.cs;
 
 import no.cantara.cs.config.ConstrettoConfig;
-import no.cantara.cs.config.SpringConfigMapDb;
+import no.cantara.cs.config.SpringConfigEmbedded;
 import no.cantara.cs.config.SpringConfigPostgres;
 import no.cantara.cs.health.HealthResource;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -40,13 +40,11 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private Integer webappPort;
-    private String mapDbPath;
     private String persistenceType;
     private Server server;
 
 
-    public Main(String mapDbPath, String persistenceType) {
-        this.mapDbPath = mapDbPath;
+    public Main(String persistenceType) {
         this.persistenceType = persistenceType;
         this.server = new Server();
     }
@@ -63,12 +61,11 @@ public class Main {
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
         Integer webappPort = ConstrettoConfig.getInt("service.port");
-        String mapDbPath = ConstrettoConfig.getString("mapdb.path");
         String persistenceType = ConstrettoConfig.getString("persistence.type");
 
         try {
 
-            final Main main = new Main(mapDbPath, persistenceType).withPort(webappPort);
+            final Main main = new Main(persistenceType).withPort(webappPort);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
@@ -103,23 +100,20 @@ public class Main {
         context.addEventListener(new ContextLoaderListener());
         context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
 
-        context.setInitParameter("mapdb.path", ofNullable(mapDbPath).orElseGet(() -> ConstrettoConfig.getString("mapdb.path")));
-
         String pType = ofNullable(persistenceType).orElseGet(() -> ConstrettoConfig.getString("persistence.type"));
 
         switch (pType) {
+            case "embedded":
+                log.info("Using Embedded PostgreSQL as persistence store.");
+                context.setInitParameter("contextConfigLocation", SpringConfigEmbedded.class.getName());
+                break;
             case "postgres":
                 log.info("Using PostgreSQL as persistence store.");
                 context.setInitParameter("contextConfigLocation", SpringConfigPostgres.class.getName());
                 break;
-            case "mapdb":
-                log.warn("Using MapDB as persistence store. This form of store is deprecated. PostgreSQL should be used instead.");
-                context.setInitParameter("contextConfigLocation", SpringConfigMapDb.class.getName());
-                break;
             default:
-                log.warn("{} is not a valid persistence type. Falling back to using MapDB as persistence store. " +
-                        "In addition - this form of store is deprecated. Please use PostgreSQL instead.", pType);
-                context.setInitParameter("contextConfigLocation", SpringConfigMapDb.class.getName());
+                log.warn("{} is not a valid persistence type. Falling back to using Embedded as persistence store.", pType);
+                context.setInitParameter("contextConfigLocation", SpringConfigEmbedded.class.getName());
                 break;
         }
 

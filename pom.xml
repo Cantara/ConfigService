@@ -33,6 +33,7 @@
 
         <!-- internal dependencies -->
         <configservice-sdk.version>0.19.5</configservice-sdk.version>
+        <property-config.version>0.8.8</property-config.version>
 
         <!-- app deps -->
         <jersey.version>2.35</jersey.version>
@@ -46,7 +47,6 @@
         <HikariCP.version>5.0.1</HikariCP.version>
         <flyway.version>8.5.10</flyway.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <mapdb.version>1.0.9</mapdb.version>
         <constretto.version>2.2.3</constretto.version>
         <json-path.version>2.7.0</json-path.version>
         <logback-classic.version>1.2.11</logback-classic.version>
@@ -70,6 +70,12 @@
         </dependency>
 
         <dependency>
+            <groupId>no.cantara.stingray</groupId>
+            <artifactId>stingray-sql</artifactId>
+            <version>1.6.9-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
@@ -78,12 +84,6 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mapdb</groupId>
-            <artifactId>mapdb</artifactId>
-            <version>${mapdb.version}</version>
         </dependency>
 
         <dependency>
@@ -326,15 +326,23 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${HikariCP.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.zonky.test</groupId>
+            <artifactId>embedded-postgres</artifactId>
+            <version>1.3.1</version>
         </dependency>
 
         <dependency>
@@ -343,6 +351,7 @@
             <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -355,13 +364,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${mockito-all.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.zonky.test.postgres</groupId>
+                <artifactId>embedded-postgres-binaries-bom</artifactId>
+                <version>11.15.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
