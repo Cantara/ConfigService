@@ -25,7 +25,7 @@
 
     <logger name="org.eclipse.jetty" level="WARN"/>
 
-    <logger name="no.cantara.jau" level="{LOGBACK_CANTARA_LEVEL}"/>
+    <logger name="no.cantara.cs" level="{LOGBACK_CANTARA_LEVEL}"/>
 
     <root level="info">
         <appender-ref ref="logfile"/>

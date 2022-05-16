@@ -19,7 +19,7 @@
 
     <logger name="org.eclipse.jetty" level="WARN"/>
 
-    <logger name="no.cantara.jau" level="DEBUG"/>
+    <logger name="no.cantara.cs" level="DEBUG"/>
 
     <root level="info">
         <appender-ref ref="logfile" />
