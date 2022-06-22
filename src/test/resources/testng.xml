@@ -8,7 +8,7 @@
         </packages>
     </test>
     <test name="postgres">
-        <parameter name="persistenceType" value="postgres" />
+        <parameter name="persistenceType" value="embedded"/>
         <groups>
             <run>
                 <include name="system-test"/>

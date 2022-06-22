@@ -2,11 +2,7 @@ package no.cantara.cs.testsupport;
 
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 /**
  * Configures a test server with either embedded or postgres persistence
@@ -24,8 +20,10 @@ public abstract class BaseSystemTest {
     public void startServer(@Optional("embedded") String persistenceType) throws Exception {
         if (persistenceType.equals("postgres")) {
             testServer = new TestServerPostgres(getClass());
+            //System.out.println("Starting external postgres\n\n\n\n\n\n\n\n\n");
         } else {
             testServer = new TestServerEmbedded(getClass());
+            //System.out.println("Starting embedded postgres\n\n\n\n\n\n\n\n\n");
         }
         testServer.cleanAllData();
         testServer.start();
