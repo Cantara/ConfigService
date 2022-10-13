@@ -45,7 +45,7 @@
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>42.5.0</postgresql.version>
         <HikariCP.version>5.0.1</HikariCP.version>
-        <flyway.version>8.5.13</flyway.version>
+        <flyway.version>9.3.1</flyway.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <constretto.version>2.2.3</constretto.version>
         <json-path.version>2.7.0</json-path.version>
