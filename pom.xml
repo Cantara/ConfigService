@@ -52,7 +52,7 @@
         <logback-classic.version>1.4.5</logback-classic.version>
 
         <!-- test deps -->
-        <testng.version>7.5</testng.version>
+        <testng.version>7.7.0</testng.version>
         <rest-assured.version>2.9.0</rest-assured.version>
         <mockito-all.version>1.10.19</mockito-all.version>
 
