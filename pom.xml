@@ -32,7 +32,7 @@
         <service.name>ConfigService</service.name>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.19.16</configservice-sdk.version>
+        <configservice-sdk.version>0.19.17</configservice-sdk.version>
         <property-config.version>0.8.8</property-config.version>
 
         <!-- app deps -->
