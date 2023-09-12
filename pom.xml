@@ -72,7 +72,7 @@
         <dependency>
             <groupId>no.cantara.stingray</groupId>
             <artifactId>stingray-sql</artifactId>
-            <version>1.8.11</version>
+            <version>1.8.12</version>
         </dependency>
 
         <dependency>
