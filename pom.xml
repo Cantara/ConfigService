@@ -39,7 +39,7 @@
         <jersey.version>2.41</jersey.version>
         <jetty.version>9.4.53.v20231009</jetty.version>
 
-        <spring.version>5.3.31</spring.version>
+        <spring.version>6.1.1</spring.version>
         <slf4j.version>1.7.36</slf4j.version>
         <aws.version>1.12.619</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
@@ -444,7 +444,7 @@
                                         <Main-Class>no.cantara.cs.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.handlers</resource>
