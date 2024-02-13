@@ -37,7 +37,7 @@
 
         <!-- app deps -->
         <jersey.version>2.41</jersey.version>
-        <jetty.version>9.4.53.v20231009</jetty.version>
+        <jetty.version>9.4.54.v20240208</jetty.version>
 
         <spring.version>5.3.31</spring.version>
         <slf4j.version>1.7.36</slf4j.version>
