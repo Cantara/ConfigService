@@ -1,8 +1,8 @@
 package no.cantara.cs.testsupport;
 
-import com.jayway.restassured.RestAssured;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.restassured.RestAssured;
 import no.cantara.cs.Main;
 import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.client.ConfigServiceAdminClient;

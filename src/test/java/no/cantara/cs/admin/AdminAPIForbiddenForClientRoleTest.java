@@ -1,8 +1,8 @@
 package no.cantara.cs.admin;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.specification.RequestSpecification;
-import com.jayway.restassured.specification.ResponseSpecification;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.Client;
@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import java.net.HttpURLConnection;
 import java.util.function.Function;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 
 /**
  * Verify that admin API resources return forbidden for user without admin privileges.
@@ -27,30 +27,30 @@ public class AdminAPIForbiddenForClientRoleTest extends BaseSystemTest {
     @Test
     public void testGetAdminPathsForbidden() {
         for (String path : TestConstants.ADMIN_PATHS) {
-            expectForbiddenWhen().get(path);
+            expectForbiddenWhen().when().get(path);
         }
     }
 
     @Test
     public void testPutClientForbidden() {
         expectForbiddenWhen(request -> request.body(new Client("1", "1", false)).contentType(ContentType.JSON))
-                .put(ClientResource.CLIENT_PATH + "/1");
+                .when().put(ClientResource.CLIENT_PATH + "/1");
     }
 
     @Test
     public void testPostApplicationConfigForbidden() {
         expectForbiddenWhen(request -> request.body(new ApplicationConfig("applicationConfigName1")).contentType(ContentType.JSON))
-                .post(ApplicationResource.APPLICATION_PATH + "/app1/config");
+                .when().post(ApplicationResource.APPLICATION_PATH + "/app1/config");
     }
     @Test
     public void testPutApplicationConfigForbidden() {
         expectForbiddenWhen(request -> request.body(new ApplicationConfig("applicationConfigName1")).contentType(ContentType.JSON))
-                .put(ApplicationResource.APPLICATION_PATH + "/app1/config/appconfig1");
+                .when().put(ApplicationResource.APPLICATION_PATH + "/app1/config/appconfig1");
     }
     @Test
     public void testDeleteApplicationConfigForbidden() {
         expectForbiddenWhen(request -> request.body(new ApplicationConfig("applicationConfigName1")).contentType(ContentType.JSON))
-                .delete(ApplicationResource.APPLICATION_PATH + "/app1/config/appconfig1");
+                .when().delete(ApplicationResource.APPLICATION_PATH + "/app1/config/appconfig1");
     }
 
 
@@ -64,7 +64,7 @@ public class AdminAPIForbiddenForClientRoleTest extends BaseSystemTest {
         return requestSpecificationFunction.apply(requestSpecification)
                 .expect()
                 .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
-                .log().ifError()
-                .when();
+                .log().ifError();
+//                .when();
     }
 }

@@ -1,6 +1,6 @@
 package no.cantara.cs.admin;
 
-import com.jayway.restassured.specification.RequestSpecification;
+import io.restassured.specification.RequestSpecification;
 import no.cantara.cs.client.ClientResource;
 import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestConstants;
@@ -13,7 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
+
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2017-04-20

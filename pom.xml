@@ -53,7 +53,6 @@
 
         <!-- test deps -->
         <testng.version>7.9.0</testng.version>
-        <rest-assured.version>2.9.0</rest-assured.version>
         <mockito-all.version>1.10.19</mockito-all.version>
 
         <!-- Which test names in the suite in src/resources/testng.xml to run. Add 'postgres' if you want to run all tests
@@ -353,9 +352,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
+            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${rest-assured.version}</version>
+            <version>3.3.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

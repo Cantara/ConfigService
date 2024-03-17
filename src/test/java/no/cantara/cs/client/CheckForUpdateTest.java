@@ -1,6 +1,6 @@
 package no.cantara.cs.client;
 
-import com.jayway.restassured.http.ContentType;
+import io.restassured.http.ContentType;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.testsupport.BaseSystemTest;
 import no.cantara.cs.testsupport.TestServer;
@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 

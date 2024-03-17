@@ -1,8 +1,6 @@
 package no.cantara.cs.testsupport;
 
-import com.jayway.restassured.RestAssured;
-import java.sql.Connection;
-import javax.sql.DataSource;
+import io.restassured.RestAssured;
 import no.cantara.config.ApplicationProperties;
 import no.cantara.config.ProviderLoader;
 import no.cantara.cs.Main;
@@ -16,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
 
 public class TestServerEmbedded implements TestServer{
 

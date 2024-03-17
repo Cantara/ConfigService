@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Properties;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
+
 
 /**
  * @author <a href="mailto:asbjornwillersrud@gmail.com">Asbjørn Willersrud</a> 30/03/2016.
