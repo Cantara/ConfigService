@@ -36,7 +36,7 @@
         <property-config.version>0.8.8</property-config.version>
 
         <!-- app deps -->
-        <jersey.version>2.42</jersey.version>
+        <jersey.version>2.43</jersey.version>
         <jetty.version>9.4.54.v20240208</jetty.version>
 
         <spring.version>5.3.34</spring.version>
