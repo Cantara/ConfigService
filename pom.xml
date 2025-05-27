@@ -39,7 +39,7 @@
         <jersey.version>2.46</jersey.version>
         <jetty.version>9.4.57.v20241219</jetty.version>
 
-        <spring.version>5.3.39</spring.version>
+        <spring.version>6.1.14</spring.version>
         <slf4j.version>2.0.17</slf4j.version>
         <aws.version>1.12.783</aws.version>
         <httpclient.version>4.5.5</httpclient.version>
