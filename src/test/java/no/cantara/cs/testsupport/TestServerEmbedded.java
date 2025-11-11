@@ -103,7 +103,40 @@ public class TestServerEmbedded implements TestServer{
     }
   }
 
-  private void createDatabase(ApplicationProperties config) {
+    private void createDatabase(ApplicationProperties config) {
+        StingraySqlDatasource stingraySqlDatasource = ProviderLoader.configure(config.subTree("flyway.creation.config"), "embedded", StingraySqlDatasourceFactory.class);
+        StingrayFlywayMigrationHelper flywayMigrationHelper = StingrayFlywayMigrationHelper.defaultCreation(
+                "embeddedpgtest", stingraySqlDatasource,
+                config.get("flyway.migration.config.dataSource.databaseName"),
+                config.get("flyway.migration.config.dataSource.user"),
+                config.get("flyway.migration.config.dataSource.password"),
+                config.get("database.config.dataSource.databaseName"),
+                config.get("database.config.dataSource.user"),
+                config.get("database.config.dataSource.password")
+        );
+        flywayMigrationHelper.upgradeDatabase();
+
+        // Grant permissions on the public schema to the migration and application users
+        try (Connection connection = stingraySqlDatasource.getDataSource().getConnection()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(stingraySqlDatasource.getDataSource());
+            String migrationUser = config.get("flyway.migration.config.dataSource.user");
+            String appUser = config.get("database.config.dataSource.user");
+
+            // Grant schema usage and create permissions
+            jdbcTemplate.execute("GRANT USAGE, CREATE ON SCHEMA public TO " + migrationUser);
+            jdbcTemplate.execute("GRANT USAGE, CREATE ON SCHEMA public TO " + appUser);
+            jdbcTemplate.execute("GRANT ALL ON DATABASE " + config.get("database.config.dataSource.databaseName") + " TO " + migrationUser);
+            jdbcTemplate.execute("GRANT ALL ON DATABASE " + config.get("database.config.dataSource.databaseName") + " TO " + appUser);
+
+            log.info("Granted permissions on public schema to {} and {}", migrationUser, appUser);
+        } catch (Exception e) {
+            log.error("Failed to grant permissions", e);
+        } finally {
+            stingraySqlDatasource.close();
+        }
+    }
+
+    private void createDatabase2(ApplicationProperties config) {
     StingraySqlDatasource stingraySqlDatasource = ProviderLoader.configure(config.subTree("flyway.creation.config"), "embedded", StingraySqlDatasourceFactory.class);
     StingrayFlywayMigrationHelper flywayMigrationHelper = StingrayFlywayMigrationHelper.defaultCreation(
         "embeddedpgtest", stingraySqlDatasource,
