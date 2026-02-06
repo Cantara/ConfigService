@@ -49,7 +49,7 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <constretto.version>2.2.3</constretto.version>
         <json-path.version>2.10.0</json-path.version>
-        <logback-classic.version>1.5.27</logback-classic.version>
+        <logback-classic.version>1.5.28</logback-classic.version>
 
         <!-- test deps -->
         <testng.version>7.12.0</testng.version>
