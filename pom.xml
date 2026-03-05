@@ -33,7 +33,7 @@
 
         <!-- internal dependencies -->
         <configservice-sdk.version>0.20.21</configservice-sdk.version>
-        <property-config.version>0.8.8</property-config.version>
+        <property-config.version>0.9.22</property-config.version>
 
         <!-- app deps -->
         <jersey.version>2.47</jersey.version>
@@ -319,6 +319,13 @@
             <version>${jackson.version}</version>
         </dependency>
 -->
+        <!-- JAXB — required by property-config 0.9.x on Java 11+ -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
         <!-- DB -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -381,6 +388,11 @@
                 <version>18.3.0</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>no.cantara.config</groupId>
+                <artifactId>property-config</artifactId>
+                <version>${property-config.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
