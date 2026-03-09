@@ -118,7 +118,7 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public List<ApplicationConfig> findAllApplicationConfigsByArtifactId(String artifactId) {
 		try {
-			String applicationId = jdbcTemplate.queryForObject("SELECT id from applications WHERE artifact_id = ?", new Object[]{artifactId}, String.class);
+			String applicationId = jdbcTemplate.queryForObject("SELECT id from applications WHERE artifact_id = ?", String.class, artifactId);
 			return findAllApplicationConfigsByApplicationId(applicationId);
 		} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -129,7 +129,7 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	public List<ApplicationConfig> findAllApplicationConfigsByApplicationId(String applicationId) {
 		try {
 
-			return jdbcTemplate.query("SELECT * FROM application_configs WHERE application_id = ? ORDER BY created_timestamp DESC", new Object[] {applicationId}, PersistedConfigRepoPostgres::mapApplicationConfigList);
+			return jdbcTemplate.query("SELECT * FROM application_configs WHERE application_id = ? ORDER BY created_timestamp DESC", PersistedConfigRepoPostgres::mapApplicationConfigList, applicationId);
 			//        	
 			//            return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE application_id = ? ORDER BY created_timestamp DESC LIMIT 1", new Object[]{applicationId},
 			//                    (PersistedConfigRepoPostgres::mapApplicationConfig));
@@ -141,8 +141,8 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public ApplicationConfig getApplicationConfig(String configId) {
 		try {
-			return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE id = ?", new Object[]{configId},
-					(PersistedConfigRepoPostgres::mapApplicationConfig));
+			return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE id = ?",
+					PersistedConfigRepoPostgres::mapApplicationConfig, configId);
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
@@ -188,13 +188,13 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public String getArtifactId(ApplicationConfig config) {
 		// Note: this code is a work-around for missing many-to-one mapping from configuration to application.
-		String applicationId = jdbcTemplate.queryForObject("SELECT application_id FROM application_configs WHERE id = ? LIMIT 1", new Object[]{config.getId()}, String.class);
+		String applicationId = jdbcTemplate.queryForObject("SELECT application_id FROM application_configs WHERE id = ? LIMIT 1", String.class, config.getId());
 		return getFirstFoundArtifactIdByApplicationId(applicationId);
 	}
 
 	private String getFirstFoundArtifactIdByApplicationId(String applicationId) {
 		try {
-			return jdbcTemplate.queryForObject("SELECT artifact_id FROM applications where id = ? LIMIT 1", new Object[]{applicationId}, String.class);
+			return jdbcTemplate.queryForObject("SELECT artifact_id FROM applications where id = ? LIMIT 1", String.class, applicationId);
 		} catch (EmptyResultDataAccessException ignored) {
 			return null;
 		}
@@ -383,13 +383,13 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	public List<Client> getAllClientsByConfigId(String configId) {
 		
 
-		return jdbcTemplate.query("SELECT * FROM clients WHERE application_config_id = ?", new Object[] {configId}, (rs) -> {
+		return jdbcTemplate.query("SELECT * FROM clients WHERE application_config_id = ?", (rs) -> {
 			List<Client> results = new ArrayList<>();
 			while (rs.next()) {
 				results.add(new Client(rs.getString("client_id"), rs.getString("application_config_id"), rs.getBoolean("auto_upgrade")));
 			}
 			return results;
-		});
+		}, configId);
 	}
 
 	@Override
@@ -435,7 +435,7 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public ApplicationConfig findTheLatestApplicationConfigByArtifactId(String artifactId) {
 		try {
-			String applicationId = jdbcTemplate.queryForObject("SELECT id from applications WHERE artifact_id = ?", new Object[]{artifactId}, String.class);
+			String applicationId = jdbcTemplate.queryForObject("SELECT id from applications WHERE artifact_id = ?", String.class, artifactId);
 			return findTheLatestApplicationConfigByApplicationId(applicationId);
 		} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -445,8 +445,8 @@ public class PersistedConfigRepoPostgres implements ApplicationConfigDao, Client
 	@Override
 	public ApplicationConfig findTheLatestApplicationConfigByApplicationId(String applicationId) {
 		try {
-			return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE application_id = ? ORDER BY created_timestamp DESC LIMIT 1", new Object[]{applicationId},
-					(PersistedConfigRepoPostgres::mapApplicationConfig));
+			return jdbcTemplate.queryForObject("SELECT * from application_configs WHERE application_id = ? ORDER BY created_timestamp DESC LIMIT 1",
+					PersistedConfigRepoPostgres::mapApplicationConfig, applicationId);
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
