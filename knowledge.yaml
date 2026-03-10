@@ -1,0 +1,25 @@
+id: configservice
+name: Config Service
+version: 0.21.3-SNAPSHOT
+description: |
+  Centralised configuration management server for Cantara microservices. Stores
+  per-client property files, provides REST endpoints for clients to pull their
+  configuration, and supports configuration versioning and auditing.
+units:
+  - id: config-api
+    name: Config API
+    type: api
+    description: REST API for configuration distribution — clients register and pull their properties.
+    path: src/main/java/no/cantara/cs
+  - id: client-store
+    name: Client Store
+    type: component
+    description: Per-client property storage — stores and retrieves named configuration sets.
+  - id: version-control
+    name: Version Control
+    type: component
+    description: Configuration versioning and history — tracks changes and supports rollback.
+  - id: persistence
+    name: Persistence
+    type: component
+    description: Database persistence layer for configuration data and audit records.
