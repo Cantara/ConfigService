@@ -1,0 +1,226 @@
+name: cantara-configservice
+version: 1.0.0
+description: >
+  ConfigService centralised configuration management and its Java SDK. Covers the
+  server-side REST API (application registration, client registration, config
+  distribution, versioning), the SDK client (ConfigServiceClient, heartbeat,
+  auto-update), DTOs, and persistence patterns (embedded Postgres, in-memory).
+
+  Trigger phrases: "configservice, config service, configuration management,
+  cantara config, config sdk, config server, application config, client registration,
+  config versioning, configservice sdk, configservice client"
+
+context:
+  org: cantara
+  repos:
+    - ConfigService (server)
+    - ConfigService-SDK (Java client SDK)
+
+instructions: |
+  ## Overview
+
+  ConfigService is Cantara's centralised configuration management server. Microservices
+  register themselves, pull their configuration on startup, and periodically check for
+  updates. The server stores per-application configs with versioning, auditing, and
+  event extraction.
+
+  **Server package:** `no.cantara.cs`
+  **SDK package:** `no.cantara.cs.client` and `no.cantara.cs.dto`
+  **Server version:** 0.21.3-SNAPSHOT
+  **SDK version:** 0.20.12-SNAPSHOT
+
+  ## Architecture
+
+  ```
+  Microservice (with ConfigService-SDK)
+       |
+       | POST /registration (register client)
+       | POST /{clientId}/sync (check for update)
+       v
+  ConfigService Server (embedded Jetty + Jersey)
+       |
+       | Persistence layer
+       v
+  PostgreSQL / In-Memory / Embedded Postgres
+  ```
+
+  ## Server Components
+
+  ### REST Resources
+
+  | Resource | Path | Purpose |
+  |----------|------|---------|
+  | `ClientResource` | `/client/*` | Client registration and sync (used by SDK) |
+  | `ApplicationResource` | `/admin/application/*` | Application CRUD (admin API) |
+  | `ApplicationConfigResource` | `/admin/application/{appId}/config/*` | Config CRUD per app |
+  | `ClientAdminResource` | `/admin/client/*` | Client management (admin API) |
+  | `HealthResource` | `/health` | Health check endpoint |
+
+  ### Service Layer
+  - `ClientService` -- client registration, config assignment, update checking
+
+  ### Persistence
+  - `PersistedConfigRepoPostgres` -- PostgreSQL persistence (production)
+  - `InMemConfigRepo` -- in-memory persistence (development)
+  - `ClientDao` -- client CRUD
+  - `ApplicationConfigDao` -- application config CRUD
+  - `EventsDao` -- event logging
+
+  ### Configuration
+  - `ConstrettoConfig` -- Constretto-based config loading
+  - `SpringConfigEmbedded` -- Spring wiring for embedded Postgres mode
+  - `SpringConfigPostgres` -- Spring wiring for external Postgres mode
+  - `EmbeddedPostgresStingraySqlDatasource` -- embedded Postgres via Stingray SQL
+
+  ### CloudWatch Integration
+  - `CloudWatchLogger` -- AWS CloudWatch log streaming
+  - `CloudWatchMetricsPublisher` -- AWS CloudWatch metrics publishing
+
+  ## SDK Components
+
+  ### ConfigServiceClient (main entry point)
+  ```java
+  ConfigServiceClient client = new ConfigServiceClient(
+      "http://configservice:8086/configservice",
+      "admin-username",
+      "admin-password"
+  );
+  // Optional fluent config
+  client.withTimeout(15_000)
+        .withApplicationStateFilename("myapp-state.properties");
+  ```
+
+  **Key methods:**
+  - `registerClient(ClientRegistrationRequest)` -> `ClientConfig` -- register with server
+  - `checkForUpdate(clientId, CheckForUpdateRequest)` -> `ClientConfig` or null (no change)
+  - `saveApplicationState(ClientConfig)` -- persist state to `applicationState.properties`
+  - `getApplicationState()` -> `Properties` -- read persisted state
+  - `getEventExtractionConfigs()` -> `List<EventExtractionConfig>` -- get event extraction rules
+  - `cleanApplicationState()` -- delete state file
+
+  ### ConfigServiceAdminClient
+  Admin operations: create/update/delete applications and configs.
+
+  ### ApplicationConfigurator
+  Higher-level abstraction that combines registration + update checking.
+
+  ### Key DTOs (`no.cantara.cs.dto`)
+
+  | DTO | Purpose |
+  |-----|---------|
+  | `Application` | Application definition (name, artifactId) |
+  | `ApplicationConfig` | Configuration for an application version |
+  | `ClientRegistrationRequest` | Client registration payload |
+  | `ClientConfig` | Server response with config + clientId |
+  | `Client` | Client instance record |
+  | `ClientStatus` | Client health/status |
+  | `ClientHeartbeatData` | Heartbeat payload for check-for-update |
+  | `CheckForUpdateRequest` | Update check payload |
+  | `DownloadItem` | Artifact download specification |
+  | `MavenMetadata` | Maven artifact coordinates |
+  | `ClientEnvironment` | Client runtime environment data |
+
+  ### Event Extraction DTOs (`no.cantara.cs.dto.event`)
+  - `EventExtractionConfig` -- defines what events to extract from client logs
+  - `EventExtractionTag` -- tag filter for events
+  - `EventFile` -- event source file
+  - `EventGroup` -- grouped events
+  - `ExtractedEventsStore` -- collected events store
+
+  ### SDK Utilities (`no.cantara.cs.util`)
+  - `RegisterApplication` -- CLI to register an application
+  - `RegisterConfig` -- CLI to register a config
+  - `UpdateConfig` -- CLI to update a config
+  - `DeleteConfig` / `DeleteApplication` -- cleanup CLIs
+  - `ImportConfigServerData` / `ExportConfigServerData` -- data migration
+  - `CheckApplicationStatus` -- status check CLI
+
+  ## Client Lifecycle
+
+  1. **Registration:** Client sends `ClientRegistrationRequest` to `POST /registration`
+  2. **Config received:** Server returns `ClientConfig` with assigned `clientId` and config
+  3. **State saved:** Client persists `clientId` and `lastChanged` to `applicationState.properties`
+  4. **Periodic sync:** Client sends `POST /{clientId}/sync` with `CheckForUpdateRequest`
+  5. **Update check:** Server returns new `ClientConfig` if changed, or HTTP 204 No Content
+  6. **Event extraction:** Client extracts events from logs per `EventExtractionConfig` rules
+
+  ## Authentication
+
+  - SDK uses HTTP Basic Auth (`username:password` -> Base64 in Authorization header)
+  - Admin API requires admin credentials
+  - Client API may use application-specific credentials
+
+  ## How To: Common Tasks
+
+  ### Register a new application (admin)
+  ```bash
+  cd /src/cantara/ConfigService-SDK
+  java -cp target/classes no.cantara.cs.util.RegisterApplication \
+    http://configservice:8086/configservice admin password "MyApp" "com.example:myapp"
+  ```
+
+  ### Integrate ConfigService into a microservice
+  1. Add `ConfigService-SDK` Maven dependency
+  2. Create `ConfigServiceClient` with server URL and credentials
+  3. On startup: call `registerClient()` or `checkForUpdate()` with saved `clientId`
+  4. Apply received configuration properties
+  5. Schedule periodic `checkForUpdate()` calls (e.g., every 60 seconds)
+
+  ### Build and test
+  ```bash
+  # Server
+  cd /src/cantara/ConfigService && mvn clean install
+
+  # SDK
+  cd /src/cantara/ConfigService-SDK && mvn clean install
+  ```
+
+  ## Gotchas & Pitfalls
+
+  1. **Embedded Postgres singleton:** `EmbeddedPostgresStingraySqlDatasource` is a JVM
+     singleton (same pattern as documented in `cantara-task-protocol.yaml`). Multiple test
+     classes share one instance. The `close()` method is a no-op.
+
+  2. **PostgreSQL 15+ schema permissions:** Same issue as ConfigService session (March 9).
+     Need explicit `GRANT ALL ON SCHEMA public TO <user>` for Flyway migrations.
+
+  3. **Constretto config (not standard Properties):** ConfigService uses Constretto for
+     config loading, not standard Java Properties or Spring Boot. Config files:
+     `configservice.properties` + `configservice_override.properties`.
+
+  4. **applicationState.properties:** The SDK persists `clientId` and `lastChanged` to this
+     file in the working directory. If the file is lost, the client re-registers (new clientId).
+
+  5. **HTTP 204 = no update:** `checkForUpdate()` returns null when HTTP 204 (No Content).
+     This is normal -- it means config has not changed since `lastChanged`.
+
+  6. **Basic Auth only:** No OAuth2 or token-based auth. Credentials are sent in every request.
+
+  7. **Two Spring configs:** `SpringConfigEmbedded` (test/dev with embedded Postgres) and
+     `SpringConfigPostgres` (production with external Postgres) are separate Spring configs.
+     Active one is selected by Constretto environment tag.
+
+  ## Testing Infrastructure
+
+  - `BaseSystemTest` -- base class for integration tests
+  - `TestServerEmbedded` -- starts ConfigService with embedded Postgres
+  - `TestServerPostgres` -- starts ConfigService with external Postgres
+  - `TestConstants` -- shared test values
+  - `ApplicationConfigBuilder` -- test data builder
+
+  Key test classes:
+  - `RegisterClientTest` -- client registration flow
+  - `CheckForUpdateTest` -- config update detection
+  - `ApplicationResourceTest` -- admin app CRUD
+  - `ApplicationConfigResourceTest` -- admin config CRUD
+
+  ## Related Skills
+
+  - `cantara-stingray.yaml` -- Stingray framework (ConfigService uses stingray-sql)
+  - `cantara-task-protocol.yaml` -- Embedded Postgres gotchas documented here
+  - `cantara-whydah.yaml` -- Whydah auth (ConfigService can be secured with Whydah)
+
+  ## Repository Paths
+
+  - Server: `/src/cantara/ConfigService/`
+  - SDK: `/src/cantara/ConfigService-SDK/`
