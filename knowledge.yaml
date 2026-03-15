@@ -1,25 +1,73 @@
-id: configservice
-name: Config Service
+kcp_version: "0.10"
+project: configservice
 version: 0.21.3-SNAPSHOT
-description: |
-  Centralised configuration management server for Cantara microservices. Stores
-  per-client property files, provides REST endpoints for clients to pull their
-  configuration, and supports configuration versioning and auditing.
+updated: "2026-03-15"
+language: en
+license: "Apache-2.0"
+indexing: private
+
 units:
+
   - id: config-api
-    name: Config API
-    type: api
-    description: REST API for configuration distribution — clients register and pull their properties.
     path: src/main/java/no/cantara/cs
+    intent: "What REST endpoints does the Config Service expose? Client registration, configuration pull, and update notification endpoints — the external surface consumed by Cantara microservices at startup and during runtime config refresh."
+    scope: global
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [config API, REST, endpoints, client registration, pull config, config distribution, configuration endpoint, /clientconfig]
+
   - id: client-store
-    name: Client Store
-    type: component
-    description: Per-client property storage — stores and retrieves named configuration sets.
+    path: src/main/java/no/cantara/cs/client
+    intent: "How are per-client configurations stored and resolved? Client registration management and property set retrieval — maps a client identifier to its named configuration set for delivery via the config API."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [config-api]
+    triggers: [client store, client registration, named config, property set, client identifier, config mapping]
+
+  - id: config-store
+    path: src/main/java/no/cantara/cs/config
+    intent: "How are configuration sets managed server-side? Configuration set storage, retrieval, and update logic — the admin-facing layer for defining, editing, and versioning named property files."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [config store, configuration set, property file, named config, admin, config management, update config]
+
   - id: version-control
-    name: Version Control
-    type: component
-    description: Configuration versioning and history — tracks changes and supports rollback.
+    path: src/main/java/no/cantara/cs/admin
+    intent: "How does the Config Service track configuration history? Versioning and audit trail for configuration changes — supports rollback to previous versions and provides a change log for compliance and debugging."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [config-store]
+    triggers: [versioning, version control, history, rollback, audit, config change, changelog, previous version]
+
   - id: persistence
-    name: Persistence
-    type: component
-    description: Database persistence layer for configuration data and audit records.
+    path: src/main/java/no/cantara/cs/persistence
+    intent: "How is configuration data persisted? Database persistence layer for configuration sets and audit records — the storage backend that config-store and version-control depend on."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [persistence, database, storage, H2, SQL, persist config, config database]
+
+  - id: health
+    path: src/main/java/no/cantara/cs/health
+    intent: "How does the Config Service report its health? Health check endpoint for monitoring and orchestration — signals whether the service and its backing store are reachable."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [health, liveness, readiness, health check, monitoring, probe, /health]
+
+relationships:
+  - from: client-store
+    to: config-api
+    type: depends_on
+  - from: client-store
+    to: persistence
+    type: depends_on
+  - from: config-store
+    to: persistence
+    type: depends_on
+  - from: version-control
+    to: config-store
+    type: depends_on
