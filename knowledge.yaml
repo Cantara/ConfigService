@@ -22,6 +22,7 @@ signing:
   scheme: ed25519
   scope: this-manifest
   public_key: https://wiki.cantara.no/.well-known/kcp-signing-key.pub
+  signature: https://raw.githubusercontent.com/Cantara/ConfigService/master/knowledge.yaml.sig
 
 kcp_version: "0.14"
 project: ConfigService
