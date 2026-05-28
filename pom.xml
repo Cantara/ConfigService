@@ -33,7 +33,7 @@
 
         <!-- internal dependencies -->
         <configservice-sdk.version>0.20.21</configservice-sdk.version>
-        <property-config.version>0.9.22</property-config.version>
+        <property-config.version>0.9.23</property-config.version>
 
         <!-- app deps -->
         <jersey.version>2.48</jersey.version>
