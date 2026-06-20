@@ -23,9 +23,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [config API, REST, endpoints, client registration, pull config, config distribution, configuration endpoint, /clientconfig]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
   - id: client-store
     path: src/main/java/no/cantara/cs/client
@@ -35,9 +35,9 @@ units:
     validated: "2026-03-15"
     depends_on: [config-api]
     triggers: [client store, client registration, named config, property set, client identifier, config mapping]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
   - id: config-store
     path: src/main/java/no/cantara/cs/config
@@ -46,9 +46,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [config store, configuration set, property file, named config, admin, config management, update config]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
   - id: version-control
     path: src/main/java/no/cantara/cs/admin
@@ -58,9 +58,9 @@ units:
     validated: "2026-03-15"
     depends_on: [config-store]
     triggers: [versioning, version control, history, rollback, audit, config change, changelog, previous version]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
   - id: persistence
     path: src/main/java/no/cantara/cs/persistence
@@ -69,9 +69,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [persistence, database, storage, H2, SQL, persist config, config database]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
   - id: health
     path: src/main/java/no/cantara/cs/health
@@ -80,9 +80,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [health, liveness, readiness, health check, monitoring, probe, /health]
-      content_hash:
-        algorithm: sha256
-        value: ""
+    content_hash:
+      algorithm: sha256
+      value: ""
 
 relationships:
   - from: client-store
