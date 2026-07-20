@@ -9,7 +9,8 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.UserStore;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.CustomRequestLog;
+import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -121,7 +122,7 @@ public class Main {
         if (webappPort != null) {
             connector.setPort(webappPort);
         }
-        NCSARequestLog requestLog = buildRequestLog();
+        CustomRequestLog requestLog = buildRequestLog();
         server.setRequestLog(requestLog);
         server.addConnector(connector);
         server.setHandler(context);
@@ -142,13 +143,12 @@ public class Main {
         }
     }
 
-    private NCSARequestLog buildRequestLog() {
-        NCSARequestLog requestLog = new NCSARequestLog("logs/jetty-yyyy_mm_dd.request.log");
-        requestLog.setAppend(true);
-        requestLog.setExtended(true);
-        requestLog.setLogTimeZone("GMT");
+    private CustomRequestLog buildRequestLog() {
+        RequestLogWriter requestLogWriter = new RequestLogWriter("logs/jetty-yyyy_mm_dd.request.log");
+        requestLogWriter.setAppend(true);
+        requestLogWriter.setTimeZone("GMT");
 
-        return requestLog;
+        return new CustomRequestLog(requestLogWriter, CustomRequestLog.EXTENDED_NCSA_FORMAT);
     }
 
     private ConstraintSecurityHandler buildSecurityHandler() {
