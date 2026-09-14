@@ -9,6 +9,7 @@ import no.cantara.cs.dto.event.EventFile;
 import no.cantara.cs.dto.event.EventGroup;
 import no.cantara.cs.dto.event.EventTag;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -146,7 +147,7 @@ public class CloudWatchLogger {
         }
 
         void addLogEvent(Date time, String message) {
-            if (message != null && !message.isEmpty()) {
+            if (StringUtils.isNotEmpty(message)) {
                 logEvents.add(new InputLogEvent().withMessage(message).withTimestamp(time.getTime()));
             }
         }

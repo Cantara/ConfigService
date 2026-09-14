@@ -13,19 +13,25 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 /**
- * Application configuration, read from properties files.
+ * Application configuration, read from properties files and system properties.
  *
  * <p>Replaces Constretto. {@code constretto-spring} never shipped a release
  * compatible with Spring 6 &mdash; 2.2.3 is the only version that exists, and it
  * references {@code InstantiationAwareBeanPostProcessorAdapter}, which Spring 6
  * removed &mdash; so it blocked this service from moving off Spring 5. Nothing
- * here needed Constretto's tagged/environment features; it was used purely to
- * layer two properties files, which is a few lines of {@link Properties}.
+ * here needed Constretto's tagged/environment features; it was used to layer
+ * properties, which is a few lines of {@link Properties}.
  *
- * <p>Load order is unchanged, so behaviour is unchanged: the packaged
- * {@code application.properties} first, then
- * {@code ./config_override/application_override.properties} if present, whose
- * values win. A missing override file is normal and not an error.
+ * <p>Precedence is Constretto's, measured against constretto-core 2.2.3 rather
+ * than assumed, so behaviour is unchanged:
+ * <ol>
+ *   <li>a JVM system property ({@code -Dkey=value}) wins,</li>
+ *   <li>then {@code ./config_override/application_override.properties}, if present,</li>
+ *   <li>then the packaged {@code application.properties}.</li>
+ * </ol>
+ * A missing override file is normal and not an error. Asking for a key that is
+ * set nowhere throws, as Constretto did, rather than handing back a null that
+ * would surface much later somewhere unrelated.
  *
  * <p>The public API is deliberately identical to what Constretto backed, so
  * callers did not change. The class keeps its old name for the same reason.
@@ -67,23 +73,32 @@ public class ConstrettoConfig {
         return props;
     }
 
+    /** The effective value for a key, or null if it is set nowhere. */
+    private static String lookup(String key) {
+        // Read at call time, so a system property set after startup (as tests
+        // do) is seen, exactly as it was when Constretto backed this class.
+        String sys = System.getProperty(key);
+        return sys != null ? sys : configuration.getProperty(key);
+    }
+
+    private static String required(String key) {
+        String value = lookup(key);
+        if (value == null) {
+            throw new IllegalStateException("Missing configuration property: " + key);
+        }
+        return value;
+    }
+
     public static String getString(String key) {
-        return configuration.getProperty(key);
+        return required(key);
     }
 
     public static Integer getInt(String key) {
-        String value = configuration.getProperty(key);
-        if (value == null) {
-            // Constretto threw when a key it was asked to evaluate was absent.
-            // Keep that: a silent null here would surface much later as an NPE
-            // somewhere unrelated.
-            throw new IllegalStateException("Missing configuration property: " + key);
-        }
-        return Integer.valueOf(value.trim());
+        return Integer.valueOf(required(key).trim());
     }
 
     public static Integer getInt(String key, int defaultValue) {
-        String value = configuration.getProperty(key);
+        String value = lookup(key);
         if (value == null || value.trim().isEmpty()) {
             return defaultValue;
         }
@@ -97,7 +112,6 @@ public class ConstrettoConfig {
     }
 
     public static boolean getBoolean(String key) {
-        return Boolean.parseBoolean(
-                configuration.getProperty(key, "false").trim());
+        return Boolean.parseBoolean(required(key).trim());
     }
 }
