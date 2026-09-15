@@ -33,7 +33,7 @@
         <jdk.version>17</jdk.version>
 
         <!-- internal dependencies -->
-        <configservice-sdk.version>0.21.0-SNAPSHOT</configservice-sdk.version>
+        <configservice-sdk.version>0.21.0</configservice-sdk.version>
         <property-config.version>0.9.23</property-config.version>
 
         <!-- app deps -->
