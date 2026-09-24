@@ -46,7 +46,7 @@
         <httpclient.version>4.5.5</httpclient.version>
         <postgresql.version>42.7.13</postgresql.version>
         <HikariCP.version>5.1.0</HikariCP.version>
-        <flyway.version>9.22.3</flyway.version>
+        <flyway.version>13.8.0</flyway.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <json-path.version>2.10.0</json-path.version>
         <logback-classic.version>1.6.3</logback-classic.version>
