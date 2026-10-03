@@ -49,7 +49,7 @@
         <flyway.version>9.22.3</flyway.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <json-path.version>2.10.0</json-path.version>
-        <logback-classic.version>1.6.3</logback-classic.version>
+        <logback-classic.version>1.6.5</logback-classic.version>
 
         <!-- test deps -->
         <testng.version>7.12.0</testng.version>
